@@ -43,28 +43,35 @@ sealed trait App extends SbtReactiveAppKeys {
   )
 }
 
-case object LagomJavaApp extends App {
+sealed trait LagomApp extends App {
+  override def projectSettings: Seq[Setting[_]] =
+    super.projectSettings ++ Vector(
+      endpoints := magic.Lagom.endpoints.getOrElse(Map.empty)
+    )
+}
+
+case object LagomJavaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
       reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${formatVersionMajorMinor(v)}-java")
     )
 }
 
-case object LagomScalaApp extends App {
+case object LagomScalaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
       reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${formatVersionMajorMinor(v)}-scala")
     )
 }
 
-case object LagomPlayJavaApp extends App {
+case object LagomPlayJavaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
       reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${formatVersionMajorMinor(v)}-java")
     )
 }
 
-case object LagomPlayScalaApp extends App {
+case object LagomPlayScalaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
       reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${formatVersionMajorMinor(v)}-scala")
@@ -94,4 +101,8 @@ object App {
       PlayApp
     else
       BasicApp
+}
+
+private object formatVersionMajorMinor {
+  def apply(version: String): String = version.filterNot(_ == '.').take(2)
 }

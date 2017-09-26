@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.lightbend.rp
+package com.lightbend.rp.sbtreactiveapp
 
-package object sbtreactiveapp {
-  def formatVersionMajorMinor(version: String): String =
-    version.filterNot(_ == '.').take(2)
-}
+sealed trait Volume
+
+case class HostPathVolume(path: String) extends Volume
+
+case class SecretVolume(secret: String) extends Volume

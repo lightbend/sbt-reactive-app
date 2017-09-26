@@ -16,9 +16,17 @@
 
 package com.lightbend.rp.sbtreactiveapp.magic
 
+import java.net.URI
+
+import com.lightbend.rp.sbtreactiveapp._
+import play.api.libs.json.{JsObject, Json}
+
+import scala.collection.immutable.Seq
 import scala.language.reflectiveCalls
 
 object Lagom {
+  def endpoints: Option[Map[String, Endpoint]] = services.map(decodeServices)
+
   def isJava: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomJava$")
 
   def isPlayJava: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomPlayJava$")
@@ -26,6 +34,20 @@ object Lagom {
   def isPlayScala: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomPlayScala$")
 
   def isScala: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomScala$")
+
+  def services: Option[String] = {
+    // `ServiceDetector` mirror from the Lagom api tools library.
+    // The method signature equals the signature from the api tools `ServiceDetector`
+    type ServiceDetector = {
+      def services(classLoader: ClassLoader): String
+    }
+
+    withContextClassloader(this.getClass.getClassLoader) { loader =>
+      getSingletonObject[ServiceDetector](loader, "com.lightbend.lagom.internal.api.tools.ServiceDetector$")
+        .map(_.services(loader))
+        .toOption
+    }
+  }
 
   def version: Option[String] = {
     // The method signature equals the signature of `com.lightbend.lagom.core.LagomVersion`
@@ -44,4 +66,59 @@ object Lagom {
     withContextClassloader(this.getClass.getClassLoader) { loader =>
       objectExists(loader, className)
     }
+
+  private def decodeServices(services: String): Map[String, Endpoint] = {
+    def toEndpoint(pathBegins: Seq[String]): Endpoint =
+      Endpoint(
+        protocol = "http",
+        port = 0,
+        acls = pathBegins.distinct.map {
+          case "" => HttpAcl("^/")
+          case pt => HttpAcl(s"^$pt")
+        }
+      )
+
+    def mergeEndpoint(endpoints: Map[String, Endpoint], endpointEntry: (String, Endpoint)): Map[String, Endpoint] =
+      endpointEntry match {
+        case (serviceName, endpoint) =>
+          val mergedEndpoint =
+            endpoints
+              .get(serviceName)
+              .fold(endpoint) { prevEndpoint =>
+                prevEndpoint.copy(acls = prevEndpoint.acls ++ endpoint.acls)
+              }
+
+          endpoints + (serviceName -> mergedEndpoint)
+      }
+
+    Json
+      .parse(services)
+      .as[Seq[JsObject]].map { o =>
+        val serviceName = (o \ "name").as[String]
+        val pathlessServiceName = if (serviceName.startsWith("/")) serviceName.drop(1) else serviceName
+        val pathBegins = (o \ "acls" \\ "pathPattern")
+          .map(_.as[String])
+          .toVector
+          .collect {
+            case pathBeginExtractor(pathBegin) =>
+              if (pathBegin.endsWith("/"))
+                pathBegin.dropRight(1)
+              else
+                pathBegin
+          }
+
+        pathlessServiceName -> toEndpoint(pathBegins)
+      }
+      .foldLeft(Map.empty[String, Endpoint])(mergeEndpoint)
+  }
+
+  // Matches strings that starts with sequence escaping, e.g. \Q/api/users/:id\E
+  // The first sequence escaped substring that starts with a '/' is extracted as a variable
+  // Examples:
+  // /api/users                         => false
+  // \Q/\E                              => true, variable = /
+  // \Q/api/users\E                     => true, variable = /api/users
+  // \Q/api/users/\E([^/]+)             => true, variable = /api/users/
+  // \Q/api/users/\E([^/]+)\Q/friends\E => true, variable = /api/users/
+  private val pathBeginExtractor = """^\\Q(\/.*?)\\E.*""".r
 }
