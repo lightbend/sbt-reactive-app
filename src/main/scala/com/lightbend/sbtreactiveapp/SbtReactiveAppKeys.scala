@@ -17,8 +17,6 @@
 package com.lightbend.sbtreactiveapp
 
 import sbt._
-import com.typesafe.sbt.SbtNativePackager.Docker
-import scala.concurrent.duration.FiniteDuration
 import scala.collection.immutable.Seq
 
 trait SbtReactiveAppKeys {
@@ -78,6 +76,8 @@ trait SbtReactiveAppKeys {
 
   case class SecretEnvironmentVariable(secret: String) extends EnvironmentVariable
 
+  case class ConfigMapEnvironmentVariable(name: String, key: String) extends EnvironmentVariable
+
   val diskSpace = SettingKey[Option[Long]]("rp-disk-space")
 
   val memory = SettingKey[Option[Long]]("rp-memory")
@@ -95,4 +95,8 @@ trait SbtReactiveAppKeys {
   val readinessCheck = TaskKey[Option[Check]]("rp-readiness-check")
 
   val environmentVariables = SettingKey[Map[String, EnvironmentVariable]]("rp-environment-variables")
+
+  val reactiveLibProject = SettingKey[Option[String]]("rp-reactive-lib-project")
+
+  val reactiveLibVersion = SettingKey[Option[String]]("rp-reactive-lib-version")
 }

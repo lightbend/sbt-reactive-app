@@ -17,10 +17,6 @@
 package com.lightbend
 
 package object sbtreactiveapp {
-  def objectExists(classLoader: ClassLoader, className: String): Boolean =
-    try {
-      classLoader.loadClass(className).getField("MODULE$").get(null) != null
-    } catch {
-      case _: Exception => false
-    }
+  def formatVersionMajorMinor(version: String): String =
+    version.filterNot(_ == '.').take(2)
 }

@@ -19,6 +19,8 @@ package com.lightbend.sbtreactiveapp
 import sbt._
 import scala.collection.immutable.Seq
 
+import Keys._
+
 sealed trait App extends SbtReactiveAppKeys {
   def projectSettings: Seq[Setting[_]] = Vector(
     nrOfCpus := None,
@@ -29,37 +31,67 @@ sealed trait App extends SbtReactiveAppKeys {
     privileged := false,
     healthCheck := None,
     readinessCheck := None,
-    environmentVariables := Map.empty
+    environmentVariables := Map.empty,
+    reactiveLibProject := Some("basic"),
+    reactiveLibVersion := Some("0.1.0-SNAPSHOT"),
+    libraryDependencies ++= (
+      for {
+        project <- reactiveLibProject.value.toSeq
+        version <- reactiveLibVersion.value.toSeq
+      } yield "com.lightbend.reactive-lib" % project % version
+    )
   )
 }
 
-case object LagomScalaApp extends App
+case object LagomJavaApp extends App {
+  override def projectSettings: Seq[Setting[_]] =
+    super.projectSettings ++ Vector(
+      reactiveLibProject := magic.Lagom.version.map(v => s"lagom${formatVersionMajorMinor(v)}")
+    )
+}
 
-case object LagomJavaApp extends App
+case object LagomScalaApp extends App {
+  override def projectSettings: Seq[Setting[_]] =
+    super.projectSettings ++ Vector(
+      reactiveLibProject := magic.Lagom.version.map(v => s"lagom${formatVersionMajorMinor(v)}")
+    )
+}
 
-case object LagomPlayScalaApp extends App
+case object LagomPlayJavaApp extends App {
+  override def projectSettings: Seq[Setting[_]] =
+    super.projectSettings ++ Vector(
+      reactiveLibProject := magic.Lagom.version.map(v => s"lagom${formatVersionMajorMinor(v)}")
+    )
+}
 
-case object LagomPlayJavaApp extends App
+case object LagomPlayScalaApp extends App {
+  override def projectSettings: Seq[Setting[_]] =
+    super.projectSettings ++ Vector(
+      reactiveLibProject := magic.Lagom.version.map(v => s"lagom${formatVersionMajorMinor(v)}")
+    )
+}
 
-case object PlayApp extends App
+case object PlayApp extends App {
+  override def projectSettings: Seq[Setting[_]] =
+    super.projectSettings ++ Vector(
+      reactiveLibProject := magic.Play.version.map(v => s"play${formatVersionMajorMinor(v)}")
+    )
+}
 
 case object BasicApp extends App
 
 object App {
-  def apply: App = {
-    val mapping = Map(
-      "com.lightbend.lagom.sbt.LagomPlayScala$" -> LagomPlayScalaApp,
-      "com.lightbend.lagom.sbt.LagomPlayJava$" -> LagomPlayJavaApp,
-      "com.lightbend.lagom.sbt.LagomScala$" -> LagomScalaApp,
-      "com.lightbend.lagom.sbt.LagomJava$" -> LagomJavaApp,
-      "play.sbt.Play$" -> PlayApp
-    )
-
-    val classLoader = App.getClass.getClassLoader
-
-    mapping
-      .find(pair => objectExists(classLoader, pair._1))
-      .map(_._2)
-      .getOrElse(BasicApp)
-  }
+  def apply: App =
+    if (magic.Lagom.isPlayJava)
+      LagomPlayJavaApp
+    else if (magic.Lagom.isPlayScala)
+      LagomPlayScalaApp
+    else if (magic.Lagom.isJava)
+      LagomJavaApp
+    else if (magic.Lagom.isScala)
+      LagomScalaApp
+    else if (magic.Play.isPlay)
+      PlayApp
+    else
+      BasicApp
 }

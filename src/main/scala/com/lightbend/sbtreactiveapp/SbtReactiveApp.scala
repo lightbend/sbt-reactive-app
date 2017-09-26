@@ -75,12 +75,20 @@ object SbtReactiveApp {
             case LiteralEnvironmentVariable(envValue) =>
               Vector(
                 ns(s"environment-variables.$i.type") -> "literal",
+                ns(s"environment-variables.$i.name") -> envName,
                 ns(s"environment-variables.$i.value") -> envValue
               )
             case SecretEnvironmentVariable(secret) =>
               Vector(
                 ns(s"environment-variables.$i.type") -> "secret",
+                ns(s"environment-variables.$i.name") -> envName,
                 ns(s"environment-variables.$i.secret") -> secret
+              )
+            case ConfigMapEnvironmentVariable(name, key) =>
+              Vector(
+                ns(s"environment-variables.$i.type") -> "configMap",
+                ns(s"environment-variables.$i.name") -> name,
+                ns(s"environment-variables.$i.key") -> key
               )
           }
         }
