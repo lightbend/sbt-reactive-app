@@ -8,7 +8,7 @@ val Versions = new {
 }
 
 name := "sbt-reactive-app"
-organization := "com.lightbend"
+organization := "com.lightbend.rp"
 organizationName := "Lightbend, Inc."
 startYear := Some(2017)
 licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"))

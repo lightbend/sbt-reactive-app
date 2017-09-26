@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.lightbend.sbtreactiveapp
+package com.lightbend.rp.sbtreactiveapp
 
 import play.api.libs.json._
 import SbtReactiveAppPlugin.autoImport._

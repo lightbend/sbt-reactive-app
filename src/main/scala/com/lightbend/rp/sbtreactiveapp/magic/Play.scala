@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.lightbend.sbtreactiveapp.magic
+package com.lightbend.rp.sbtreactiveapp.magic
 
 import scala.language.reflectiveCalls
 

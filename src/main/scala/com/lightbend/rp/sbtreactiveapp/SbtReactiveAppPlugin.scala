@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.lightbend.sbtreactiveapp
+package com.lightbend.rp.sbtreactiveapp
 
 import com.typesafe.sbt.packager.docker
 import sbt._

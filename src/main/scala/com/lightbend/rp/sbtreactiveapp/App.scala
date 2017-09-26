@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.lightbend.sbtreactiveapp
+package com.lightbend.rp.sbtreactiveapp
 
 import sbt._
 import scala.collection.immutable.Seq
@@ -38,7 +38,7 @@ sealed trait App extends SbtReactiveAppKeys {
       for {
         project <- reactiveLibProject.value.toSeq
         version <- reactiveLibVersion.value.toSeq
-      } yield "com.lightbend.reactive-lib" % project % version
+      } yield "com.lightbend.rp" % project % version
     )
   )
 }
@@ -46,35 +46,35 @@ sealed trait App extends SbtReactiveAppKeys {
 case object LagomJavaApp extends App {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Lagom.version.map(v => s"lagom${formatVersionMajorMinor(v)}")
+      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${formatVersionMajorMinor(v)}-java")
     )
 }
 
 case object LagomScalaApp extends App {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Lagom.version.map(v => s"lagom${formatVersionMajorMinor(v)}")
+      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${formatVersionMajorMinor(v)}-scala")
     )
 }
 
 case object LagomPlayJavaApp extends App {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Lagom.version.map(v => s"lagom${formatVersionMajorMinor(v)}")
+      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${formatVersionMajorMinor(v)}-java")
     )
 }
 
 case object LagomPlayScalaApp extends App {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Lagom.version.map(v => s"lagom${formatVersionMajorMinor(v)}")
+      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${formatVersionMajorMinor(v)}-scala")
     )
 }
 
 case object PlayApp extends App {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Play.version.map(v => s"play${formatVersionMajorMinor(v)}")
+      reactiveLibProject := magic.Play.version.map(v => s"reactive-lib-play${formatVersionMajorMinor(v)}")
     )
 }
 

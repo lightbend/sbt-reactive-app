@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.lightbend
+package com.lightbend.rp
 
 package object sbtreactiveapp {
   def formatVersionMajorMinor(version: String): String =
