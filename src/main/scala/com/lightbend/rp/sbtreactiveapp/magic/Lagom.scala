@@ -16,16 +16,28 @@
 
 package com.lightbend.rp.sbtreactiveapp.magic
 
-import java.net.URI
-
 import com.lightbend.rp.sbtreactiveapp._
 import play.api.libs.json.{JsObject, Json}
-
+import sbt._
 import scala.collection.immutable.Seq
 import scala.language.reflectiveCalls
 
 object Lagom {
-  def endpoints: Option[Map[String, Endpoint]] = services.map(decodeServices)
+  def component(id: String): Option[ModuleID] = {
+    // The method signature equals the signature of `com.lightbend.lagom.sbt.LagomImport`
+    type LagomImport = {
+      def component(id: String): ModuleID
+    }
+
+    withContextClassloader(this.getClass.getClassLoader) { loader =>
+      getSingletonObject[LagomImport](loader, "com.lightbend.lagom.sbt.LagomImport$")
+        .map(_.component(id))
+        .toOption
+    }
+  }
+
+  def endpoints(classPath: Seq[Attributed[File]], scalaLoader: ClassLoader): Option[Map[String, Endpoint]] =
+    services(classPath, scalaLoader).map(decodeServices)
 
   def isJava: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomJava$")
 
@@ -35,14 +47,16 @@ object Lagom {
 
   def isScala: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomScala$")
 
-  def services: Option[String] = {
+  def services(classPath: Seq[Attributed[File]], scalaLoader: ClassLoader): Option[String] = {
     // `ServiceDetector` mirror from the Lagom api tools library.
     // The method signature equals the signature from the api tools `ServiceDetector`
     type ServiceDetector = {
       def services(classLoader: ClassLoader): String
     }
 
-    withContextClassloader(this.getClass.getClassLoader) { loader =>
+    val classLoader = new java.net.URLClassLoader(classPath.files.map(_.toURI.toURL).toArray, scalaLoader)
+
+    withContextClassloader(classLoader) { loader =>
       getSingletonObject[ServiceDetector](loader, "com.lightbend.lagom.internal.api.tools.ServiceDetector$")
         .map(_.services(loader))
         .toOption

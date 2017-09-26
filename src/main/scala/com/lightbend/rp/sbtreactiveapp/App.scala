@@ -44,10 +44,30 @@ sealed trait App extends SbtReactiveAppKeys {
 }
 
 sealed trait LagomApp extends App {
-  override def projectSettings: Seq[Setting[_]] =
+  val apiTools = config("api-tools").hide
+
+  override def projectSettings: Seq[Setting[_]] = {
+    // managedClasspath in "api-tools" contains the api tools library dependencies
+    // fullClasspath contains the Lagom services, Lagom framework and all its dependencies
+
     super.projectSettings ++ Vector(
-      endpoints := magic.Lagom.endpoints.getOrElse(Map.empty)
+      /*
+      libraryDependencies ++= (
+        for {
+          module <- magic.Lagom.component("api-tools").toSeq
+        } yield module % apiTools
+      ),*/
+
+      managedClasspath in apiTools :=
+        Classpaths.managedJars(apiTools, (classpathTypes in apiTools).value, update.value),
+
+      endpoints := magic.Lagom.endpoints(
+        ((managedClasspath in apiTools).value ++ (fullClasspath in Compile).value).toVector,
+        scalaInstance.value.loader
+      )
+      .getOrElse(Map.empty)
     )
+  }
 }
 
 case object LagomJavaApp extends LagomApp {

@@ -20,9 +20,11 @@ import com.typesafe.sbt.packager.docker
 import sbt._
 
 object SbtReactiveAppPlugin extends AutoPlugin {
-  object autoImport extends docker.DockerKeys with SbtReactiveAppKeys
+  object autoImport extends SbtReactiveAppKeys
+  object localImport extends docker.DockerKeys
 
   import autoImport._
+  import localImport._
 
   override def requires = docker.DockerPlugin
 

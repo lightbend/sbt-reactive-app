@@ -41,9 +41,47 @@ object SbtReactiveApp {
       nrOfCpus
         .map(ns("nr-of-cpus") -> _.toString)
         .toSeq ++
-      volumes
-        .zipWithIndex
+      endpoints
         .toSeq
+        .zipWithIndex
+        .flatMap { case ((name, endpoint), i) =>
+          val baseKeys = Vector(
+            ns(s"endpoints.$i.name") -> name,
+            ns(s"endpoints.$i.protocol") -> endpoint.protocol
+          )
+
+          val portKey =
+            if (endpoint.port != 0)
+              Vector(ns(s"endpoints.$i.port") -> endpoint.port.toString)
+            else
+              Vector.empty
+
+          val aclKeys = endpoint
+            .acls
+            .zipWithIndex
+            .flatMap { case (acl, j) =>
+              acl match {
+                case HttpAcl(expression) =>
+                  Vector(
+                    ns(s"endpoints.$i.acls.$j.type") -> "http",
+                    ns(s"endpoints.$i.acls.$j.expression") -> expression
+                  )
+                case TcpAcl(ports) =>
+                  (ns(s"endpoints.$i.acls.$j.type") -> "tcp") +: ports.zipWithIndex.map { case (port, k) =>
+                    ns(s"endpoints.$i.acls.$j.ports.$k") -> port.toString
+                  }
+                case UdpAcl(ports) =>
+                  (ns(s"endpoints.$i.acls.$j.type") -> "udp") +: ports.zipWithIndex.map { case (port, k) =>
+                    ns(s"endpoints.$i.acls.$j.ports.$k") -> port.toString
+                  }
+              }
+            }
+
+          baseKeys ++ portKey ++ aclKeys
+        } ++
+      volumes
+        .toSeq
+        .zipWithIndex
         .flatMap { case ((guestPath, vol), i) =>
             vol match {
               case HostPathVolume(path) =>
@@ -68,8 +106,8 @@ object SbtReactiveApp {
         .toSeq
         .flatMap(encodeCheck(suffix => ns(s"readiness-check.$suffix"))(_)) ++
       environmentVariables
-        .zipWithIndex
         .toSeq
+        .zipWithIndex
         .flatMap { case ((envName, env), i) =>
           env match {
             case LiteralEnvironmentVariable(envValue) =>
