@@ -20,22 +20,24 @@ import scala.collection.immutable.Seq
 
 sealed trait Check
 
-case class CommandCheck(command: Seq[String]) extends Check
+case class CommandCheck(args: Seq[String]) extends Check
 
 object CommandCheck {
-  def apply(command: String*): CommandCheck = new CommandCheck(command.toVector)
+  def apply(args: String*): CommandCheck = new CommandCheck(args.toVector)
 }
 
-case class HttpCheck(port: Int, serviceName: String, intervalSeconds: Int) extends Check
+case class HttpCheck(port: Int, serviceName: String, intervalSeconds: Int, path: String) extends Check
 
 object HttpCheck {
-  def apply(port: Int, intervalSeconds: Int): HttpCheck = HttpCheck(port, "", intervalSeconds)
-  def apply(serviceName: String, intervalSeconds: Int): HttpCheck = HttpCheck(0, serviceName, intervalSeconds)
+  def apply(port: Int, intervalSeconds: Int, path: String): HttpCheck =
+    HttpCheck(port, "", intervalSeconds, path)
+  def apply(serviceName: String, intervalSeconds: Int, path: String): HttpCheck =
+    HttpCheck(0, serviceName, intervalSeconds, path)
 }
 
 case class TcpCheck(port: Int, serviceName: String, intervalSeconds: Int) extends Check
 
 object TcpCheck {
-  def apply(port: Int, intervalSeconds: Int): HttpCheck = HttpCheck(port, "", intervalSeconds)
-  def apply(serviceName: String, intervalSeconds: Int): HttpCheck = HttpCheck(0, serviceName, intervalSeconds)
+  def apply(port: Int, intervalSeconds: Int): TcpCheck = TcpCheck(port, "", intervalSeconds)
+  def apply(serviceName: String, intervalSeconds: Int): TcpCheck = TcpCheck(0, serviceName, intervalSeconds)
 }

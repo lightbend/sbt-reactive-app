@@ -22,4 +22,4 @@ case class LiteralEnvironmentVariable(value: String) extends EnvironmentVariable
 
 case class SecretEnvironmentVariable(secret: String) extends EnvironmentVariable
 
-case class ConfigMapEnvironmentVariable(name: String, key: String) extends EnvironmentVariable
+case class ConfigMapEnvironmentVariable(mapName: String, key: String) extends EnvironmentVariable
