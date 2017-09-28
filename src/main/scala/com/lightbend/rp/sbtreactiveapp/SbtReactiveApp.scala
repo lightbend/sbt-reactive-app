@@ -30,7 +30,7 @@ object SbtReactiveApp {
              healthCheck: Option[Check],
              readinessCheck: Option[Check],
              environmentVariables: Map[String, EnvironmentVariable]): Map[String, String] = {
-    def ns(key: String*) = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
+    def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
 
     val keyValuePairs =
       diskSpace

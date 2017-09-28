@@ -51,13 +51,6 @@ sealed trait LagomApp extends App {
     // fullClasspath contains the Lagom services, Lagom framework and all its dependencies
 
     super.projectSettings ++ Vector(
-      /*
-      libraryDependencies ++= (
-        for {
-          module <- magic.Lagom.component("api-tools").toSeq
-        } yield module % apiTools
-      ),*/
-
       managedClasspath in apiTools :=
         Classpaths.managedJars(apiTools, (classpathTypes in apiTools).value, update.value),
 
