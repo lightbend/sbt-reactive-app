@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package com.lightbend.rp.sbtreactiveapp
+package com.lightbend.rp.sbtreactiveapp.kubernetes
 
-trait EnvironmentVariable
+import com.lightbend.rp.sbtreactiveapp.EnvironmentVariable
 
-case class LiteralEnvironmentVariable(value: String) extends EnvironmentVariable
-
-case class SecretEnvironmentVariable(secret: String) extends EnvironmentVariable
+case class ConfigMapEnvironmentVariable(mapName: String, key: String) extends EnvironmentVariable
