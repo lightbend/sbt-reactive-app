@@ -16,8 +16,6 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
-trait EnvironmentVariable
+import org.scalatest._
 
-case class LiteralEnvironmentVariable(value: String) extends EnvironmentVariable
-
-case class SecretEnvironmentVariable(secret: String) extends EnvironmentVariable
+abstract class UnitSpec extends WordSpecLike with Matchers

@@ -99,7 +99,7 @@ object SbtReactiveApp {
                 )
             }
         } ++
-      Vector(ns("privileged") -> privileged.toString) ++
+      (if (privileged) Some(ns("privileged") -> "true") else None).toVector ++
       healthCheck
         .toSeq
         .flatMap(/*_*/ encodeCheck(suffix => ns("health-check" +: suffix: _*)) /*_*/) ++
@@ -123,7 +123,7 @@ object SbtReactiveApp {
                 ns(s"environment-variables", i.toString, "name") -> envName,
                 ns(s"environment-variables", i.toString, "secret") -> secret
               )
-            case ConfigMapEnvironmentVariable(mapName, key) =>
+            case kubernetes.ConfigMapEnvironmentVariable(mapName, key) =>
               Vector(
                 ns(s"environment-variables", i.toString, "type") -> "configMap",
                 ns(s"environment-variables", i.toString, "name") -> envName,
