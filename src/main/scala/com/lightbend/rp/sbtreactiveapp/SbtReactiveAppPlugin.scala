@@ -20,7 +20,44 @@ import com.typesafe.sbt.packager.docker
 import sbt._
 
 object SbtReactiveAppPlugin extends AutoPlugin {
-  object autoImport extends SbtReactiveAppKeys
+  object autoImport extends SbtReactiveAppKeys {
+    type Acl = com.lightbend.rp.sbtreactiveapp.Acl
+    type HttpAcl = com.lightbend.rp.sbtreactiveapp.HttpAcl
+    type TcpAcl = com.lightbend.rp.sbtreactiveapp.TcpAcl
+    type UdpAcl = com.lightbend.rp.sbtreactiveapp.UdpAcl
+
+    type Check = com.lightbend.rp.sbtreactiveapp.Check
+    type CommandCheck = com.lightbend.rp.sbtreactiveapp.CommandCheck
+    type HttpCheck = com.lightbend.rp.sbtreactiveapp.HttpCheck
+    type TcpCheck = com.lightbend.rp.sbtreactiveapp.TcpCheck
+
+    type Endpoint = com.lightbend.rp.sbtreactiveapp.Endpoint
+
+    type EnvironmentVariable = com.lightbend.rp.sbtreactiveapp.EnvironmentVariable
+    type LiteralEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.LiteralEnvironmentVariable
+    type SecretEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.SecretEnvironmentVariable
+
+    type Volume = com.lightbend.rp.sbtreactiveapp.Volume
+    type HostPathVolume = com.lightbend.rp.sbtreactiveapp.HostPathVolume
+    type SecretVolume = com.lightbend.rp.sbtreactiveapp.SecretVolume
+
+    val HttpAcl = com.lightbend.rp.sbtreactiveapp.HttpAcl
+    val TcpAcl = com.lightbend.rp.sbtreactiveapp.TcpAcl
+    val UdpAcl = com.lightbend.rp.sbtreactiveapp.UdpAcl
+
+    val CommandCheck = com.lightbend.rp.sbtreactiveapp.CommandCheck
+    val HttpCheck = com.lightbend.rp.sbtreactiveapp.HttpCheck
+    val TcpCheck = com.lightbend.rp.sbtreactiveapp.TcpCheck
+
+    val Endpoint = com.lightbend.rp.sbtreactiveapp.Endpoint
+
+    val LiteralEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.LiteralEnvironmentVariable
+    val SecretEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.SecretEnvironmentVariable
+
+    val HostPathVolume = com.lightbend.rp.sbtreactiveapp.HostPathVolume
+    val SecretVolume = com.lightbend.rp.sbtreactiveapp.SecretVolume
+  }
+
   object localImport extends docker.DockerKeys
 
   import autoImport._
