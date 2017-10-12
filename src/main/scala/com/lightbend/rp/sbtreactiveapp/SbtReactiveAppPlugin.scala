@@ -82,7 +82,8 @@ object SbtReactiveAppPlugin extends AutoPlugin {
             privileged = privileged.value,
             healthCheck = healthCheck.value,
             readinessCheck = readinessCheck.value,
-            environmentVariables = environmentVariables.value
+            environmentVariables = environmentVariables.value,
+            version = SemVer.parse(Keys.version.value)
           )
           .map { case (key, value) =>
             docker.Cmd("LABEL", s"""$key="${encodeLabelValue(value)}"""")

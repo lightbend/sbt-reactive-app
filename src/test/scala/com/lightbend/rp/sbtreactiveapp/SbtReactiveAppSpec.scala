@@ -28,7 +28,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         privileged = false,
         healthCheck = None,
         readinessCheck = None,
-        environmentVariables = Map.empty) shouldBe Map.empty
+        environmentVariables = Map.empty,
+        version = None) shouldBe Map.empty
     }
 
     "work for all values (except checks)" in {
@@ -52,7 +53,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         environmentVariables = Map(
           "env1" -> LiteralEnvironmentVariable("my env one"),
           "env2" -> SecretEnvironmentVariable("my-secret"),
-          "env3" -> kubernetes.ConfigMapEnvironmentVariable("my-map", "my-key"))) shouldBe Map(
+          "env3" -> kubernetes.ConfigMapEnvironmentVariable("my-map", "my-key")),
+        version = Some((1, 2, 3, Some("SNAPSHOT")))) shouldBe Map(
 
         "com.lightbend.rp.disk-space" -> "1234",
         "com.lightbend.rp.memory" -> "5678",
@@ -99,7 +101,11 @@ class SbtReactiveAppSpec extends UnitSpec {
         "com.lightbend.rp.environment-variables.2.name" -> "env3",
         "com.lightbend.rp.environment-variables.2.type" -> "configMap",
         "com.lightbend.rp.environment-variables.2.map-name" -> "my-map",
-        "com.lightbend.rp.environment-variables.2.key" -> "my-key")
+        "com.lightbend.rp.environment-variables.2.key" -> "my-key",
+        "com.lightbend.rp.version-major" -> "1",
+        "com.lightbend.rp.version-minor" -> "2",
+        "com.lightbend.rp.version-patch" -> "3",
+        "com.lightbend.rp.version-patch-label" -> "SNAPSHOT")
     }
 
     "work for tcp checks" in {
@@ -112,7 +118,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         privileged = false,
         healthCheck = Some(TcpCheck(80, 10)),
         readinessCheck = Some(TcpCheck(90, 5)),
-        environmentVariables = Map.empty) shouldBe Map(
+        environmentVariables = Map.empty,
+        version = None) shouldBe Map(
           "com.lightbend.rp.health-check.type" -> "tcp",
           "com.lightbend.rp.health-check.port" -> "80",
           "com.lightbend.rp.health-check.interval" -> "10",
@@ -129,7 +136,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         privileged = false,
         healthCheck = Some(TcpCheck("test", 10)),
         readinessCheck = Some(TcpCheck("test2", 5)),
-        environmentVariables = Map.empty) shouldBe Map(
+        environmentVariables = Map.empty,
+        version = None) shouldBe Map(
           "com.lightbend.rp.health-check.type" -> "tcp",
           "com.lightbend.rp.health-check.service-name" -> "test",
           "com.lightbend.rp.health-check.interval" -> "10",
@@ -148,7 +156,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         privileged = false,
         healthCheck = Some(HttpCheck(80, 10, "/health")),
         readinessCheck = Some(HttpCheck(90, 5, "/other-health")),
-        environmentVariables = Map.empty) shouldBe Map(
+        environmentVariables = Map.empty,
+        version = None) shouldBe Map(
         "com.lightbend.rp.health-check.type" -> "http",
         "com.lightbend.rp.health-check.port" -> "80",
         "com.lightbend.rp.health-check.interval" -> "10",
@@ -167,7 +176,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         privileged = false,
         healthCheck = Some(HttpCheck("test", 10, "/health")),
         readinessCheck = Some(HttpCheck("test2", 5, "/other-health")),
-        environmentVariables = Map.empty) shouldBe Map(
+        environmentVariables = Map.empty,
+        version = None) shouldBe Map(
         "com.lightbend.rp.health-check.type" -> "http",
         "com.lightbend.rp.health-check.service-name" -> "test",
         "com.lightbend.rp.health-check.interval" -> "10",
@@ -188,7 +198,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         privileged = false,
         healthCheck = Some(CommandCheck("/bin/bash", "arg one", "arg two")),
         readinessCheck = Some(CommandCheck("/bin/ash", "arg 1", "arg 2")),
-        environmentVariables = Map.empty) shouldBe Map(
+        environmentVariables = Map.empty,
+        version = None) shouldBe Map(
         "com.lightbend.rp.health-check.type" -> "command",
         "com.lightbend.rp.health-check.args.0" -> "/bin/bash",
         "com.lightbend.rp.health-check.args.1" -> "arg one",

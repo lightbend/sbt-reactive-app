@@ -66,35 +66,35 @@ sealed trait LagomApp extends App {
 case object LagomJavaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${formatVersionMajorMinor(v)}-java")
+      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${SemVer.formatMajorMinor(v)}-java")
     )
 }
 
 case object LagomScalaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${formatVersionMajorMinor(v)}-scala")
+      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${SemVer.formatMajorMinor(v)}-scala")
     )
 }
 
 case object LagomPlayJavaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${formatVersionMajorMinor(v)}-java")
+      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${SemVer.formatMajorMinor(v)}-java")
     )
 }
 
 case object LagomPlayScalaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${formatVersionMajorMinor(v)}-scala")
+      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${SemVer.formatMajorMinor(v)}-scala")
     )
 }
 
 case object PlayApp extends App {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Play.version.map(v => s"reactive-lib-play${formatVersionMajorMinor(v)}")
+      reactiveLibProject := magic.Play.version.map(v => s"reactive-lib-play${SemVer.formatMajorMinor(v)}")
     )
 }
 
@@ -116,6 +116,30 @@ object App {
       BasicApp
 }
 
-private object formatVersionMajorMinor {
-  def apply(version: String): String = version.filterNot(_ == '.').take(2)
+private object SemVer {
+  def formatMajorMinor(version: String): String = version.filterNot(_ == '.').take(2)
+
+  def parse(version: String): Option[(Int, Int, Int, Option[String])] = {
+    val parts = version.split("\\.", 3)
+
+    if (
+      parts.length == 3 &&
+        parts(0).forall(_.isDigit) &&
+        parts(1).forall(_.isDigit) &&
+        parts(2).takeWhile(_ != '-').forall(_.isDigit)) {
+      val major = parts(0).toInt
+      val minor = parts(1).toInt
+      val patchParts = parts(2).split("-", 2)
+
+      val (patch, label) =
+        if (patchParts.length == 2)
+          (patchParts(0).toInt, Some(patchParts(1)))
+        else
+          (parts(2).toInt, None)
+
+      Some((major, minor, patch, label))
+    } else {
+      None
+    }
+  }
 }
