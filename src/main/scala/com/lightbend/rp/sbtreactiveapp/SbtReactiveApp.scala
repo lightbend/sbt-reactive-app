@@ -20,7 +20,8 @@ import SbtReactiveAppPlugin.autoImport._
 import scala.collection.immutable.Seq
 
 object SbtReactiveApp {
-  def labels(diskSpace: Option[Long],
+  def labels(appName: Option[String],
+             diskSpace: Option[Long],
              memory: Option[Long],
              nrOfCpus: Option[Double],
              endpoints: Map[String, Endpoint],
@@ -33,6 +34,9 @@ object SbtReactiveApp {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
 
     val keyValuePairs =
+      appName
+        .map(ns("app-name") -> _.toString)
+        .toSeq ++
       diskSpace
         .map(ns("disk-space") -> _.toString)
         .toSeq ++

@@ -20,6 +20,7 @@ class SbtReactiveAppSpec extends UnitSpec {
   "labels" should {
     "work for defaults" in {
       SbtReactiveApp.labels(
+        appName = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -34,6 +35,7 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for all values (except checks)" in {
       SbtReactiveApp.labels(
+        appName = Some("myapp"),
         diskSpace = Some(1234),
         memory = Some(5678),
         nrOfCpus = Some(0.25),
@@ -56,6 +58,7 @@ class SbtReactiveAppSpec extends UnitSpec {
           "env3" -> kubernetes.ConfigMapEnvironmentVariable("my-map", "my-key")),
         version = Some((1, 2, 3, Some("SNAPSHOT")))) shouldBe Map(
 
+        "com.lightbend.rp.app-name" -> "myapp",
         "com.lightbend.rp.disk-space" -> "1234",
         "com.lightbend.rp.memory" -> "5678",
         "com.lightbend.rp.nr-of-cpus" -> "0.25",
@@ -110,6 +113,7 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for tcp checks" in {
       SbtReactiveApp.labels(
+        appName = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -128,6 +132,7 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.readiness-check.interval" -> "5")
 
       SbtReactiveApp.labels(
+        appName = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -148,6 +153,7 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for http checks" in {
       SbtReactiveApp.labels(
+        appName = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -168,6 +174,7 @@ class SbtReactiveAppSpec extends UnitSpec {
         "com.lightbend.rp.readiness-check.path" -> "/other-health")
 
       SbtReactiveApp.labels(
+        appName = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -190,6 +197,7 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for command checks" in {
       SbtReactiveApp.labels(
+        appName = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,

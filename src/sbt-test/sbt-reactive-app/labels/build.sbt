@@ -1,3 +1,4 @@
+name := "labels"
 version := "0.1.2-SNAPSHOT"
 scalaVersion := "2.12.3"
 
@@ -19,6 +20,7 @@ TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value
   val contents = IO.readLines(outputDir / "Dockerfile")
   val lines = Seq(
+    """LABEL com.lightbend.rp.app-name="labels"""",
     """LABEL com.lightbend.rp.disk-space="32768"""",
     """LABEL com.lightbend.rp.endpoints.0.acls.0.expression="^/test.*$"""",
     """LABEL com.lightbend.rp.endpoints.0.acls.0.type="http"""",
