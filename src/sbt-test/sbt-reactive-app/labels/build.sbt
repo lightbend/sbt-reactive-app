@@ -1,4 +1,4 @@
-version := "0.1"
+version := "0.1.2-SNAPSHOT"
 scalaVersion := "2.12.3"
 
 enablePlugins(DockerPlugin)
@@ -49,7 +49,11 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.volumes.0.type="host-path"""",
     """LABEL com.lightbend.rp.volumes.1.guest-path="/data2"""",
     """LABEL com.lightbend.rp.volumes.1.secret="my-secret"""",
-    """LABEL com.lightbend.rp.volumes.1.type="secret"""")
+    """LABEL com.lightbend.rp.volumes.1.type="secret"""",
+    """LABEL com.lightbend.rp.version-major="0"""",
+    """LABEL com.lightbend.rp.version-minor="1"""",
+    """LABEL com.lightbend.rp.version-patch="2"""",
+    """LABEL com.lightbend.rp.version-patch-label="SNAPSHOT"""")
 
   lines.foreach { line =>
     if (!contents.contains(line)) {

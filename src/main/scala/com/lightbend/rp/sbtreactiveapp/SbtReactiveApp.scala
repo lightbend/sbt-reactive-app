@@ -16,7 +16,6 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
-import play.api.libs.json._
 import SbtReactiveAppPlugin.autoImport._
 import scala.collection.immutable.Seq
 
@@ -29,7 +28,8 @@ object SbtReactiveApp {
              privileged: Boolean,
              healthCheck: Option[Check],
              readinessCheck: Option[Check],
-             environmentVariables: Map[String, EnvironmentVariable]): Map[String, String] = {
+             environmentVariables: Map[String, EnvironmentVariable],
+             version: Option[(Int, Int, Int, Option[String])]): Map[String, String] = {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
 
     val keyValuePairs =
@@ -131,6 +131,15 @@ object SbtReactiveApp {
                 ns(s"environment-variables", i.toString, "key") -> key
               )
           }
+        } ++
+      version
+        .toSeq
+        .flatMap { case (major, minor, patch, maybeLabel) =>
+          Vector(
+            ns("version-major") -> major.toString,
+            ns("version-minor") -> minor.toString,
+            ns("version-patch") -> patch.toString) ++
+          maybeLabel.toVector.map(label => ns("version-patch-label") -> label)
         }
 
     keyValuePairs.toMap
