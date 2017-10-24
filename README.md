@@ -4,7 +4,7 @@ This project implements an SBT plugin that uses [SBT Native Packager](https://gi
 reflection to build Docker images. These images contain metadata that is used with a CLI tool to create resources
 for Kubernetes and potentially other target platforms.
 
-### Development
+## Development
 
 ##### Publish Locally
 
@@ -14,7 +14,7 @@ for Kubernetes and potentially other target platforms.
 
 Enterprise Suite Platform Team <es-platform@lightbend.com>
 
-### License
+## License
 
 Copyright (C) 2017 Lightbend Inc. (https://www.lightbend.com).
 
