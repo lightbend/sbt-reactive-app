@@ -40,4 +40,6 @@ trait SbtReactiveAppKeys {
   val reactiveLibProject = SettingKey[Option[String]]("rp-reactive-lib-project")
 
   val reactiveLibVersion = SettingKey[Option[String]]("rp-reactive-lib-version")
+
+  val startScriptLocation = SettingKey[Option[String]]("rp-start-script")
 }

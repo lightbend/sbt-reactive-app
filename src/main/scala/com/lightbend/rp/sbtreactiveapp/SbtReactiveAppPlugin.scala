@@ -71,8 +71,30 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] =
     App.apply.projectSettings ++ Vector(
+      startScriptLocation := Some("/rp-start"),
+
+      dockerEntrypoint := startScriptLocation.value.fold(dockerEntrypoint.value)(_ +: dockerEntrypoint.value),
+
       dockerCommands := {
-        dockerCommands.value ++ SbtReactiveApp
+        val localName = "rp-start"
+
+        val localPath = Keys.target.value / localName
+
+        val data =
+          scala.io.Source
+            .fromInputStream(getClass.getClassLoader.getResourceAsStream(localName))
+            .mkString
+
+        IO.write(localPath, data)
+
+        localPath.setExecutable(true)
+
+        val addCommand = startScriptLocation
+          .value
+          .toVector
+          .map(path => docker.Cmd("ADD", localPath.getAbsolutePath, path))
+
+        dockerCommands.value ++ addCommand ++ SbtReactiveApp
           .labels(
             appName = Some(Keys.name.value),
             diskSpace = diskSpace.value,
