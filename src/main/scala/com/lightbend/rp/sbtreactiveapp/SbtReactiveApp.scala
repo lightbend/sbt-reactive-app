@@ -30,7 +30,8 @@ object SbtReactiveApp {
              healthCheck: Option[Check],
              readinessCheck: Option[Check],
              environmentVariables: Map[String, EnvironmentVariable],
-             version: Option[(Int, Int, Int, Option[String])]): Map[String, String] = {
+             version: Option[(Int, Int, Int, Option[String])],
+             secrets: Set[Secret]): Map[String, String] = {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
 
     val keyValuePairs =
@@ -87,12 +88,6 @@ object SbtReactiveApp {
                   ns("volumes", i.toString, "path") -> path,
                   ns("volumes", i.toString, "guest-path") -> guestPath
                 )
-              case SecretVolume(secret) =>
-                Vector(
-                  ns("volumes", i.toString, "type") -> "secret",
-                  ns("volumes", i.toString, "secret") -> secret,
-                  ns("volumes", i.toString, "guest-path") -> guestPath
-                )
             }
         } ++
       (if (privileged) Some(ns("privileged") -> "true") else None).toVector ++
@@ -113,12 +108,6 @@ object SbtReactiveApp {
                 ns(s"environment-variables", i.toString, "name") -> envName,
                 ns(s"environment-variables", i.toString, "value") -> envValue
               )
-            case SecretEnvironmentVariable(secret) =>
-              Vector(
-                ns(s"environment-variables", i.toString, "type") -> "secret",
-                ns(s"environment-variables", i.toString, "name") -> envName,
-                ns(s"environment-variables", i.toString, "secret") -> secret
-              )
             case kubernetes.ConfigMapEnvironmentVariable(mapName, key) =>
               Vector(
                 ns(s"environment-variables", i.toString, "type") -> "configMap",
@@ -136,6 +125,15 @@ object SbtReactiveApp {
             ns("version-minor") -> minor.toString,
             ns("version-patch") -> patch.toString) ++
           maybeLabel.toVector.map(label => ns("version-patch-label") -> label)
+        } ++
+      secrets
+        .toSeq
+        .zipWithIndex
+        .flatMap { case (secret, i) =>
+          Vector(
+            ns("secrets", i.toString, "namespace") -> secret.namespace,
+            ns("secrets", i.toString, "name") -> secret.name
+          )
         }
 
     keyValuePairs.toMap

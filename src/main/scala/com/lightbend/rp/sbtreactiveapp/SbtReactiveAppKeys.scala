@@ -42,4 +42,6 @@ trait SbtReactiveAppKeys {
   val reactiveLibVersion = SettingKey[Option[String]]("rp-reactive-lib-version")
 
   val startScriptLocation = SettingKey[Option[String]]("rp-start-script")
+
+  val secrets = SettingKey[Set[Secret]]("rp-secrets")
 }

@@ -8,11 +8,12 @@ nrOfCpus := Some(0.5)
 memory := Some(65536)
 diskSpace := Some(32768)
 privileged := true
-volumes := Map("/data" -> HostPathVolume("/var/local"), "/data2" -> SecretVolume("my-secret"))
+volumes := Map("/data" -> HostPathVolume("/var/local"), "/data2" -> HostPathVolume("/var/log"))
 endpoints := Map("test1" -> Endpoint("http", 2551, HttpAcl("^/test.*$")))
 environmentVariables := Map(
-  "APPLICATION_SECRET" -> SecretEnvironmentVariable("my-app-secret"),
+  "LD_LIBRARY_PATH" -> LiteralEnvironmentVariable("/lib"),
   "HOME" -> LiteralEnvironmentVariable("/home/testing"))
+secrets := Set(Secret("myns1", "key"), Secret("myns2", "otherkey"))
 healthCheck := Some(CommandCheck("/bin/bash", "-c", "exit 0"))
 readinessCheck := Some(HttpCheck(1234, 60, "/healthz"))
 
@@ -30,9 +31,9 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.endpoints.0.name="test1"""",
     """LABEL com.lightbend.rp.endpoints.0.port="2551"""",
     """LABEL com.lightbend.rp.endpoints.0.protocol="http"""",
-    """LABEL com.lightbend.rp.environment-variables.0.name="APPLICATION_SECRET"""",
-    """LABEL com.lightbend.rp.environment-variables.0.secret="my-app-secret"""",
-    """LABEL com.lightbend.rp.environment-variables.0.type="secret"""",
+    """LABEL com.lightbend.rp.environment-variables.0.name="LD_LIBRARY_PATH"""",
+    """LABEL com.lightbend.rp.environment-variables.0.value="/lib"""",
+    """LABEL com.lightbend.rp.environment-variables.0.type="literal"""",
     """LABEL com.lightbend.rp.environment-variables.1.name="HOME"""",
     """LABEL com.lightbend.rp.environment-variables.1.type="literal"""",
     """LABEL com.lightbend.rp.environment-variables.1.value="/home/testing"""",
@@ -51,12 +52,17 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.volumes.0.path="/var/local"""",
     """LABEL com.lightbend.rp.volumes.0.type="host-path"""",
     """LABEL com.lightbend.rp.volumes.1.guest-path="/data2"""",
-    """LABEL com.lightbend.rp.volumes.1.secret="my-secret"""",
-    """LABEL com.lightbend.rp.volumes.1.type="secret"""",
+    """LABEL com.lightbend.rp.volumes.1.path="/var/log"""",
+    """LABEL com.lightbend.rp.volumes.1.type="host-path"""",
     """LABEL com.lightbend.rp.version-major="0"""",
     """LABEL com.lightbend.rp.version-minor="1"""",
     """LABEL com.lightbend.rp.version-patch="2"""",
-    """LABEL com.lightbend.rp.version-patch-label="SNAPSHOT"""")
+    """LABEL com.lightbend.rp.version-patch-label="SNAPSHOT"""",
+    """LABEL com.lightbend.rp.secrets.0.namespace="myns1"""",
+    """LABEL com.lightbend.rp.secrets.0.name="key"""",
+    """LABEL com.lightbend.rp.secrets.1.namespace="myns2"""",
+    """LABEL com.lightbend.rp.secrets.1.name="otherkey""""
+  )
 
   lines.foreach { line =>
     if (!contents.contains(line)) {

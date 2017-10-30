@@ -33,11 +33,9 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
     type EnvironmentVariable = com.lightbend.rp.sbtreactiveapp.EnvironmentVariable
     type LiteralEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.LiteralEnvironmentVariable
-    type SecretEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.SecretEnvironmentVariable
 
     type Volume = com.lightbend.rp.sbtreactiveapp.Volume
     type HostPathVolume = com.lightbend.rp.sbtreactiveapp.HostPathVolume
-    type SecretVolume = com.lightbend.rp.sbtreactiveapp.SecretVolume
 
     val HttpAcl = com.lightbend.rp.sbtreactiveapp.HttpAcl
 
@@ -48,10 +46,10 @@ object SbtReactiveAppPlugin extends AutoPlugin {
     val Endpoint = com.lightbend.rp.sbtreactiveapp.Endpoint
 
     val LiteralEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.LiteralEnvironmentVariable
-    val SecretEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.SecretEnvironmentVariable
 
     val HostPathVolume = com.lightbend.rp.sbtreactiveapp.HostPathVolume
-    val SecretVolume = com.lightbend.rp.sbtreactiveapp.SecretVolume
+
+    val Secret = com.lightbend.rp.sbtreactiveapp.Secret
   }
 
   object localImport extends docker.DockerKeys
@@ -67,8 +65,6 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] =
     App.apply.projectSettings ++ Vector(
-      startScriptLocation := Some("/rp-start"),
-
       dockerEntrypoint := startScriptLocation.value.fold(dockerEntrypoint.value)(_ +: dockerEntrypoint.value),
 
       dockerCommands := {
@@ -102,7 +98,8 @@ object SbtReactiveAppPlugin extends AutoPlugin {
             healthCheck = healthCheck.value,
             readinessCheck = readinessCheck.value,
             environmentVariables = environmentVariables.value,
-            version = SemVer.parse(Keys.version.value)
+            version = SemVer.parse(Keys.version.value),
+            secrets = secrets.value
           )
           .map { case (key, value) =>
             docker.Cmd("LABEL", s"""$key="${encodeLabelValue(value)}"""")

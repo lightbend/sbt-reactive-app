@@ -32,6 +32,8 @@ sealed trait App extends SbtReactiveAppKeys {
     healthCheck := None,
     readinessCheck := None,
     environmentVariables := Map.empty,
+    startScriptLocation := Some("/rp-start"),
+    secrets := Set.empty,
     reactiveLibProject := Some("basic"),
     reactiveLibVersion := Some("0.1.0-SNAPSHOT"),
     libraryDependencies ++= (
