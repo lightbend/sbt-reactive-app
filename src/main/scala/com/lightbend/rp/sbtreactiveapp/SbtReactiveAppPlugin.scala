@@ -23,8 +23,6 @@ object SbtReactiveAppPlugin extends AutoPlugin {
   object autoImport extends SbtReactiveAppKeys {
     type Acl = com.lightbend.rp.sbtreactiveapp.Acl
     type HttpAcl = com.lightbend.rp.sbtreactiveapp.HttpAcl
-    type TcpAcl = com.lightbend.rp.sbtreactiveapp.TcpAcl
-    type UdpAcl = com.lightbend.rp.sbtreactiveapp.UdpAcl
 
     type Check = com.lightbend.rp.sbtreactiveapp.Check
     type CommandCheck = com.lightbend.rp.sbtreactiveapp.CommandCheck
@@ -42,8 +40,6 @@ object SbtReactiveAppPlugin extends AutoPlugin {
     type SecretVolume = com.lightbend.rp.sbtreactiveapp.SecretVolume
 
     val HttpAcl = com.lightbend.rp.sbtreactiveapp.HttpAcl
-    val TcpAcl = com.lightbend.rp.sbtreactiveapp.TcpAcl
-    val UdpAcl = com.lightbend.rp.sbtreactiveapp.UdpAcl
 
     val CommandCheck = com.lightbend.rp.sbtreactiveapp.CommandCheck
     val HttpCheck = com.lightbend.rp.sbtreactiveapp.HttpCheck

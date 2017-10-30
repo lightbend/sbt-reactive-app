@@ -71,14 +71,6 @@ object SbtReactiveApp {
                     ns("endpoints", i.toString, "acls", j.toString, "type") -> "http",
                     ns("endpoints", i.toString, "acls", j.toString, "expression") -> expression
                   )
-                case TcpAcl(ports) =>
-                  (ns("endpoints", i.toString, "acls", j.toString, "type") -> "tcp") +: ports.zipWithIndex.map { case (port, k) =>
-                    ns("endpoints", i.toString, "acls", j.toString, "ports", k.toString) -> port.toString
-                  }
-                case UdpAcl(ports) =>
-                  (ns("endpoints", i.toString, "acls", j.toString, "type") -> "udp") +: ports.zipWithIndex.map { case (port, k) =>
-                    ns("endpoints", i.toString, "acls", j.toString, "ports", k.toString) -> port.toString
-                  }
               }
             }
 

@@ -42,8 +42,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         endpoints = Map(
           "ep1" -> Endpoint("http", 1234),
           "ep2" -> Endpoint("http", 5678, HttpAcl("^/my-url.*$"), HttpAcl("^/my-other-url.*$")),
-          "ep3" -> Endpoint("tcp", 9123, TcpAcl(9123, 9124), TcpAcl(9125)),
-          "ep4" -> Endpoint("udp", 8123, UdpAcl(8123, 8124), UdpAcl(8125))
+          "ep3" -> Endpoint("tcp", 9123),
+          "ep4" -> Endpoint("udp", 8123)
         ),
         volumes = Map(
           "/data/vol1" -> HostPathVolume("/var/lib/vol1"),
@@ -76,19 +76,9 @@ class SbtReactiveAppSpec extends UnitSpec {
         "com.lightbend.rp.endpoints.2.name" -> "ep3",
         "com.lightbend.rp.endpoints.2.protocol" -> "tcp",
         "com.lightbend.rp.endpoints.2.port" -> "9123",
-        "com.lightbend.rp.endpoints.2.acls.0.type" -> "tcp",
-        "com.lightbend.rp.endpoints.2.acls.0.ports.0" -> "9123",
-        "com.lightbend.rp.endpoints.2.acls.0.ports.1" -> "9124",
-        "com.lightbend.rp.endpoints.2.acls.1.type" -> "tcp",
-        "com.lightbend.rp.endpoints.2.acls.1.ports.0" -> "9125",
         "com.lightbend.rp.endpoints.3.name" -> "ep4",
         "com.lightbend.rp.endpoints.3.protocol" -> "udp",
         "com.lightbend.rp.endpoints.3.port" -> "8123",
-        "com.lightbend.rp.endpoints.3.acls.0.type" -> "udp",
-        "com.lightbend.rp.endpoints.3.acls.0.ports.0" -> "8123",
-        "com.lightbend.rp.endpoints.3.acls.0.ports.1" -> "8124",
-        "com.lightbend.rp.endpoints.3.acls.1.type" -> "udp",
-        "com.lightbend.rp.endpoints.3.acls.1.ports.0" -> "8125",
         "com.lightbend.rp.volumes.0.type" -> "host-path",
         "com.lightbend.rp.volumes.0.path" -> "/var/lib/vol1",
         "com.lightbend.rp.volumes.0.guest-path" -> "/data/vol1",

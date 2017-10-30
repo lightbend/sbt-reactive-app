@@ -16,20 +16,6 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
-import scala.collection.immutable.Seq
-
 sealed trait Acl
 
 case class HttpAcl(expression: String) extends Acl
-
-case class TcpAcl(ports: Seq[Int]) extends Acl
-
-object TcpAcl {
-  def apply(ports: Int*): TcpAcl = new TcpAcl(ports.toVector)
-}
-
-case class UdpAcl(ports: Seq[Int]) extends Acl
-
-object UdpAcl {
-  def apply(ports: Int*): UdpAcl = new UdpAcl(ports.toVector)
-}

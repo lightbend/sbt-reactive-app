@@ -9,7 +9,7 @@ memory := Some(65536)
 diskSpace := Some(32768)
 privileged := true
 volumes := Map("/data" -> HostPathVolume("/var/local"), "/data2" -> SecretVolume("my-secret"))
-endpoints := Map("test1" -> Endpoint("http", 2551, HttpAcl("^/test.*$"), TcpAcl(8080)))
+endpoints := Map("test1" -> Endpoint("http", 2551, HttpAcl("^/test.*$")))
 environmentVariables := Map(
   "APPLICATION_SECRET" -> SecretEnvironmentVariable("my-app-secret"),
   "HOME" -> LiteralEnvironmentVariable("/home/testing"))
@@ -27,8 +27,6 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.disk-space="32768"""",
     """LABEL com.lightbend.rp.endpoints.0.acls.0.expression="^/test.*$"""",
     """LABEL com.lightbend.rp.endpoints.0.acls.0.type="http"""",
-    """LABEL com.lightbend.rp.endpoints.0.acls.1.ports.0="8080"""",
-    """LABEL com.lightbend.rp.endpoints.0.acls.1.type="tcp"""",
     """LABEL com.lightbend.rp.endpoints.0.name="test1"""",
     """LABEL com.lightbend.rp.endpoints.0.port="2551"""",
     """LABEL com.lightbend.rp.endpoints.0.protocol="http"""",
