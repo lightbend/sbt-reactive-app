@@ -19,30 +19,32 @@ package com.lightbend.rp.sbtreactiveapp
 import scala.collection.immutable.Seq
 
 sealed trait Endpoint {
+  def name: String
   def port: Int
   def protocol: String
+  def version: Option[Version]
 }
 
-case class HttpEndpoint(port: Int, ingress: Seq[Ingress]) extends Endpoint {
+case class HttpEndpoint(name: String, port: Int, ingress: Seq[Ingress], version: Option[Version] = Some(MajorVersion)) extends Endpoint {
   val protocol: String = "http"
 }
 
 object HttpEndpoint {
-  def apply(port: Int, ingress: Ingress*): HttpEndpoint = new HttpEndpoint(port, ingress.toVector)
+  def apply(name: String, port: Int, ingress: Ingress*): HttpEndpoint = new HttpEndpoint(name, port, ingress.toVector)
 }
 
-case class TcpEndpoint(port: Int, ingress: Seq[PortIngress]) extends Endpoint {
+case class TcpEndpoint(name: String, port: Int, ingress: Seq[PortIngress], version: Option[Version] = Some(MajorVersion)) extends Endpoint {
   val protocol: String = "tcp"
 }
 
 object TcpEndpoint {
-  def apply(port: Int, ingress: PortIngress*): TcpEndpoint = new TcpEndpoint(port, ingress.toVector)
+  def apply(name: String, port: Int, ingress: PortIngress*): TcpEndpoint = new TcpEndpoint(name, port, ingress.toVector)
 }
 
-case class UdpEndpoint(port: Int, ingress: Seq[PortIngress]) extends Endpoint {
+case class UdpEndpoint(name: String, port: Int, ingress: Seq[PortIngress], version: Option[Version] = Some(MajorVersion)) extends Endpoint {
   val protocol: String = "udp"
 }
 
 object UdpEndpoint {
-  def apply(port: Int, ingress: PortIngress*): UdpEndpoint = new UdpEndpoint(port, ingress.toVector)
+  def apply(name: String, port: Int, ingress: PortIngress*): UdpEndpoint = new UdpEndpoint(name, port, ingress.toVector)
 }

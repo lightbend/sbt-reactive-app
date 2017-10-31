@@ -17,6 +17,7 @@
 package com.lightbend.rp.sbtreactiveapp
 
 import sbt._
+import scala.collection.immutable.Seq
 
 trait SbtReactiveAppKeys {
   val diskSpace = SettingKey[Option[Long]]("rp-disk-space")
@@ -25,7 +26,7 @@ trait SbtReactiveAppKeys {
 
   val nrOfCpus = SettingKey[Option[Double]]("rp-nr-of-cpus")
 
-  val endpoints = TaskKey[Map[String, Endpoint]]("rp-endpoints")
+  val endpoints = TaskKey[Seq[Endpoint]]("rp-endpoints")
 
   val volumes = TaskKey[Map[String, Volume]]("rp-volumes")
 

@@ -24,7 +24,7 @@ object SbtReactiveApp {
              diskSpace: Option[Long],
              memory: Option[Long],
              nrOfCpus: Option[Double],
-             endpoints: Map[String, Endpoint],
+             endpoints: Seq[Endpoint],
              volumes: Map[String, Volume],
              privileged: Boolean,
              healthCheck: Option[Check],
@@ -48,13 +48,21 @@ object SbtReactiveApp {
         .map(ns("nr-of-cpus") -> _.toString)
         .toSeq ++
       endpoints
-        .toSeq
         .zipWithIndex
-        .flatMap { case ((name, endpoint), i) =>
+        .flatMap { case (endpoint, i) =>
           val baseKeys = Vector(
-            ns("endpoints", i.toString, "name") -> name,
-            ns("endpoints", i.toString, "protocol") -> endpoint.protocol
-          )
+            ns("endpoints", i.toString, "name") -> endpoint.name,
+            ns("endpoints", i.toString, "protocol") -> endpoint.protocol)
+
+          val versionKeys =
+            endpoint.version.toVector.map {
+              case MajorVersion      =>
+                ns("endpoints", i.toString, "version") -> version.fold("0")(_._1.toString)
+              case MajorMinorVersion =>
+                ns("endpoints", i.toString, "version") -> version.fold("0.0")(e => s"${e._1}.${e._2}")
+              case LiteralVersion(v) =>
+                ns("endpoints", i.toString, "version") -> v
+            }
 
           val portKey =
             if (endpoint.port != 0)
@@ -79,7 +87,7 @@ object SbtReactiveApp {
 
           val ingressKeys =
             endpoint match {
-              case HttpEndpoint(_, ingress) =>
+              case HttpEndpoint(_, _, ingress, _) =>
                 ingress
                   .zipWithIndex
                   .flatMap {
@@ -87,17 +95,17 @@ object SbtReactiveApp {
                     case (h: HttpPathIngress, j) => encodeHttpPathIngress(h, j)
                     case (p: PortIngress, j)     => encodePortIngress(p, j)
                   }
-              case TcpEndpoint(_, ingress) =>
+              case TcpEndpoint(_, _, ingress, _) =>
                 ingress
                   .zipWithIndex
                   .flatMap { case (p, j) => encodePortIngress(p, j) }
-              case UdpEndpoint(_, ingress) =>
+              case UdpEndpoint(_, _, ingress, _) =>
                 ingress
                   .zipWithIndex
                   .flatMap { case (p, j) => encodePortIngress(p, j) }
             }
 
-          baseKeys ++ portKey ++ ingressKeys
+          baseKeys ++ versionKeys ++ portKey ++ ingressKeys
         } ++
       volumes
         .toSeq

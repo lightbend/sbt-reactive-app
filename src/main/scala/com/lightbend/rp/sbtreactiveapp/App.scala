@@ -26,7 +26,7 @@ sealed trait App extends SbtReactiveAppKeys {
     nrOfCpus := None,
     diskSpace := None,
     memory := None,
-    endpoints := Map.empty,
+    endpoints := Vector.empty,
     volumes := Map.empty,
     privileged := false,
     healthCheck := None,
@@ -60,7 +60,7 @@ sealed trait LagomApp extends App {
         ((managedClasspath in apiTools).value ++ (fullClasspath in Compile).value).toVector,
         scalaInstance.value.loader
       )
-      .getOrElse(Map.empty)
+      .getOrElse(Seq.empty)
     )
   }
 }

@@ -9,7 +9,7 @@ memory := Some(65536)
 diskSpace := Some(32768)
 privileged := true
 volumes := Map("/data" -> HostPathVolume("/var/local"), "/data2" -> HostPathVolume("/var/log"))
-endpoints := Map("test1" -> HttpEndpoint(2551, HttpPathIngress("^/test.*$")))
+endpoints := Vector(HttpEndpoint("test1", 2551, HttpPathIngress("^/test.*$")))
 environmentVariables := Map(
   "LD_LIBRARY_PATH" -> LiteralEnvironmentVariable("/lib"),
   "HOME" -> LiteralEnvironmentVariable("/home/testing"))
@@ -31,6 +31,7 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.endpoints.0.name="test1"""",
     """LABEL com.lightbend.rp.endpoints.0.port="2551"""",
     """LABEL com.lightbend.rp.endpoints.0.protocol="http"""",
+    """LABEL com.lightbend.rp.endpoints.0.version="0"""",
     """LABEL com.lightbend.rp.environment-variables.0.name="LD_LIBRARY_PATH"""",
     """LABEL com.lightbend.rp.environment-variables.0.value="/lib"""",
     """LABEL com.lightbend.rp.environment-variables.0.type="literal"""",
