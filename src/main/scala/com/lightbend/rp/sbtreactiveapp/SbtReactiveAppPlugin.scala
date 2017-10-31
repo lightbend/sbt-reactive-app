@@ -50,7 +50,7 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
     type TcpEndpoint = com.lightbend.rp.sbtreactiveapp.TcpEndpoint
     val TcpEndpoint = com.lightbend.rp.sbtreactiveapp.TcpEndpoint
-    
+
     type UdpEndpoint = com.lightbend.rp.sbtreactiveapp.UdpEndpoint
     val UdpEndpoint = com.lightbend.rp.sbtreactiveapp.UdpEndpoint
 
