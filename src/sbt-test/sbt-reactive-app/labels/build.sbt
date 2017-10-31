@@ -9,7 +9,7 @@ memory := Some(65536)
 diskSpace := Some(32768)
 privileged := true
 volumes := Map("/data" -> HostPathVolume("/var/local"), "/data2" -> HostPathVolume("/var/log"))
-endpoints := Map("test1" -> Endpoint("http", 2551, HttpAcl("^/test.*$")))
+endpoints := Map("test1" -> HttpEndpoint(2551, HttpPathIngress("^/test.*$")))
 environmentVariables := Map(
   "LD_LIBRARY_PATH" -> LiteralEnvironmentVariable("/lib"),
   "HOME" -> LiteralEnvironmentVariable("/home/testing"))
@@ -26,8 +26,8 @@ TaskKey[Unit]("check") := {
     """ENTRYPOINT ["/rp-start", "bin/labels"]""",
     """LABEL com.lightbend.rp.app-name="labels"""",
     """LABEL com.lightbend.rp.disk-space="32768"""",
-    """LABEL com.lightbend.rp.endpoints.0.acls.0.expression="^/test.*$"""",
-    """LABEL com.lightbend.rp.endpoints.0.acls.0.type="http"""",
+    """LABEL com.lightbend.rp.endpoints.0.ingress.0.path="^/test.*$"""",
+    """LABEL com.lightbend.rp.endpoints.0.ingress.0.type="http-path"""",
     """LABEL com.lightbend.rp.endpoints.0.name="test1"""",
     """LABEL com.lightbend.rp.endpoints.0.port="2551"""",
     """LABEL com.lightbend.rp.endpoints.0.protocol="http"""",

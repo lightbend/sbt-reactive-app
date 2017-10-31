@@ -62,20 +62,42 @@ object SbtReactiveApp {
             else
               Vector.empty
 
-          val aclKeys = endpoint
-            .acls
-            .zipWithIndex
-            .flatMap { case (acl, j) =>
-              acl match {
-                case HttpAcl(expression) =>
-                  Vector(
-                    ns("endpoints", i.toString, "acls", j.toString, "type") -> "http",
-                    ns("endpoints", i.toString, "acls", j.toString, "expression") -> expression
-                  )
-              }
+          def encodeHttpHostIngress(h: HttpHostIngress, j: Int) =
+            Vector(
+              ns("endpoints", i.toString, "ingress", j.toString, "type") -> "http-host",
+              ns("endpoints", i.toString, "ingress", j.toString, "host") -> h.host)
+
+          def encodeHttpPathIngress(h: HttpPathIngress, j: Int) =
+            Vector(
+              ns("endpoints", i.toString, "ingress", j.toString, "type") -> "http-path",
+              ns("endpoints", i.toString, "ingress", j.toString, "path") -> h.path)
+
+          def encodePortIngress(p: PortIngress, j: Int) =
+            Vector(
+              ns("endpoints", i.toString, "ingress", j.toString, "type") -> "port",
+              ns("endpoints", i.toString, "ingress", j.toString, "port") -> p.port.toString)
+
+          val ingressKeys =
+            endpoint match {
+              case HttpEndpoint(_, ingress) =>
+                ingress
+                  .zipWithIndex
+                  .flatMap {
+                    case (h: HttpHostIngress, j) => encodeHttpHostIngress(h, j)
+                    case (h: HttpPathIngress, j) => encodeHttpPathIngress(h, j)
+                    case (p: PortIngress, j)     => encodePortIngress(p, j)
+                  }
+              case TcpEndpoint(_, ingress) =>
+                ingress
+                  .zipWithIndex
+                  .flatMap { case (p, j) => encodePortIngress(p, j) }
+              case UdpEndpoint(_, ingress) =>
+                ingress
+                  .zipWithIndex
+                  .flatMap { case (p, j) => encodePortIngress(p, j) }
             }
 
-          baseKeys ++ portKey ++ aclKeys
+          baseKeys ++ portKey ++ ingressKeys
         } ++
       volumes
         .toSeq

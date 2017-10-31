@@ -21,8 +21,10 @@ import sbt._
 
 object SbtReactiveAppPlugin extends AutoPlugin {
   object autoImport extends SbtReactiveAppKeys {
-    type Acl = com.lightbend.rp.sbtreactiveapp.Acl
-    type HttpAcl = com.lightbend.rp.sbtreactiveapp.HttpAcl
+    type Ingress = com.lightbend.rp.sbtreactiveapp.Ingress
+    type HttpPathIngress = com.lightbend.rp.sbtreactiveapp.HttpPathIngress
+    type PortIngress = com.lightbend.rp.sbtreactiveapp.PortIngress
+    type HttpHostIngress = com.lightbend.rp.sbtreactiveapp.HttpHostIngress
 
     type Check = com.lightbend.rp.sbtreactiveapp.Check
     type CommandCheck = com.lightbend.rp.sbtreactiveapp.CommandCheck
@@ -30,6 +32,9 @@ object SbtReactiveAppPlugin extends AutoPlugin {
     type TcpCheck = com.lightbend.rp.sbtreactiveapp.TcpCheck
 
     type Endpoint = com.lightbend.rp.sbtreactiveapp.Endpoint
+    type HttpEndpoint = com.lightbend.rp.sbtreactiveapp.HttpEndpoint
+    type TcpEndpoint = com.lightbend.rp.sbtreactiveapp.TcpEndpoint
+    type UdpEndpoint = com.lightbend.rp.sbtreactiveapp.UdpEndpoint
 
     type EnvironmentVariable = com.lightbend.rp.sbtreactiveapp.EnvironmentVariable
     type LiteralEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.LiteralEnvironmentVariable
@@ -37,13 +42,17 @@ object SbtReactiveAppPlugin extends AutoPlugin {
     type Volume = com.lightbend.rp.sbtreactiveapp.Volume
     type HostPathVolume = com.lightbend.rp.sbtreactiveapp.HostPathVolume
 
-    val HttpAcl = com.lightbend.rp.sbtreactiveapp.HttpAcl
+    val HttpPathIngress = com.lightbend.rp.sbtreactiveapp.HttpPathIngress
+    val PortIngress = com.lightbend.rp.sbtreactiveapp.PortIngress
+    val HttpHostIngress = com.lightbend.rp.sbtreactiveapp.HttpHostIngress
 
     val CommandCheck = com.lightbend.rp.sbtreactiveapp.CommandCheck
     val HttpCheck = com.lightbend.rp.sbtreactiveapp.HttpCheck
     val TcpCheck = com.lightbend.rp.sbtreactiveapp.TcpCheck
 
-    val Endpoint = com.lightbend.rp.sbtreactiveapp.Endpoint
+    val HttpEndpoint = com.lightbend.rp.sbtreactiveapp.HttpEndpoint
+    val TcpEndpoint = com.lightbend.rp.sbtreactiveapp.TcpEndpoint
+    val UdpEndpoint = com.lightbend.rp.sbtreactiveapp.UdpEndpoint
 
     val LiteralEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.LiteralEnvironmentVariable
 

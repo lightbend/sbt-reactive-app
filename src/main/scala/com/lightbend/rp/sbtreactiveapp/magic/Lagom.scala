@@ -82,24 +82,23 @@ object Lagom {
     }
 
   private def decodeServices(services: String): Map[String, Endpoint] = {
-    def toEndpoint(pathBegins: Seq[String]): Endpoint =
-      Endpoint(
-        protocol = "http",
+    def toEndpoint(pathBegins: Seq[String]): HttpEndpoint =
+      HttpEndpoint(
         port = 0,
-        acls = pathBegins.distinct.map {
-          case "" => HttpAcl("^/")
-          case pt => HttpAcl(s"^$pt")
+        ingress = pathBegins.distinct.map {
+          case "" => HttpPathIngress("^/")
+          case pt => HttpPathIngress(s"^$pt")
         }
       )
 
-    def mergeEndpoint(endpoints: Map[String, Endpoint], endpointEntry: (String, Endpoint)): Map[String, Endpoint] =
+    def mergeEndpoint(endpoints: Map[String, HttpEndpoint], endpointEntry: (String, HttpEndpoint)): Map[String, HttpEndpoint] =
       endpointEntry match {
         case (serviceName, endpoint) =>
           val mergedEndpoint =
             endpoints
               .get(serviceName)
               .fold(endpoint) { prevEndpoint =>
-                prevEndpoint.copy(acls = prevEndpoint.acls ++ endpoint.acls)
+                prevEndpoint.copy(ingress = prevEndpoint.ingress ++ endpoint.ingress)
               }
 
           endpoints + (serviceName -> mergedEndpoint)
@@ -123,7 +122,7 @@ object Lagom {
 
         pathlessServiceName -> toEndpoint(pathBegins)
       }
-      .foldLeft(Map.empty[String, Endpoint])(mergeEndpoint)
+      .foldLeft(Map.empty[String, HttpEndpoint])(mergeEndpoint)
   }
 
   // Matches strings that starts with sequence escaping, e.g. \Q/api/users/:id\E

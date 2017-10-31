@@ -18,8 +18,31 @@ package com.lightbend.rp.sbtreactiveapp
 
 import scala.collection.immutable.Seq
 
-case class Endpoint(protocol: String, port: Int, acls: Seq[Acl])
+sealed trait Endpoint {
+  def port: Int
+  def protocol: String
+}
 
-object Endpoint {
-  def apply(protocol: String, port: Int, acls: Acl*): Endpoint = new Endpoint(protocol, port, acls.toVector)
+case class HttpEndpoint(port: Int, ingress: Seq[Ingress]) extends Endpoint {
+  val protocol: String = "http"
+}
+
+object HttpEndpoint {
+  def apply(port: Int, ingress: Ingress*): HttpEndpoint = new HttpEndpoint(port, ingress.toVector)
+}
+
+case class TcpEndpoint(port: Int, ingress: Seq[PortIngress]) extends Endpoint {
+  val protocol: String = "tcp"
+}
+
+object TcpEndpoint {
+  def apply(port: Int, ingress: PortIngress*): TcpEndpoint = new TcpEndpoint(port, ingress.toVector)
+}
+
+case class UdpEndpoint(port: Int, ingress: Seq[PortIngress]) extends Endpoint {
+  val protocol: String = "udp"
+}
+
+object UdpEndpoint {
+  def apply(port: Int, ingress: PortIngress*): UdpEndpoint = new UdpEndpoint(port, ingress.toVector)
 }

@@ -16,6 +16,10 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
-sealed trait Acl
+sealed trait Ingress
 
-case class HttpAcl(expression: String) extends Acl
+case class HttpPathIngress(path: String) extends Ingress
+
+case class PortIngress(port: Int) extends Ingress
+
+case class HttpHostIngress(host: String) extends Ingress
