@@ -39,6 +39,9 @@ object Lagom {
   def endpoints(classPath: Seq[Attributed[File]], scalaLoader: ClassLoader): Option[Seq[Endpoint]] =
     services(classPath, scalaLoader).map(decodeServices)
 
+  def hasCluster(allDependencies: Seq[ModuleID]): Boolean =
+    allDependencies.exists(l => l.organization == "com.lightbend.lagom" && l.name.contains("-persistence-"))
+
   def isJava: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomJava$")
 
   def isPlayJava: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomPlayJava$")

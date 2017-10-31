@@ -16,6 +16,7 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
+import com.typesafe.sbt.packager.Keys._
 import com.typesafe.sbt.packager.docker
 import sbt._
 
@@ -79,14 +80,15 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
   val Docker = docker.DockerPlugin.autoImport.Docker
 
+  val localName = "rp-start"
+
   override def projectSettings: Seq[Setting[_]] =
     App.apply.projectSettings ++ Vector(
       dockerEntrypoint := startScriptLocation.value.fold(dockerEntrypoint.value)(_ +: dockerEntrypoint.value),
 
-      dockerCommands := {
-        val localName = "rp-start"
-
-        val localPath = Keys.target.value / localName
+      stage in Docker := {
+        val target = (stage in Docker).value
+        val localPath = target / localName
 
         val data =
           scala.io.Source
@@ -97,10 +99,14 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
         localPath.setExecutable(true)
 
+        target
+      },
+
+      dockerCommands := {
         val addCommand = startScriptLocation
           .value
           .toVector
-          .map(path => docker.Cmd("ADD", localPath.getAbsolutePath, path))
+          .map(path => docker.Cmd("COPY", localName, path))
 
         dockerCommands.value ++ addCommand ++ SbtReactiveApp
           .labels(

@@ -38,9 +38,23 @@ trait SbtReactiveAppKeys {
 
   val environmentVariables = SettingKey[Map[String, EnvironmentVariable]]("rp-environment-variables")
 
-  val reactiveLibProject = SettingKey[Option[String]]("rp-reactive-lib-project")
+  val enableAkkaClusterBootstrap = SettingKey[Option[Boolean]]("rp-enable-akka-cluster-bootstrap", "Include Akka Cluster Bootstrapping. By default, included if a Lagom persistence module is defined.")
 
-  val reactiveLibVersion = SettingKey[Option[String]]("rp-reactive-lib-version")
+  val enablePlayHttpBinding = SettingKey[Boolean]("rp-enable-play-http-binding")
+
+  val enableSecrets = SettingKey[Option[Boolean]]("rp-enable-secrets", "Include Secrets API. By default, included if any secrets are defined.")
+
+  val enableServiceDiscovery = SettingKey[Boolean]("rp-enable-service-discovery")
+
+  val reactiveLibAkkaClusterBootstrapProject = SettingKey[(String, Boolean)]("rp-reactive-lib-akka-cluster-bootstrap-project")
+
+  val reactiveLibPlayHttpBindingProject = SettingKey[(String, Boolean)]("rp-reactive-lib-play-http-binding-project")
+
+  val reactiveLibSecretsProject = SettingKey[(String, Boolean)]("rp-reactive-lib-secrets-project")
+
+  val reactiveLibServiceDiscoveryProject = SettingKey[(String, Boolean)]("rp-reactive-lib-service-discovery-project")
+
+  val reactiveLibVersion = SettingKey[String]("rp-reactive-lib-version")
 
   val startScriptLocation = SettingKey[Option[String]]("rp-start-script")
 
