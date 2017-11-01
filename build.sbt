@@ -29,7 +29,7 @@ enablePlugins(AutomateHeaderPlugin)
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % Versions.nativePackager)
 
-publishMavenStyle := false
+publishMavenStyle := true
 
 homepage := Some(url("https://www.lightbend.com/"))
 developers := List(
@@ -49,11 +49,12 @@ releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
   inquireVersions,
   runClean,
-  releaseStepCommandAndRemaining("+test"),
+  releaseStepCommandAndRemaining("^test"),
+  releaseStepCommandAndRemaining("^scripted"),
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
-  releaseStepCommandAndRemaining("+publishSigned"),
+  releaseStepCommandAndRemaining("^publishSigned"),
   setNextVersion,
   commitNextVersion,
   pushChanges
