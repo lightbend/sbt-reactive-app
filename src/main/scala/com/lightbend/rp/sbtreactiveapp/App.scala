@@ -34,7 +34,6 @@ sealed trait App extends SbtReactiveAppKeys {
     nrOfCpus := None,
     diskSpace := None,
     memory := None,
-    endpoints := Vector.empty,
     volumes := Map.empty,
     privileged := false,
     healthCheck := None,
@@ -51,18 +50,28 @@ sealed trait App extends SbtReactiveAppKeys {
     enablePlayHttpBinding := false,
     enableSecrets := None,
     enableServiceDiscovery := false,
+    akkaClusterBootstrapEndpointName := "akka-remote",
+
+    akkaClusterBootstrapEnabled :=
+      enableAkkaClusterBootstrap.value.getOrElse(magic.Lagom.hasCluster(libraryDependencies.value.toVector)),
+
+    secretsEnabled :=
+      enableSecrets.value.getOrElse(secrets.value.nonEmpty),
 
     allDependencies := {
-      val baseDependencies =
-        allDependencies.value
-
-      val enableBootstrap =
-        enableAkkaClusterBootstrap.value.getOrElse(magic.Lagom.hasCluster(baseDependencies.toVector))
-
       val bootstrapDependencies =
-        lib(reactiveLibAkkaClusterBootstrapProject.value, reactiveLibVersion.value, enableBootstrap)
+        lib(reactiveLibAkkaClusterBootstrapProject.value, reactiveLibVersion.value, akkaClusterBootstrapEnabled.value)
 
-      baseDependencies ++ bootstrapDependencies
+      allDependencies.value ++ bootstrapDependencies
+    },
+
+    endpoints := {
+      val endpointName = akkaClusterBootstrapEndpointName.value
+
+      if (akkaClusterBootstrapEnabled.value)
+        Seq(TcpEndpoint(endpointName, 0))
+      else
+        Seq.empty
     },
 
     libraryDependencies ++=
@@ -91,7 +100,7 @@ sealed trait LagomApp extends App {
       managedClasspath in apiTools :=
         Classpaths.managedJars(apiTools, (classpathTypes in apiTools).value, update.value),
 
-      endpoints := magic.Lagom.endpoints(
+      endpoints := endpoints.value ++ magic.Lagom.endpoints(
         ((managedClasspath in apiTools).value ++ (fullClasspath in Compile).value).toVector,
         scalaInstance.value.loader
       )

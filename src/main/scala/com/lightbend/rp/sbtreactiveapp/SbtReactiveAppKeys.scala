@@ -36,6 +36,8 @@ trait SbtReactiveAppKeys {
 
   val readinessCheck = TaskKey[Option[Check]]("rp-readiness-check")
 
+  val akkaClusterBootstrapEndpointName = SettingKey[String]("rp-akka-cluster-bootstrap-endpoint-name")
+
   val environmentVariables = SettingKey[Map[String, EnvironmentVariable]]("rp-environment-variables")
 
   val enableAkkaClusterBootstrap = SettingKey[Option[Boolean]]("rp-enable-akka-cluster-bootstrap", "Include Akka Cluster Bootstrapping. By default, included if a Lagom persistence module is defined.")
@@ -59,4 +61,8 @@ trait SbtReactiveAppKeys {
   val startScriptLocation = SettingKey[Option[String]]("rp-start-script")
 
   val secrets = SettingKey[Set[Secret]]("rp-secrets")
+
+  private[sbtreactiveapp] val akkaClusterBootstrapEnabled = TaskKey[Boolean]("rp-akka-cluster-bootstrap-enabled")
+
+  private[sbtreactiveapp] val secretsEnabled = TaskKey[Boolean]("rp-secrets-enabled")
 }
