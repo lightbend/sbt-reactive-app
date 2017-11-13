@@ -40,7 +40,7 @@ object Lagom {
     services(classPath, scalaLoader).map(decodeServices(_, ports, host))
 
   def hasCluster(allDependencies: Seq[ModuleID]): Boolean =
-    allDependencies.exists(l => l.organization == "com.lightbend.lagom" && l.name.contains("-persistence-"))
+    allDependencies.exists(l => l.organization == "com.typesafe.akka" && l.name == "akka-cluster")
 
   def isJava: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomJava$")
 
