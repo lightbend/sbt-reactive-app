@@ -16,10 +16,25 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
-sealed trait Ingress
+import scala.collection.{ Seq => DefaultSeq }
+import scala.collection.immutable.Seq
 
-case class HttpPathIngress(path: String) extends Ingress
+sealed trait Ingress {
+  def ingressPorts: Seq[Int]
+}
 
-case class PortIngress(port: Int) extends Ingress
+case class PortIngress(ingressPorts: Seq[Int]) extends Ingress
 
-case class HttpHostIngress(host: String) extends Ingress
+object PortIngress {
+  def apply(ports: Int*): PortIngress = new PortIngress(ports.toVector)
+}
+
+case class HttpIngress(ingressPorts: Seq[Int], hosts: Seq[String], paths: Seq[String]) extends Ingress {
+  def ++ (that: HttpIngress): HttpIngress =
+    HttpIngress(ingressPorts ++ that.ingressPorts, hosts = hosts ++ that.hosts, paths = paths ++ that.paths)
+}
+
+object HttpIngress {
+  def apply(ingressPorts: DefaultSeq[Int], hosts: DefaultSeq[String], paths: DefaultSeq[String]): HttpIngress =
+    new HttpIngress(ingressPorts.toVector, hosts.toVector, paths.toVector)
+}

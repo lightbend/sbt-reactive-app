@@ -55,6 +55,10 @@ sealed trait App extends SbtReactiveAppKeys {
     akkaClusterBootstrapEnabled :=
       enableAkkaClusterBootstrap.value.getOrElse(magic.Lagom.hasCluster(libraryDependencies.value.toVector)),
 
+    lagomIngressHosts := Seq.empty,
+
+    lagomIngressPorts := Seq(80, 443),
+
     secretsEnabled :=
       enableSecrets.value.getOrElse(secrets.value.nonEmpty),
 
@@ -102,7 +106,9 @@ sealed trait LagomApp extends App {
 
       endpoints := endpoints.value ++ magic.Lagom.endpoints(
         ((managedClasspath in apiTools).value ++ (fullClasspath in Compile).value).toVector,
-        scalaInstance.value.loader
+        scalaInstance.value.loader,
+        lagomIngressPorts.value,
+        lagomIngressHosts.value
       )
       .getOrElse(Seq.empty)
     )

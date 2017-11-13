@@ -38,6 +38,10 @@ trait SbtReactiveAppKeys {
 
   val akkaClusterBootstrapEndpointName = SettingKey[String]("rp-akka-cluster-bootstrap-endpoint-name")
 
+  val lagomIngressHosts = SettingKey[Seq[String]]("rp-lagom-ingress-hosts")
+
+  val lagomIngressPorts = SettingKey[Seq[Int]]("rp-lagom-ingress-ports")
+
   val environmentVariables = SettingKey[Map[String, EnvironmentVariable]]("rp-environment-variables")
 
   val enableAkkaClusterBootstrap = SettingKey[Option[Boolean]]("rp-enable-akka-cluster-bootstrap", "Include Akka Cluster Bootstrapping. By default, included if a Lagom persistence module is defined.")

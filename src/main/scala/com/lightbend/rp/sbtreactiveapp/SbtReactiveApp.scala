@@ -70,39 +70,32 @@ object SbtReactiveApp {
             else
               Vector.empty
 
-          def encodeHttpHostIngress(h: HttpHostIngress, j: Int) =
-            Vector(
-              ns("endpoints", i.toString, "ingress", j.toString, "type") -> "http-host",
-              ns("endpoints", i.toString, "ingress", j.toString, "host") -> h.host)
+          def encodeHttpIngress(h: HttpIngress) =
+            Vector(ns("endpoints", i.toString, "ingress", "type") -> "http") ++
+              h.ingressPorts.zipWithIndex.map { case (port, j) =>
+                ns("endpoints", i.toString, "ingress", "ingress-ports", j.toString) -> port.toString
+              } ++
+              h.hosts.zipWithIndex.map { case (host, j) =>
+                ns("endpoints", i.toString, "ingress", "hosts", j.toString) -> host
+              } ++
+              h.paths.toVector.zipWithIndex.map { case (path, j) =>
+                ns("endpoints", i.toString, "ingress", "paths", j.toString) -> path
+              }
 
-          def encodeHttpPathIngress(h: HttpPathIngress, j: Int) =
-            Vector(
-              ns("endpoints", i.toString, "ingress", j.toString, "type") -> "http-path",
-              ns("endpoints", i.toString, "ingress", j.toString, "path") -> h.path)
-
-          def encodePortIngress(p: PortIngress, j: Int) =
-            Vector(
-              ns("endpoints", i.toString, "ingress", j.toString, "type") -> "port",
-              ns("endpoints", i.toString, "ingress", j.toString, "port") -> p.port.toString)
+          def encodePortIngress(p: PortIngress) =
+            Vector(ns("endpoints", i.toString, "ingress", "type") -> "port") ++
+              p.ingressPorts.zipWithIndex.map { case (port, j) =>
+                ns("endpoints", i.toString, "ingress", "ingress-ports", j.toString) -> port.toString
+              }
 
           val ingressKeys =
             endpoint match {
               case HttpEndpoint(_, _, ingress, _) =>
-                ingress
-                  .zipWithIndex
-                  .flatMap {
-                    case (h: HttpHostIngress, j) => encodeHttpHostIngress(h, j)
-                    case (h: HttpPathIngress, j) => encodeHttpPathIngress(h, j)
-                    case (p: PortIngress, j)     => encodePortIngress(p, j)
-                  }
+                ingress.toVector.flatMap(encodeHttpIngress)
               case TcpEndpoint(_, _, ingress, _) =>
-                ingress
-                  .zipWithIndex
-                  .flatMap { case (p, j) => encodePortIngress(p, j) }
+                ingress.toVector.flatMap(encodePortIngress)
               case UdpEndpoint(_, _, ingress, _) =>
-                ingress
-                  .zipWithIndex
-                  .flatMap { case (p, j) => encodePortIngress(p, j) }
+                ingress.toVector.flatMap(encodePortIngress)
             }
 
           baseKeys ++ versionKeys ++ portKey ++ ingressKeys

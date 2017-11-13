@@ -24,14 +24,11 @@ object SbtReactiveAppPlugin extends AutoPlugin {
   object autoImport extends SbtReactiveAppKeys {
     type Ingress = com.lightbend.rp.sbtreactiveapp.Ingress
 
-    type HttpPathIngress = com.lightbend.rp.sbtreactiveapp.HttpPathIngress
-    val HttpPathIngress = com.lightbend.rp.sbtreactiveapp.HttpPathIngress
-
     type PortIngress = com.lightbend.rp.sbtreactiveapp.PortIngress
     val PortIngress = com.lightbend.rp.sbtreactiveapp.PortIngress
 
-    type HttpHostIngress = com.lightbend.rp.sbtreactiveapp.HttpHostIngress
-    val HttpHostIngress = com.lightbend.rp.sbtreactiveapp.HttpHostIngress
+    type HttpIngress = com.lightbend.rp.sbtreactiveapp.HttpIngress
+    val HttpIngress = com.lightbend.rp.sbtreactiveapp.HttpIngress
 
     type Check = com.lightbend.rp.sbtreactiveapp.Check
 

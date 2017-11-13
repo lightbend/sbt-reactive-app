@@ -9,7 +9,7 @@ memory := Some(65536)
 diskSpace := Some(32768)
 privileged := true
 volumes := Map("/data" -> HostPathVolume("/var/local"), "/data2" -> HostPathVolume("/var/log"))
-endpoints := Vector(HttpEndpoint("test1", 2551, HttpPathIngress("^/test.*$")))
+endpoints := Vector(HttpEndpoint("test1", 2551, HttpIngress(ingressPorts = Seq(80, 443), hosts = Seq("hi.com"), paths = Seq("^/test.*$"))))
 environmentVariables := Map(
   "LD_LIBRARY_PATH" -> LiteralEnvironmentVariable("/lib"),
   "HOME" -> LiteralEnvironmentVariable("/home/testing"))
@@ -25,8 +25,11 @@ TaskKey[Unit]("check") := {
     """ENTRYPOINT ["/rp-start", "bin/labels"]""",
     """LABEL com.lightbend.rp.app-name="labels"""",
     """LABEL com.lightbend.rp.disk-space="32768"""",
-    """LABEL com.lightbend.rp.endpoints.0.ingress.0.path="^/test.*$"""",
-    """LABEL com.lightbend.rp.endpoints.0.ingress.0.type="http-path"""",
+    """LABEL com.lightbend.rp.endpoints.0.ingress.type="http"""",
+    """LABEL com.lightbend.rp.endpoints.0.ingress.ingress-ports.0="80"""",
+    """LABEL com.lightbend.rp.endpoints.0.ingress.ingress-ports.1="443"""",
+    """LABEL com.lightbend.rp.endpoints.0.ingress.paths.0="^/test.*$"""",
+    """LABEL com.lightbend.rp.endpoints.0.ingress.hosts.0="hi.com"""",
     """LABEL com.lightbend.rp.endpoints.0.name="test1"""",
     """LABEL com.lightbend.rp.endpoints.0.port="2551"""",
     """LABEL com.lightbend.rp.endpoints.0.protocol="http"""",

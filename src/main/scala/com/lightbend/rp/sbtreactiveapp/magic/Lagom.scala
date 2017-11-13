@@ -36,8 +36,8 @@ object Lagom {
     }
   }
 
-  def endpoints(classPath: Seq[Attributed[File]], scalaLoader: ClassLoader): Option[Seq[Endpoint]] =
-    services(classPath, scalaLoader).map(decodeServices)
+  def endpoints(classPath: Seq[Attributed[File]], scalaLoader: ClassLoader, ports: Seq[Int], host: Seq[String]): Option[Seq[Endpoint]] =
+    services(classPath, scalaLoader).map(decodeServices(_, ports, host))
 
   def hasCluster(allDependencies: Seq[ModuleID]): Boolean =
     allDependencies.exists(l => l.organization == "com.lightbend.lagom" && l.name.contains("-persistence-"))
@@ -84,15 +84,11 @@ object Lagom {
       objectExists(loader, className)
     }
 
-  private def decodeServices(services: String): Seq[HttpEndpoint] = {
+  private def decodeServices(services: String, ports: Seq[Int], hosts: Seq[String]): Seq[HttpEndpoint] = {
     def toEndpoint(serviceName: String, pathBegins: Seq[String]): HttpEndpoint =
       HttpEndpoint(
-        name = serviceName,
-        port = 0,
-        ingress = pathBegins.distinct.map {
-          case "" => HttpPathIngress("^/")
-          case pt => HttpPathIngress(s"^$pt")
-        }
+        serviceName,
+        HttpIngress(ports, hosts, pathBegins.distinct.map(p => if (p == "") "^/" else s"^$p"))
       )
 
     def mergeEndpoint(endpoints: Seq[HttpEndpoint], endpointEntry: HttpEndpoint): Seq[HttpEndpoint] = {
@@ -100,7 +96,14 @@ object Lagom {
         endpoints
           .find(_.name == endpointEntry.name)
           .fold(endpointEntry) { prevEndpoint =>
-            prevEndpoint.copy(ingress = prevEndpoint.ingress ++ endpointEntry.ingress)
+            prevEndpoint.copy(
+              ingress = (prevEndpoint.ingress, endpointEntry.ingress) match {
+                case (None, None)       => None
+                case (Some(p), None)    => Some(p)
+                case (None, Some(n))    => Some(n)
+                case (Some(p), Some(n)) => Some(p ++ n)
+              }
+            )
           }
 
       endpoints.filterNot(_.name == endpointEntry.name) :+ mergedEndpoint
