@@ -16,6 +16,8 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
+import scala.collection.immutable.Seq
+
 sealed trait Endpoint {
   def name: String
   def port: Int
@@ -23,15 +25,15 @@ sealed trait Endpoint {
   def version: Option[Version]
 }
 
-case class HttpEndpoint(name: String, port: Int, ingress: Option[HttpIngress], version: Option[Version] = Some(MajorVersion)) extends Endpoint {
+case class HttpEndpoint(name: String, port: Int, ingress: Seq[HttpIngress], version: Option[Version] = Some(MajorVersion)) extends Endpoint {
   val protocol: String = "http"
 }
 
 object HttpEndpoint {
-  def apply(name: String): HttpEndpoint = new HttpEndpoint(name, 0, None)
-  def apply(name: String, ingress: HttpIngress): HttpEndpoint = new HttpEndpoint(name, 0, Some(ingress))
-  def apply(name: String, port: Int): HttpEndpoint = new HttpEndpoint(name, port, None)
-  def apply(name: String, port: Int, ingress: HttpIngress): HttpEndpoint = new HttpEndpoint(name, port, Some(ingress))
+  def apply(name: String): HttpEndpoint = new HttpEndpoint(name, 0, Vector.empty)
+  def apply(name: String, ingress: HttpIngress*): HttpEndpoint = new HttpEndpoint(name, 0, ingress.toVector)
+  def apply(name: String, port: Int): HttpEndpoint = new HttpEndpoint(name, port, Vector.empty)
+  def apply(name: String, port: Int, ingress: HttpIngress*): HttpEndpoint = new HttpEndpoint(name, port, ingress.toVector)
 }
 
 case class TcpEndpoint(name: String, port: Int, ingress: Option[PortIngress], version: Option[Version] = Some(MajorVersion)) extends Endpoint {

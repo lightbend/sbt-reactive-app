@@ -70,16 +70,16 @@ object SbtReactiveApp {
             else
               Vector.empty
 
-          def encodeHttpIngress(h: HttpIngress) =
-            Vector(ns("endpoints", i.toString, "ingress", "type") -> "http") ++
-              h.ingressPorts.zipWithIndex.map { case (port, j) =>
-                ns("endpoints", i.toString, "ingress", "ingress-ports", j.toString) -> port.toString
+          def encodeHttpIngress(h: HttpIngress, j: Int) =
+            Vector(ns("endpoints", i.toString, "ingress", j.toString, "type") -> "http") ++
+              h.ingressPorts.zipWithIndex.map { case (port, k) =>
+                ns("endpoints", i.toString, "ingress", j.toString,  "ingress-ports", k.toString) -> port.toString
               } ++
-              h.hosts.zipWithIndex.map { case (host, j) =>
-                ns("endpoints", i.toString, "ingress", "hosts", j.toString) -> host
+              h.hosts.zipWithIndex.map { case (host, k) =>
+                ns("endpoints", i.toString, "ingress", j.toString,  "hosts", k.toString) -> host
               } ++
-              h.paths.toVector.zipWithIndex.map { case (path, j) =>
-                ns("endpoints", i.toString, "ingress", "paths", j.toString) -> path
+              h.paths.toVector.zipWithIndex.map { case (path, k) =>
+                ns("endpoints", i.toString, "ingress", j.toString,  "paths", k.toString) -> path
               }
 
           def encodePortIngress(p: PortIngress) =
@@ -91,7 +91,7 @@ object SbtReactiveApp {
           val ingressKeys =
             endpoint match {
               case HttpEndpoint(_, _, ingress, _) =>
-                ingress.toVector.flatMap(encodeHttpIngress)
+                ingress.zipWithIndex.flatMap { case (h, j) => encodeHttpIngress(h, j) }
               case TcpEndpoint(_, _, ingress, _) =>
                 ingress.toVector.flatMap(encodePortIngress)
               case UdpEndpoint(_, _, ingress, _) =>

@@ -96,14 +96,7 @@ object Lagom {
         endpoints
           .find(_.name == endpointEntry.name)
           .fold(endpointEntry) { prevEndpoint =>
-            prevEndpoint.copy(
-              ingress = (prevEndpoint.ingress, endpointEntry.ingress) match {
-                case (None, None)       => None
-                case (Some(p), None)    => Some(p)
-                case (None, Some(n))    => Some(n)
-                case (Some(p), Some(n)) => Some(p ++ n)
-              }
-            )
+            prevEndpoint.copy(ingress = prevEndpoint.ingress ++ endpointEntry.ingress)
           }
 
       endpoints.filterNot(_.name == endpointEntry.name) :+ mergedEndpoint
