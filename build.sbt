@@ -1,3 +1,5 @@
+import ReleaseTransformations._
+
 sbtPlugin := true
 
 val Versions = new {
@@ -27,4 +29,33 @@ enablePlugins(AutomateHeaderPlugin)
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % Versions.nativePackager)
 
-publishMavenStyle := false
+publishMavenStyle := true
+
+homepage := Some(url("https://www.lightbend.com/"))
+developers := List(
+  Developer("lightbend", "Lightbend Contributors", "", url("https://github.com/lightbend/sbt-reactive-app"))
+)
+sonatypeProfileName := "com.lightbend.rp"
+scmInfo := Some(ScmInfo(url("https://github.com/lightbend/sbt-reactive-app"), "git@github.com:lightbend/sbt-reactive-app.git"))
+publishTo := Some(
+  if (isSnapshot.value)
+    Opts.resolver.sonatypeSnapshots
+  else
+    Opts.resolver.sonatypeStaging
+)
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
+releaseCrossBuild := false
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  releaseStepCommandAndRemaining("^test"),
+  releaseStepCommandAndRemaining("^scripted"),
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  releaseStepCommandAndRemaining("^publishSigned"),
+  setNextVersion,
+  commitNextVersion,
+  pushChanges
+)

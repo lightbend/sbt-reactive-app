@@ -17,6 +17,7 @@
 package com.lightbend.rp.sbtreactiveapp
 
 import sbt._
+import scala.collection.immutable.Seq
 
 trait SbtReactiveAppKeys {
   val diskSpace = SettingKey[Option[Long]]("rp-disk-space")
@@ -25,7 +26,7 @@ trait SbtReactiveAppKeys {
 
   val nrOfCpus = SettingKey[Option[Double]]("rp-nr-of-cpus")
 
-  val endpoints = TaskKey[Map[String, Endpoint]]("rp-endpoints")
+  val endpoints = TaskKey[Seq[Endpoint]]("rp-endpoints")
 
   val volumes = TaskKey[Map[String, Volume]]("rp-volumes")
 
@@ -35,11 +36,37 @@ trait SbtReactiveAppKeys {
 
   val readinessCheck = TaskKey[Option[Check]]("rp-readiness-check")
 
+  val akkaClusterBootstrapEndpointName = SettingKey[String]("rp-akka-cluster-bootstrap-endpoint-name")
+
+  val lagomIngressHosts = SettingKey[Seq[String]]("rp-lagom-ingress-hosts")
+
+  val lagomIngressPorts = SettingKey[Seq[Int]]("rp-lagom-ingress-ports")
+
   val environmentVariables = SettingKey[Map[String, EnvironmentVariable]]("rp-environment-variables")
 
-  val reactiveLibProject = SettingKey[Option[String]]("rp-reactive-lib-project")
+  val enableAkkaClusterBootstrap = SettingKey[Option[Boolean]]("rp-enable-akka-cluster-bootstrap", "Include Akka Cluster Bootstrapping. By default, included if a Lagom persistence module is defined.")
 
-  val reactiveLibVersion = SettingKey[Option[String]]("rp-reactive-lib-version")
+  val enablePlayHttpBinding = SettingKey[Boolean]("rp-enable-play-http-binding")
+
+  val enableSecrets = SettingKey[Option[Boolean]]("rp-enable-secrets", "Include Secrets API. By default, included if any secrets are defined.")
+
+  val enableServiceDiscovery = SettingKey[Boolean]("rp-enable-service-discovery")
+
+  val reactiveLibAkkaClusterBootstrapProject = SettingKey[(String, Boolean)]("rp-reactive-lib-akka-cluster-bootstrap-project")
+
+  val reactiveLibPlayHttpBindingProject = SettingKey[(String, Boolean)]("rp-reactive-lib-play-http-binding-project")
+
+  val reactiveLibSecretsProject = SettingKey[(String, Boolean)]("rp-reactive-lib-secrets-project")
+
+  val reactiveLibServiceDiscoveryProject = SettingKey[(String, Boolean)]("rp-reactive-lib-service-discovery-project")
+
+  val reactiveLibVersion = SettingKey[String]("rp-reactive-lib-version")
 
   val startScriptLocation = SettingKey[Option[String]]("rp-start-script")
+
+  val secrets = SettingKey[Set[Secret]]("rp-secrets")
+
+  private[sbtreactiveapp] val akkaClusterBootstrapEnabled = TaskKey[Boolean]("rp-akka-cluster-bootstrap-enabled")
+
+  private[sbtreactiveapp] val secretsEnabled = TaskKey[Boolean]("rp-secrets-enabled")
 }

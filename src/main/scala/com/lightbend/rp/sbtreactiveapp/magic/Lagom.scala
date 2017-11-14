@@ -36,8 +36,11 @@ object Lagom {
     }
   }
 
-  def endpoints(classPath: Seq[Attributed[File]], scalaLoader: ClassLoader): Option[Map[String, Endpoint]] =
-    services(classPath, scalaLoader).map(decodeServices)
+  def endpoints(classPath: Seq[Attributed[File]], scalaLoader: ClassLoader, ports: Seq[Int], host: Seq[String]): Option[Seq[Endpoint]] =
+    services(classPath, scalaLoader).map(decodeServices(_, ports, host))
+
+  def hasCluster(allDependencies: Seq[ModuleID]): Boolean =
+    allDependencies.exists(l => l.organization == "com.typesafe.akka" && l.name == "akka-cluster")
 
   def isJava: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomJava$")
 
@@ -81,29 +84,23 @@ object Lagom {
       objectExists(loader, className)
     }
 
-  private def decodeServices(services: String): Map[String, Endpoint] = {
-    def toEndpoint(pathBegins: Seq[String]): Endpoint =
-      Endpoint(
-        protocol = "http",
-        port = 0,
-        acls = pathBegins.distinct.map {
-          case "" => HttpAcl("^/")
-          case pt => HttpAcl(s"^$pt")
-        }
+  private def decodeServices(services: String, ports: Seq[Int], hosts: Seq[String]): Seq[HttpEndpoint] = {
+    def toEndpoint(serviceName: String, pathBegins: Seq[String]): HttpEndpoint =
+      HttpEndpoint(
+        serviceName,
+        HttpIngress(ports, hosts, pathBegins.distinct.map(p => if (p == "") "^/" else s"^$p"))
       )
 
-    def mergeEndpoint(endpoints: Map[String, Endpoint], endpointEntry: (String, Endpoint)): Map[String, Endpoint] =
-      endpointEntry match {
-        case (serviceName, endpoint) =>
-          val mergedEndpoint =
-            endpoints
-              .get(serviceName)
-              .fold(endpoint) { prevEndpoint =>
-                prevEndpoint.copy(acls = prevEndpoint.acls ++ endpoint.acls)
-              }
+    def mergeEndpoint(endpoints: Seq[HttpEndpoint], endpointEntry: HttpEndpoint): Seq[HttpEndpoint] = {
+      val mergedEndpoint =
+        endpoints
+          .find(_.name == endpointEntry.name)
+          .fold(endpointEntry) { prevEndpoint =>
+            prevEndpoint.copy(ingress = prevEndpoint.ingress ++ endpointEntry.ingress)
+          }
 
-          endpoints + (serviceName -> mergedEndpoint)
-      }
+      endpoints.filterNot(_.name == endpointEntry.name) :+ mergedEndpoint
+    }
 
     Json
       .parse(services)
@@ -121,9 +118,9 @@ object Lagom {
                 pathBegin
           }
 
-        pathlessServiceName -> toEndpoint(pathBegins)
+        toEndpoint(pathlessServiceName, pathBegins)
       }
-      .foldLeft(Map.empty[String, Endpoint])(mergeEndpoint)
+      .foldLeft(Seq.empty[HttpEndpoint])(mergeEndpoint)
   }
 
   // Matches strings that starts with sequence escaping, e.g. \Q/api/users/:id\E

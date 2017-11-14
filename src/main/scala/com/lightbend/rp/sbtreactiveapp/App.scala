@@ -22,24 +22,70 @@ import scala.collection.immutable.Seq
 import Keys._
 
 sealed trait App extends SbtReactiveAppKeys {
+  private def lib(nameAndCross: (String, Boolean), version: String, filter: Boolean): Seq[ModuleID] =
+    if (filter && nameAndCross._2)
+      Seq("com.lightbend.rp" %% nameAndCross._1 % version)
+    else if (filter)
+      Seq("com.lightbend.rp" % nameAndCross._1 % version)
+    else
+      Seq.empty
+
   def projectSettings: Seq[Setting[_]] = Vector(
     nrOfCpus := None,
     diskSpace := None,
     memory := None,
-    endpoints := Map.empty,
     volumes := Map.empty,
     privileged := false,
     healthCheck := None,
     readinessCheck := None,
     environmentVariables := Map.empty,
-    reactiveLibProject := Some("basic"),
-    reactiveLibVersion := Some("0.1.0-SNAPSHOT"),
-    libraryDependencies ++= (
-      for {
-        project <- reactiveLibProject.value.toSeq
-        version <- reactiveLibVersion.value.toSeq
-      } yield "com.lightbend.rp" % project % version
-    )
+    startScriptLocation := Some("/rp-start"),
+    secrets := Set.empty,
+    reactiveLibVersion := "0.1.0-SNAPSHOT",
+    reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
+    reactiveLibPlayHttpBindingProject := "reactive-lib-play-http-binding" -> true,
+    reactiveLibSecretsProject := "reactive-lib-secrets" -> true,
+    reactiveLibServiceDiscoveryProject := "reactive-lib-service-discovery" -> true,
+    enableAkkaClusterBootstrap := Some(false),
+    enablePlayHttpBinding := false,
+    enableSecrets := None,
+    enableServiceDiscovery := false,
+    akkaClusterBootstrapEndpointName := "akka-remote",
+
+    akkaClusterBootstrapEnabled :=
+      enableAkkaClusterBootstrap.value.getOrElse(magic.Lagom.hasCluster(libraryDependencies.value.toVector)),
+
+    lagomIngressHosts := Seq.empty,
+
+    lagomIngressPorts := Seq(80, 443),
+
+    secretsEnabled :=
+      enableSecrets.value.getOrElse(secrets.value.nonEmpty),
+
+    allDependencies := {
+      val bootstrapDependencies =
+        lib(reactiveLibAkkaClusterBootstrapProject.value, reactiveLibVersion.value, akkaClusterBootstrapEnabled.value)
+
+      allDependencies.value ++ bootstrapDependencies
+    },
+
+    endpoints := {
+      val endpointName = akkaClusterBootstrapEndpointName.value
+
+      if (akkaClusterBootstrapEnabled.value)
+        Seq(TcpEndpoint(endpointName, 0))
+      else
+        Seq.empty
+    },
+
+    libraryDependencies ++=
+      lib(reactiveLibPlayHttpBindingProject.value, reactiveLibVersion.value, enablePlayHttpBinding.value),
+
+    libraryDependencies ++=
+      lib(reactiveLibSecretsProject.value, reactiveLibVersion.value, enableSecrets.value.getOrElse(secrets.value.nonEmpty)),
+
+    libraryDependencies ++=
+      lib(reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value)
   )
 }
 
@@ -51,52 +97,59 @@ sealed trait LagomApp extends App {
     // fullClasspath contains the Lagom services, Lagom framework and all its dependencies
 
     super.projectSettings ++ Vector(
+      enableServiceDiscovery := true,
+      enablePlayHttpBinding := true,
+      enableAkkaClusterBootstrap := None,
+
       managedClasspath in apiTools :=
         Classpaths.managedJars(apiTools, (classpathTypes in apiTools).value, update.value),
 
-      endpoints := magic.Lagom.endpoints(
+      endpoints := endpoints.value ++ magic.Lagom.endpoints(
         ((managedClasspath in apiTools).value ++ (fullClasspath in Compile).value).toVector,
-        scalaInstance.value.loader
+        scalaInstance.value.loader,
+        lagomIngressPorts.value,
+        lagomIngressHosts.value
       )
-      .getOrElse(Map.empty)
+      .getOrElse(Seq.empty)
     )
   }
 }
 
 case object LagomJavaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
-    super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${SemVer.formatMajorMinor(v)}-java")
-    )
+    super.projectSettings ++ magic.Lagom
+      .version
+      .toVector
+      .map(v =>
+        reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-java" -> false)
 }
 
 case object LagomScalaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
-    super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${SemVer.formatMajorMinor(v)}-scala")
-    )
+    super.projectSettings ++ magic.Lagom
+      .version
+      .toVector
+      .map(v => reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-scala" -> true)
 }
 
 case object LagomPlayJavaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
-    super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${SemVer.formatMajorMinor(v)}-java")
-    )
+    super.projectSettings ++ magic.Lagom
+      .version
+      .toVector
+      .map(v =>
+        reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-java" -> false)
 }
 
 case object LagomPlayScalaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
-    super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Lagom.version.map(v => s"reactive-lib-lagom${SemVer.formatMajorMinor(v)}-scala")
-    )
+    super.projectSettings ++ magic.Lagom
+      .version
+      .toVector
+      .map(v => reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-scala" -> true)
 }
 
-case object PlayApp extends App {
-  override def projectSettings: Seq[Setting[_]] =
-    super.projectSettings ++ Vector(
-      reactiveLibProject := magic.Play.version.map(v => s"reactive-lib-play${SemVer.formatMajorMinor(v)}")
-    )
-}
+case object PlayApp extends App
 
 case object BasicApp extends App
 

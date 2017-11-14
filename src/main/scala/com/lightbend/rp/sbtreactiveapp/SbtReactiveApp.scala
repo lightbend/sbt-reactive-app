@@ -24,13 +24,14 @@ object SbtReactiveApp {
              diskSpace: Option[Long],
              memory: Option[Long],
              nrOfCpus: Option[Double],
-             endpoints: Map[String, Endpoint],
+             endpoints: Seq[Endpoint],
              volumes: Map[String, Volume],
              privileged: Boolean,
              healthCheck: Option[Check],
              readinessCheck: Option[Check],
              environmentVariables: Map[String, EnvironmentVariable],
-             version: Option[(Int, Int, Int, Option[String])]): Map[String, String] = {
+             version: Option[(Int, Int, Int, Option[String])],
+             secrets: Set[Secret]): Map[String, String] = {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
 
     val keyValuePairs =
@@ -47,13 +48,21 @@ object SbtReactiveApp {
         .map(ns("nr-of-cpus") -> _.toString)
         .toSeq ++
       endpoints
-        .toSeq
         .zipWithIndex
-        .flatMap { case ((name, endpoint), i) =>
+        .flatMap { case (endpoint, i) =>
           val baseKeys = Vector(
-            ns("endpoints", i.toString, "name") -> name,
-            ns("endpoints", i.toString, "protocol") -> endpoint.protocol
-          )
+            ns("endpoints", i.toString, "name") -> endpoint.name,
+            ns("endpoints", i.toString, "protocol") -> endpoint.protocol)
+
+          val versionKeys =
+            endpoint.version.toVector.map {
+              case MajorVersion      =>
+                ns("endpoints", i.toString, "version") -> version.fold("0")(_._1.toString)
+              case MajorMinorVersion =>
+                ns("endpoints", i.toString, "version") -> version.fold("0.0")(e => s"${e._1}.${e._2}")
+              case LiteralVersion(v) =>
+                ns("endpoints", i.toString, "version") -> v
+            }
 
           val portKey =
             if (endpoint.port != 0)
@@ -61,28 +70,35 @@ object SbtReactiveApp {
             else
               Vector.empty
 
-          val aclKeys = endpoint
-            .acls
-            .zipWithIndex
-            .flatMap { case (acl, j) =>
-              acl match {
-                case HttpAcl(expression) =>
-                  Vector(
-                    ns("endpoints", i.toString, "acls", j.toString, "type") -> "http",
-                    ns("endpoints", i.toString, "acls", j.toString, "expression") -> expression
-                  )
-                case TcpAcl(ports) =>
-                  (ns("endpoints", i.toString, "acls", j.toString, "type") -> "tcp") +: ports.zipWithIndex.map { case (port, k) =>
-                    ns("endpoints", i.toString, "acls", j.toString, "ports", k.toString) -> port.toString
-                  }
-                case UdpAcl(ports) =>
-                  (ns("endpoints", i.toString, "acls", j.toString, "type") -> "udp") +: ports.zipWithIndex.map { case (port, k) =>
-                    ns("endpoints", i.toString, "acls", j.toString, "ports", k.toString) -> port.toString
-                  }
+          def encodeHttpIngress(h: HttpIngress, j: Int) =
+            Vector(ns("endpoints", i.toString, "ingress", j.toString, "type") -> "http") ++
+              h.ingressPorts.zipWithIndex.map { case (port, k) =>
+                ns("endpoints", i.toString, "ingress", j.toString,  "ingress-ports", k.toString) -> port.toString
+              } ++
+              h.hosts.zipWithIndex.map { case (host, k) =>
+                ns("endpoints", i.toString, "ingress", j.toString,  "hosts", k.toString) -> host
+              } ++
+              h.paths.toVector.zipWithIndex.map { case (path, k) =>
+                ns("endpoints", i.toString, "ingress", j.toString,  "paths", k.toString) -> path
               }
+
+          def encodePortIngress(p: PortIngress) =
+            Vector(ns("endpoints", i.toString, "ingress", "type") -> "port") ++
+              p.ingressPorts.zipWithIndex.map { case (port, j) =>
+                ns("endpoints", i.toString, "ingress", "ingress-ports", j.toString) -> port.toString
+              }
+
+          val ingressKeys =
+            endpoint match {
+              case HttpEndpoint(_, _, ingress, _) =>
+                ingress.zipWithIndex.flatMap { case (h, j) => encodeHttpIngress(h, j) }
+              case TcpEndpoint(_, _, ingress, _) =>
+                ingress.toVector.flatMap(encodePortIngress)
+              case UdpEndpoint(_, _, ingress, _) =>
+                ingress.toVector.flatMap(encodePortIngress)
             }
 
-          baseKeys ++ portKey ++ aclKeys
+          baseKeys ++ versionKeys ++ portKey ++ ingressKeys
         } ++
       volumes
         .toSeq
@@ -93,12 +109,6 @@ object SbtReactiveApp {
                 Vector(
                   ns("volumes", i.toString, "type") -> "host-path",
                   ns("volumes", i.toString, "path") -> path,
-                  ns("volumes", i.toString, "guest-path") -> guestPath
-                )
-              case SecretVolume(secret) =>
-                Vector(
-                  ns("volumes", i.toString, "type") -> "secret",
-                  ns("volumes", i.toString, "secret") -> secret,
                   ns("volumes", i.toString, "guest-path") -> guestPath
                 )
             }
@@ -121,12 +131,6 @@ object SbtReactiveApp {
                 ns(s"environment-variables", i.toString, "name") -> envName,
                 ns(s"environment-variables", i.toString, "value") -> envValue
               )
-            case SecretEnvironmentVariable(secret) =>
-              Vector(
-                ns(s"environment-variables", i.toString, "type") -> "secret",
-                ns(s"environment-variables", i.toString, "name") -> envName,
-                ns(s"environment-variables", i.toString, "secret") -> secret
-              )
             case kubernetes.ConfigMapEnvironmentVariable(mapName, key) =>
               Vector(
                 ns(s"environment-variables", i.toString, "type") -> "configMap",
@@ -144,6 +148,15 @@ object SbtReactiveApp {
             ns("version-minor") -> minor.toString,
             ns("version-patch") -> patch.toString) ++
           maybeLabel.toVector.map(label => ns("version-patch-label") -> label)
+        } ++
+      secrets
+        .toSeq
+        .zipWithIndex
+        .flatMap { case (secret, i) =>
+          Vector(
+            ns("secrets", i.toString, "namespace") -> secret.namespace,
+            ns("secrets", i.toString, "name") -> secret.name
+          )
         }
 
     keyValuePairs.toMap

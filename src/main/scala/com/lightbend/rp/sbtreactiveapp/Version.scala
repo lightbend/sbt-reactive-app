@@ -16,6 +16,10 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
-sealed trait Volume
+sealed trait Version
 
-case class HostPathVolume(path: String) extends Volume
+case object MajorVersion extends Version
+
+case object MajorMinorVersion extends Version
+
+case class LiteralVersion(version: String) extends Version
