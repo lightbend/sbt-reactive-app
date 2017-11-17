@@ -1,5 +1,5 @@
 name := "start-script-enabled"
-
+scalaVersion := "2.12.4"
 enablePlugins(SbtReactiveAppPlugin)
 
 startScriptLocation := Some("/my-rp-entry")

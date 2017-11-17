@@ -6,7 +6,7 @@ val Versions = new {
   val crossSbtVersions = Vector("0.13.16", "1.0.0")
   val nativePackager   = "1.3.2"
   val playJson         = "2.6.5"
-  val scala            = "2.12.3"
+  val scala            = "2.12.4"
   val scalaTest        = "3.0.1"
 }
 

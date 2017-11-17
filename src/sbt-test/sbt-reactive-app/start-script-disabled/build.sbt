@@ -1,5 +1,5 @@
 name := "start-script-disabled"
-
+scalaVersion := "2.12.4"
 enablePlugins(SbtReactiveAppPlugin)
 
 startScriptLocation := None
