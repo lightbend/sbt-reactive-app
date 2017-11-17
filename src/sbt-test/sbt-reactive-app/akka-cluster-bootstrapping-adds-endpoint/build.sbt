@@ -1,6 +1,6 @@
 name := "akka-cluster-bootstrapping-adds-endpoint"
 
-enablePlugins(DockerPlugin)
+enablePlugins(SbtReactiveAppPlugin)
 
 enableAkkaClusterBootstrap := Some(true)
 

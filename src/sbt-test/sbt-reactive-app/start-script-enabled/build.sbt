@@ -1,6 +1,6 @@
 name := "start-script-enabled"
 
-enablePlugins(DockerPlugin)
+enablePlugins(SbtReactiveAppPlugin)
 
 startScriptLocation := Some("/my-rp-entry")
 

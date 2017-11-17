@@ -1,6 +1,6 @@
 name := "start-script-disabled"
 
-enablePlugins(DockerPlugin)
+enablePlugins(SbtReactiveAppPlugin)
 
 startScriptLocation := None
 

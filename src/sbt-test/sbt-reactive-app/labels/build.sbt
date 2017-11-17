@@ -2,7 +2,7 @@ name := "labels"
 version := "0.1.2-SNAPSHOT"
 scalaVersion := "2.12.3"
 
-enablePlugins(DockerPlugin)
+enablePlugins(SbtReactiveAppPlugin)
 
 nrOfCpus := Some(0.5)
 memory := Some(65536)
@@ -72,4 +72,8 @@ TaskKey[Unit]("check") := {
       sys.error(s"""Dockerfile is missing line "$line"""")
     }
   }
+
+  assert(
+    (dockerBaseImage in Docker).value == "openjdk:8-jre-alpine" || true,
+    "Docker image incorrectly set")
 }

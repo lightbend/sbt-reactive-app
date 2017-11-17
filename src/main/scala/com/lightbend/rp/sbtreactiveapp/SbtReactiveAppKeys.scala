@@ -46,6 +46,8 @@ trait SbtReactiveAppKeys {
 
   val enableAkkaClusterBootstrap = SettingKey[Option[Boolean]]("rp-enable-akka-cluster-bootstrap", "Include Akka Cluster Bootstrapping. By default, included if a Lagom persistence module is defined.")
 
+  val enableCommon = SettingKey[Boolean]("rp-enable-common")
+
   val enablePlayHttpBinding = SettingKey[Boolean]("rp-enable-play-http-binding")
 
   val enableSecrets = SettingKey[Option[Boolean]]("rp-enable-secrets", "Include Secrets API. By default, included if any secrets are defined.")
@@ -53,6 +55,8 @@ trait SbtReactiveAppKeys {
   val enableServiceDiscovery = SettingKey[Boolean]("rp-enable-service-discovery")
 
   val reactiveLibAkkaClusterBootstrapProject = SettingKey[(String, Boolean)]("rp-reactive-lib-akka-cluster-bootstrap-project")
+
+  val reactiveLibCommonProject = SettingKey[(String, Boolean)]("rp-reactive-lib-common-project")
 
   val reactiveLibPlayHttpBindingProject = SettingKey[(String, Boolean)]("rp-reactive-lib-play-http-binding-project")
 

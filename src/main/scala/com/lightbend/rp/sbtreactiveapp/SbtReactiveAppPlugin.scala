@@ -17,6 +17,7 @@
 package com.lightbend.rp.sbtreactiveapp
 
 import com.typesafe.sbt.packager.Keys._
+import com.typesafe.sbt.packager.archetypes.scripts.AshScriptPlugin
 import com.typesafe.sbt.packager.docker
 import sbt._
 
@@ -71,9 +72,9 @@ object SbtReactiveAppPlugin extends AutoPlugin {
   import autoImport._
   import localImport._
 
-  override def requires = docker.DockerPlugin
+  override def requires = docker.DockerPlugin && AshScriptPlugin
 
-  override def trigger = allRequirements
+  override def trigger = noTrigger
 
   val Docker = docker.DockerPlugin.autoImport.Docker
 
@@ -123,7 +124,9 @@ object SbtReactiveAppPlugin extends AutoPlugin {
           .map { case (key, value) =>
             docker.Cmd("LABEL", s"""$key="${encodeLabelValue(value)}"""")
           }
-      }
+      },
+
+      dockerBaseImage := "openjdk:8-jre-alpine"
     )
 
   private def encodeLabelValue(value: String) =
