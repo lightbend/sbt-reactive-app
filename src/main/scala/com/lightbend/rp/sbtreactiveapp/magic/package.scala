@@ -26,9 +26,9 @@ package object magic {
       val clazz = classLoader.loadClass(className)
       val t = implicitly[ClassTag[T]].runtimeClass
       clazz.getField("MODULE$").get(null) match {
-        case null                  => throw new ClassNotFoundException(s"Unable to find $className using classloader: $classLoader")
+        case null => throw new ClassNotFoundException(s"Unable to find $className using classloader: $classLoader")
         case c if !t.isInstance(c) => throw new ClassCastException(s"${clazz.getName} is not a subtype of $t")
-        case c: T                  => c
+        case c: T => c
       }
     }.recover {
       case i: InvocationTargetException if i.getTargetException != null => throw i.getTargetException
