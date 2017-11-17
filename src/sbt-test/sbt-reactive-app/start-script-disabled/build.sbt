@@ -1,6 +1,6 @@
 name := "start-script-disabled"
-
-enablePlugins(DockerPlugin)
+scalaVersion := "2.12.4"
+enablePlugins(SbtReactiveAppPlugin)
 
 startScriptLocation := None
 

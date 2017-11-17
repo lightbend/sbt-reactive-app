@@ -41,12 +41,14 @@ sealed trait App extends SbtReactiveAppKeys {
     environmentVariables := Map.empty,
     startScriptLocation := Some("/rp-start"),
     secrets := Set.empty,
-    reactiveLibVersion := "0.1.0-SNAPSHOT",
+    reactiveLibVersion := "0.1.1",
     reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
+    reactiveLibCommonProject := "reactive-lib-common" -> true,
     reactiveLibPlayHttpBindingProject := "reactive-lib-play-http-binding" -> true,
     reactiveLibSecretsProject := "reactive-lib-secrets" -> true,
     reactiveLibServiceDiscoveryProject := "reactive-lib-service-discovery" -> true,
     enableAkkaClusterBootstrap := Some(false),
+    enableCommon := true,
     enablePlayHttpBinding := false,
     enableSecrets := None,
     enableServiceDiscovery := false,
@@ -77,6 +79,9 @@ sealed trait App extends SbtReactiveAppKeys {
       else
         Seq.empty
     },
+
+    libraryDependencies ++=
+      lib(reactiveLibCommonProject.value, reactiveLibVersion.value, true),
 
     libraryDependencies ++=
       lib(reactiveLibPlayHttpBindingProject.value, reactiveLibVersion.value, enablePlayHttpBinding.value),
