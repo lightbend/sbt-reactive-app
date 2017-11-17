@@ -17,7 +17,7 @@
 package com.lightbend.rp.sbtreactiveapp.magic
 
 import com.lightbend.rp.sbtreactiveapp._
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{ JsObject, Json }
 import sbt._
 import scala.collection.immutable.Seq
 import scala.language.reflectiveCalls
@@ -88,8 +88,7 @@ object Lagom {
     def toEndpoint(serviceName: String, pathBegins: Seq[String]): HttpEndpoint =
       HttpEndpoint(
         serviceName,
-        HttpIngress(ports, hosts, pathBegins.distinct.map(p => if (p == "") "^/" else s"^$p"))
-      )
+        HttpIngress(ports, hosts, pathBegins.distinct.map(p => if (p == "") "^/" else s"^$p")))
 
     def mergeEndpoint(endpoints: Seq[HttpEndpoint], endpointEntry: HttpEndpoint): Seq[HttpEndpoint] = {
       val mergedEndpoint =

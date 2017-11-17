@@ -30,7 +30,7 @@ object PortIngress {
 }
 
 case class HttpIngress(ingressPorts: Seq[Int], hosts: Seq[String], paths: Seq[String]) extends Ingress {
-  def ++ (that: HttpIngress): HttpIngress =
+  def ++(that: HttpIngress): HttpIngress =
     HttpIngress(ingressPorts ++ that.ingressPorts, hosts = hosts ++ that.hosts, paths = paths ++ that.paths)
 }
 

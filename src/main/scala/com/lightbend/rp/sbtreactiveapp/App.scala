@@ -90,8 +90,7 @@ sealed trait App extends SbtReactiveAppKeys {
       lib(reactiveLibSecretsProject.value, reactiveLibVersion.value, enableSecrets.value.getOrElse(secrets.value.nonEmpty)),
 
     libraryDependencies ++=
-      lib(reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value)
-  )
+      lib(reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value))
 }
 
 sealed trait LagomApp extends App {
@@ -113,10 +112,8 @@ sealed trait LagomApp extends App {
         ((managedClasspath in apiTools).value ++ (fullClasspath in Compile).value).toVector,
         scalaInstance.value.loader,
         lagomIngressPorts.value,
-        lagomIngressHosts.value
-      )
-      .getOrElse(Seq.empty)
-    )
+        lagomIngressHosts.value)
+        .getOrElse(Seq.empty))
   }
 }
 
@@ -180,11 +177,10 @@ private object SemVer {
   def parse(version: String): Option[(Int, Int, Int, Option[String])] = {
     val parts = version.split("\\.", 3)
 
-    if (
-      parts.length == 3 &&
-        parts(0).forall(_.isDigit) &&
-        parts(1).forall(_.isDigit) &&
-        parts(2).takeWhile(_ != '-').forall(_.isDigit)) {
+    if (parts.length == 3 &&
+      parts(0).forall(_.isDigit) &&
+      parts(1).forall(_.isDigit) &&
+      parts(2).takeWhile(_ != '-').forall(_.isDigit)) {
       val major = parts(0).toInt
       val minor = parts(1).toInt
       val patchParts = parts(2).split("-", 2)

@@ -119,15 +119,14 @@ object SbtReactiveAppPlugin extends AutoPlugin {
             readinessCheck = readinessCheck.value,
             environmentVariables = environmentVariables.value,
             version = SemVer.parse(Keys.version.value),
-            secrets = secrets.value
-          )
-          .map { case (key, value) =>
-            docker.Cmd("LABEL", s"""$key="${encodeLabelValue(value)}"""")
+            secrets = secrets.value)
+          .map {
+            case (key, value) =>
+              docker.Cmd("LABEL", s"""$key="${encodeLabelValue(value)}"""")
           }
       },
 
-      dockerBaseImage := "openjdk:8-jre-alpine"
-    )
+      dockerBaseImage := "openjdk:8-jre-alpine")
 
   private def encodeLabelValue(value: String) =
     value
