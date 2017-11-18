@@ -134,15 +134,20 @@ object SbtReactiveApp {
             env match {
               case LiteralEnvironmentVariable(envValue) =>
                 Vector(
-                  ns(s"environment-variables", i.toString, "type") -> "literal",
-                  ns(s"environment-variables", i.toString, "name") -> envName,
-                  ns(s"environment-variables", i.toString, "value") -> envValue)
+                  ns("environment-variables", i.toString, "type") -> "literal",
+                  ns("environment-variables", i.toString, "name") -> envName,
+                  ns("environment-variables", i.toString, "value") -> envValue)
               case kubernetes.ConfigMapEnvironmentVariable(mapName, key) =>
                 Vector(
-                  ns(s"environment-variables", i.toString, "type") -> "configMap",
-                  ns(s"environment-variables", i.toString, "name") -> envName,
-                  ns(s"environment-variables", i.toString, "map-name") -> mapName,
-                  ns(s"environment-variables", i.toString, "key") -> key)
+                  ns("environment-variables", i.toString, "type") -> "kubernetes.configMap",
+                  ns("environment-variables", i.toString, "name") -> envName,
+                  ns("environment-variables", i.toString, "map-name") -> mapName,
+                  ns("environment-variables", i.toString, "key") -> key)
+              case kubernetes.FieldRefEnvironmentVariable(fieldPath) =>
+                Vector(
+                  ns("environment-variables", i.toString, "type") -> "kubernetes.fieldRef",
+                  ns("environment-variables", i.toString, "name") -> envName,
+                  ns("environment-variables", i.toString, "field-path") -> fieldPath)
             }
         } ++
         version

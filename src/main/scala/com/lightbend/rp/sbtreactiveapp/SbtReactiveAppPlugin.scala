@@ -65,6 +65,14 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
     type Secret = com.lightbend.rp.sbtreactiveapp.Secret
     val Secret = com.lightbend.rp.sbtreactiveapp.Secret
+
+    object kubernetes {
+      type ConfigMapEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.kubernetes.ConfigMapEnvironmentVariable
+      val ConfigMapEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.kubernetes.ConfigMapEnvironmentVariable
+
+      type FieldRefEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.kubernetes.FieldRefEnvironmentVariable
+      val FieldRefEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.kubernetes.FieldRefEnvironmentVariable
+    }
   }
 
   object localImport extends docker.DockerKeys
