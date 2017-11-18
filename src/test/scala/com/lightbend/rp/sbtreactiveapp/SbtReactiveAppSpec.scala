@@ -60,7 +60,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         readinessCheck = None,
         environmentVariables = Map(
           "env1" -> LiteralEnvironmentVariable("my env one"),
-          "env2" -> kubernetes.ConfigMapEnvironmentVariable("my-map", "my-key")),
+          "env2" -> kubernetes.ConfigMapEnvironmentVariable("my-map", "my-key"),
+          "env3" -> kubernetes.FieldRefEnvironmentVariable("my-field-path")),
         version = Some((1, 2, 3, Some("SNAPSHOT"))),
         secrets = Set(Secret("myns1", "myname1"), Secret("myns2", "myname2"))) shouldBe Map(
 
@@ -124,9 +125,12 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.environment-variables.0.type" -> "literal",
           "com.lightbend.rp.environment-variables.0.value" -> "my env one",
           "com.lightbend.rp.environment-variables.1.name" -> "env2",
-          "com.lightbend.rp.environment-variables.1.type" -> "configMap",
+          "com.lightbend.rp.environment-variables.1.type" -> "kubernetes.configMap",
           "com.lightbend.rp.environment-variables.1.map-name" -> "my-map",
           "com.lightbend.rp.environment-variables.1.key" -> "my-key",
+          "com.lightbend.rp.environment-variables.2.name" -> "env3",
+          "com.lightbend.rp.environment-variables.2.type" -> "kubernetes.fieldRef",
+          "com.lightbend.rp.environment-variables.2.field-path" -> "my-field-path",
           "com.lightbend.rp.version-major" -> "1",
           "com.lightbend.rp.version-minor" -> "2",
           "com.lightbend.rp.version-patch" -> "3",
