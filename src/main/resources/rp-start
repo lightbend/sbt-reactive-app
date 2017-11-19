@@ -1,3 +1,24 @@
 #!/usr/bin/env sh
 
+# This script can be used to normalize environments at runtime, e.g.
+# shift variables around on Kubernetes/Marathon. It's executed inside
+# the Docker container.
+
+set -e
+
+# @TODO FIXME when upstream fixes this, see https://github.com/sbt/sbt-native-packager/issues/978
+# Hack around a bug in sbt-native-packager causing args
+# to not work when Ash Scripting is enabled
+
+if [ -d "$PWD/bin" ]; then
+  cat <<EOT >> "$PWD/bin/is_cygwin"
+#!/usr/bin/env sh
+exit 1
+EOT
+
+  chmod +x "$PWD/bin/is_cygwin"
+
+  export PATH="$PWD/bin:$PATH"
+fi
+
 exec "$@"
