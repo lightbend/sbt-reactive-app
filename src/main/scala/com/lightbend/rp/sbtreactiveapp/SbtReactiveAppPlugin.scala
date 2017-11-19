@@ -20,6 +20,24 @@ import com.typesafe.sbt.packager.Keys._
 import com.typesafe.sbt.packager.archetypes.scripts.AshScriptPlugin
 import com.typesafe.sbt.packager.docker
 import sbt._
+import sbt.Keys._
+import sbt.plugins.JvmPlugin
+
+object SbtReactiveAppPluginAll extends AutoPlugin {
+  override def requires = JvmPlugin
+
+  override def trigger = allRequirements
+
+  override def projectSettings: Seq[Setting[_]] =
+    inConfig(docker.DockerPlugin.autoImport.Docker)(
+      publish in docker.DockerPlugin.autoImport.Docker := {
+        Def.taskDyn {
+          dockerRepository.?.value.nonEmpty && rpDockerPublish.?.value.nonEmpty
+
+          Def.task(())
+        }
+      }.value)
+}
 
 object SbtReactiveAppPlugin extends AutoPlugin {
   object autoImport extends SbtReactiveAppKeys {
@@ -79,8 +97,9 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
   import autoImport._
   import localImport._
+  import docker.DockerPlugin._
 
-  override def requires = docker.DockerPlugin && AshScriptPlugin
+  override def requires = SbtReactiveAppPluginAll && docker.DockerPlugin && AshScriptPlugin && SbtReactiveAppPluginAll
 
   override def trigger = noTrigger
 
@@ -92,21 +111,7 @@ object SbtReactiveAppPlugin extends AutoPlugin {
     App.apply.projectSettings ++ Vector(
       dockerEntrypoint := startScriptLocation.value.fold(dockerEntrypoint.value)(_ +: dockerEntrypoint.value),
 
-      stage in Docker := {
-        val target = (stage in Docker).value
-        val localPath = target / localName
-
-        val data =
-          scala.io.Source
-            .fromInputStream(getClass.getClassLoader.getResourceAsStream(localName))
-            .mkString
-
-        IO.write(localPath, data)
-
-        localPath.setExecutable(true)
-
-        target
-      },
+      dockerBaseImage := "openjdk:8-jre-alpine",
 
       dockerCommands := {
         val addCommand = startScriptLocation
@@ -132,9 +137,34 @@ object SbtReactiveAppPlugin extends AutoPlugin {
             case (key, value) =>
               docker.Cmd("LABEL", s"""$key="${encodeLabelValue(value)}"""")
           }
-      },
+      }) ++ inConfig(Docker)(Seq(
+        stage := {
+          val target = stage.value
+          val localPath = target / localName
 
-      dockerBaseImage := "openjdk:8-jre-alpine")
+          val data =
+            scala.io.Source
+              .fromInputStream(getClass.getClassLoader.getResourceAsStream(localName))
+              .mkString
+
+          IO.write(localPath, data)
+
+          localPath.setExecutable(true)
+
+          target
+        },
+        rpDockerPublish := {
+          val _ = publishLocal.value
+          val alias = dockerAlias.value
+          val log = streams.value.log
+          val execCommand = dockerExecCommand.value
+
+          publishDocker(execCommand, alias.versioned, log)
+
+          if (dockerUpdateLatest.value) {
+            publishDocker(execCommand, alias.latest, log)
+          }
+        }))
 
   private def encodeLabelValue(value: String) =
     value
