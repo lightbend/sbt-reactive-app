@@ -105,8 +105,12 @@ sealed trait LagomApp extends App {
       enablePlayHttpBinding := true,
       enableAkkaClusterBootstrap := None,
 
+      ivyConfigurations += apiTools,
+
       managedClasspath in apiTools :=
         Classpaths.managedJars(apiTools, (classpathTypes in apiTools).value, update.value),
+
+      libraryDependencies ++= magic.Lagom.component("api-tools").toVector.map(_ % apiTools),
 
       endpoints := endpoints.value ++ magic.Lagom.endpoints(
         ((managedClasspath in apiTools).value ++ (fullClasspath in Compile).value).toVector,
