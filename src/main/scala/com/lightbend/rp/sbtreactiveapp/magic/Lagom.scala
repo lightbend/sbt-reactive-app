@@ -88,7 +88,7 @@ object Lagom {
     def toEndpoint(serviceName: String, pathBegins: Seq[String]): HttpEndpoint =
       HttpEndpoint(
         serviceName,
-        HttpIngress(ports, hosts, pathBegins.distinct.map(p => if (p == "") "^/" else s"^$p")))
+        HttpIngress(ports, hosts, pathBegins.distinct.map(p => if (p == "") "/" else p)))
 
     def mergeEndpoint(endpoints: Seq[HttpEndpoint], endpointEntry: HttpEndpoint): Seq[HttpEndpoint] = {
       val mergedEndpoint =
