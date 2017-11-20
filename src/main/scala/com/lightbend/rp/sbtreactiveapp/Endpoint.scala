@@ -22,10 +22,10 @@ sealed trait Endpoint {
   def name: String
   def port: Int
   def protocol: String
-  def version: Option[Version]
+  def version: Option[Int]
 }
 
-case class HttpEndpoint(name: String, port: Int, ingress: Seq[HttpIngress], version: Option[Version] = Some(MajorVersion)) extends Endpoint {
+case class HttpEndpoint(name: String, port: Int, ingress: Seq[HttpIngress], version: Option[Int] = Some(1)) extends Endpoint {
   val protocol: String = "http"
 }
 
@@ -36,7 +36,7 @@ object HttpEndpoint {
   def apply(name: String, port: Int, ingress: HttpIngress*): HttpEndpoint = new HttpEndpoint(name, port, ingress.toVector)
 }
 
-case class TcpEndpoint(name: String, port: Int, ingress: Option[PortIngress], version: Option[Version] = Some(MajorVersion)) extends Endpoint {
+case class TcpEndpoint(name: String, port: Int, ingress: Option[PortIngress], version: Option[Int] = Some(1)) extends Endpoint {
   val protocol: String = "tcp"
 }
 
@@ -47,7 +47,7 @@ object TcpEndpoint {
   def apply(name: String, port: Int, ingress: PortIngress): TcpEndpoint = new TcpEndpoint(name, port, Some(ingress))
 }
 
-case class UdpEndpoint(name: String, port: Int, ingress: Option[PortIngress], version: Option[Version] = Some(MajorVersion)) extends Endpoint {
+case class UdpEndpoint(name: String, port: Int, ingress: Option[PortIngress], version: Option[Int] = Some(1)) extends Endpoint {
   val protocol: String = "udp"
 }
 

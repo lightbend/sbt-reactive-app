@@ -33,7 +33,6 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.endpoints.0.name="test1"""",
     """LABEL com.lightbend.rp.endpoints.0.port="2551"""",
     """LABEL com.lightbend.rp.endpoints.0.protocol="http"""",
-    """LABEL com.lightbend.rp.endpoints.0.version="0"""",
     """LABEL com.lightbend.rp.environment-variables.0.name="LD_LIBRARY_PATH"""",
     """LABEL com.lightbend.rp.environment-variables.0.value="/lib"""",
     """LABEL com.lightbend.rp.environment-variables.0.type="literal"""",

@@ -57,14 +57,7 @@ object SbtReactiveApp {
               ns("endpoints", i.toString, "protocol") -> endpoint.protocol)
 
             val versionKeys =
-              endpoint.version.toVector.map {
-                case MajorVersion =>
-                  ns("endpoints", i.toString, "version") -> version.fold("0")(_._1.toString)
-                case MajorMinorVersion =>
-                  ns("endpoints", i.toString, "version") -> version.fold("0.0")(e => s"${e._1}.${e._2}")
-                case LiteralVersion(v) =>
-                  ns("endpoints", i.toString, "version") -> v
-              }
+              endpoint.version.toVector.map(v => ns("endpoints", i.toString, "version") -> v.toString)
 
             val portKey =
               if (endpoint.port != 0)
