@@ -53,31 +53,36 @@ sealed trait App extends SbtReactiveAppKeys {
     enableSecrets := None,
     enableServiceDiscovery := false,
     akkaClusterBootstrapEndpointName := "akka-remote",
+    akkaClusterBootstrapEnabled := false,
 
-    akkaClusterBootstrapEnabled :=
-      enableAkkaClusterBootstrap.value.getOrElse(magic.Lagom.hasCluster(libraryDependencies.value.toVector)),
+    httpIngressHosts := Seq.empty,
 
-    lagomIngressHosts := Seq.empty,
+    httpIngressPaths := Seq.empty,
 
-    lagomIngressPorts := Seq(80, 443),
+    httpIngressPorts := Seq(80, 443),
 
     secretsEnabled :=
       enableSecrets.value.getOrElse(secrets.value.nonEmpty),
 
     allDependencies := {
+      val bootstrapEnabled = enableAkkaClusterBootstrap.value.getOrElse(akkaClusterBootstrapEnabled.value)
+
       val bootstrapDependencies =
-        lib(reactiveLibAkkaClusterBootstrapProject.value, reactiveLibVersion.value, akkaClusterBootstrapEnabled.value)
+        lib(reactiveLibAkkaClusterBootstrapProject.value, reactiveLibVersion.value, bootstrapEnabled)
 
       allDependencies.value ++ bootstrapDependencies
     },
 
     endpoints := {
       val endpointName = akkaClusterBootstrapEndpointName.value
+      val bootstrapEnabled = enableAkkaClusterBootstrap.value.getOrElse(akkaClusterBootstrapEnabled.value)
 
-      if (akkaClusterBootstrapEnabled.value)
-        Seq(TcpEndpoint(endpointName, 0))
-      else
-        Seq.empty
+      endpoints.?.value.getOrElse(Seq.empty) ++ {
+        if (bootstrapEnabled)
+          Seq(TcpEndpoint(endpointName, 0))
+        else
+          Seq.empty
+      }
     },
 
     libraryDependencies ++=
@@ -105,6 +110,9 @@ sealed trait LagomApp extends App {
       enablePlayHttpBinding := true,
       enableAkkaClusterBootstrap := None,
 
+      akkaClusterBootstrapEnabled :=
+        magic.Lagom.hasCluster(libraryDependencies.value.toVector),
+
       ivyConfigurations += apiTools,
 
       managedClasspath in apiTools :=
@@ -112,12 +120,15 @@ sealed trait LagomApp extends App {
 
       libraryDependencies ++= magic.Lagom.component("api-tools").toVector.map(_ % apiTools),
 
-      endpoints := endpoints.value ++ magic.Lagom.endpoints(
+      // Note: Play & Lagom need their endpoints defined first (see play-http-binding)
+
+      endpoints := magic.Lagom.endpoints(
         ((managedClasspath in apiTools).value ++ (fullClasspath in Compile).value).toVector,
         scalaInstance.value.loader,
-        lagomIngressPorts.value,
-        lagomIngressHosts.value)
-        .getOrElse(Seq.empty))
+        httpIngressPorts.value,
+        httpIngressHosts.value,
+        httpIngressPaths.value)
+        .getOrElse(Seq.empty) ++ endpoints.value)
   }
 }
 
@@ -155,7 +166,18 @@ case object LagomPlayScalaApp extends LagomApp {
       .map(v => reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-scala" -> true)
 }
 
-case object PlayApp extends App
+case object PlayApp extends App {
+  override def projectSettings: Seq[Setting[_]] = {
+    super.projectSettings ++ Vector(
+      // Note: Play & Lagom need their endpoints defined first (see play-http-binding)
+
+      httpIngressPaths := Vector("/"),
+
+      endpoints :=
+        HttpEndpoint(name.value, 0, HttpIngress(httpIngressPorts.value, httpIngressHosts.value, httpIngressPaths.value)) +:
+        endpoints.value)
+  }
+}
 
 case object BasicApp extends App
 

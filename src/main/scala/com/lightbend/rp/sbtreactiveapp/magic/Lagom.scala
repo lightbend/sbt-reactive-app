@@ -36,11 +36,19 @@ object Lagom {
     }
   }
 
-  def endpoints(classPath: Seq[Attributed[File]], scalaLoader: ClassLoader, ports: Seq[Int], host: Seq[String]): Option[Seq[Endpoint]] =
-    services(classPath, scalaLoader).map(decodeServices(_, ports, host))
+  def endpoints(classPath: Seq[Attributed[File]], scalaLoader: ClassLoader, ports: Seq[Int], hosts: Seq[String], paths: Seq[String]): Option[Seq[Endpoint]] =
+    services(classPath, scalaLoader).map(decodeServices(_, ports, hosts, paths))
 
-  def hasCluster(allDependencies: Seq[ModuleID]): Boolean =
-    allDependencies.exists(l => l.organization == "com.typesafe.akka" && l.name == "akka-cluster")
+  def hasCluster(libraryDependencies: Seq[ModuleID]): Boolean = {
+    // we can't inspect all transitive dependencies because the entire class path can't be calculated until
+    // we decide whether we need to add the cluster or not, so we resort to this hack which covers
+    // out of the box cases. If a custom module is used that uses persistence features, the user
+    // would have to explicitly enable the SBT setting instead of relying on autodetection
+
+    libraryDependencies.exists(d =>
+      d.organization == "com.lightbend.lagom" && (
+        d.name.contains("-persistence") || d.name.contains("-pubsub") || d.name.contains("-cluster")))
+  }
 
   def isJava: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomJava$")
 
@@ -84,11 +92,19 @@ object Lagom {
       objectExists(loader, className)
     }
 
-  private def decodeServices(services: String, ports: Seq[Int], hosts: Seq[String]): Seq[HttpEndpoint] = {
-    def toEndpoint(serviceName: String, pathBegins: Seq[String]): HttpEndpoint =
-      HttpEndpoint(
-        serviceName,
-        HttpIngress(ports, hosts, pathBegins.distinct.map(p => if (p == "") "/" else p)))
+  private def decodeServices(services: String, ports: Seq[Int], hosts: Seq[String], paths: Seq[String]): Seq[HttpEndpoint] = {
+    def toEndpoint(serviceName: String, pathBegins: Seq[String]): HttpEndpoint = {
+      // If we're provided an explicit path listing, use that instead. A future improvement would be to
+      // move path autodetection to a separate task
+
+      val pathsToUse =
+        if (paths.nonEmpty)
+          paths
+        else
+          pathBegins.distinct.map(p => if (p == "") "/" else p)
+
+      HttpEndpoint(serviceName, HttpIngress(ports, hosts, pathsToUse))
+    }
 
     def mergeEndpoint(endpoints: Seq[HttpEndpoint], endpointEntry: HttpEndpoint): Seq[HttpEndpoint] = {
       val mergedEndpoint =
