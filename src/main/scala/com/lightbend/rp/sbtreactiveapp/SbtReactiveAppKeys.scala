@@ -40,9 +40,11 @@ trait SbtReactiveAppKeys {
 
   val akkaClusterBootstrapEndpointName = SettingKey[String]("rp-akka-cluster-bootstrap-endpoint-name")
 
-  val lagomIngressHosts = SettingKey[Seq[String]]("rp-lagom-ingress-hosts")
+  val httpIngressHosts = SettingKey[Seq[String]]("rp-ingress-hosts")
 
-  val lagomIngressPorts = SettingKey[Seq[Int]]("rp-lagom-ingress-ports")
+  val httpIngressPaths = TaskKey[Seq[String]]("rp-ingress-paths")
+
+  val httpIngressPorts = SettingKey[Seq[Int]]("rp-ingress-ports")
 
   val environmentVariables = SettingKey[Map[String, EnvironmentVariable]]("rp-environment-variables")
 
