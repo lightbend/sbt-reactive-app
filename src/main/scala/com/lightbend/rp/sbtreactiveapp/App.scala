@@ -31,6 +31,7 @@ sealed trait App extends SbtReactiveAppKeys {
       Seq.empty
 
   def projectSettings: Seq[Setting[_]] = Vector(
+    namespace := None,
     nrOfCpus := None,
     diskSpace := None,
     memory := None,

@@ -121,6 +121,7 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
         dockerCommands.value ++ addCommand ++ SbtReactiveApp
           .labels(
+            namespace = namespace.value,
             appName = Some(Keys.name.value),
             diskSpace = diskSpace.value,
             memory = memory.value,
