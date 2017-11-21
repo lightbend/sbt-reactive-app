@@ -22,13 +22,15 @@ import com.typesafe.sbt.packager.docker
 import sbt._
 import sbt.Keys._
 import sbt.plugins.JvmPlugin
+import scala.collection.{ Seq => DefaultSeq }
+import scala.collection.immutable.Seq
 
 object SbtReactiveAppPluginAll extends AutoPlugin {
   override def requires = JvmPlugin
 
   override def trigger = allRequirements
 
-  override def projectSettings: Seq[Setting[_]] =
+  override def projectSettings: DefaultSeq[Setting[_]] =
     inConfig(docker.DockerPlugin.autoImport.Docker)(
       publish in docker.DockerPlugin.autoImport.Docker := {
         Def.taskDyn {
@@ -119,10 +121,17 @@ object SbtReactiveAppPlugin extends AutoPlugin {
           .toVector
           .map(path => docker.Cmd("COPY", localName, path))
 
+        val bootstrapEnabled = enableAkkaClusterBootstrap.value.getOrElse(akkaClusterBootstrapEnabled.value)
+        val commonEnabled = enableCommon.value
+        val playHttpBindingEnabled = enablePlayHttpBinding.value
+        val secretsEnabled = enableSecrets.value.getOrElse(secrets.value.nonEmpty)
+        val serviceDiscoveryEnabled = enableServiceDiscovery.value
+
         dockerCommands.value ++ addCommand ++ SbtReactiveApp
           .labels(
             namespace = namespace.value,
             appName = Some(Keys.name.value),
+            appType = Some(appType.value),
             diskSpace = diskSpace.value,
             memory = memory.value,
             nrOfCpus = nrOfCpus.value,
@@ -133,7 +142,13 @@ object SbtReactiveAppPlugin extends AutoPlugin {
             readinessCheck = readinessCheck.value,
             environmentVariables = environmentVariables.value,
             version = SemVer.parse(Keys.version.value),
-            secrets = secrets.value)
+            secrets = secrets.value,
+            modules = Seq(
+              "akka-cluster-bootstrapping" -> bootstrapEnabled,
+              "common" -> enableCommon.value,
+              "play-http-binding" -> playHttpBindingEnabled,
+              "secrets" -> secretsEnabled,
+              "service-discovery" -> serviceDiscoveryEnabled))
           .map {
             case (key, value) =>
               docker.Cmd("LABEL", s"""$key="${encodeLabelValue(value)}"""")

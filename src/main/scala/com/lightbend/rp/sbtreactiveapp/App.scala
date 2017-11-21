@@ -30,8 +30,11 @@ sealed trait App extends SbtReactiveAppKeys {
     else
       Seq.empty
 
+  def applicationType: String
+
   def projectSettings: Seq[Setting[_]] = Vector(
     namespace := None,
+    appType := applicationType,
     nrOfCpus := None,
     diskSpace := None,
     memory := None,
@@ -100,6 +103,8 @@ sealed trait App extends SbtReactiveAppKeys {
 }
 
 sealed trait LagomApp extends App {
+  val applicationType: String = "lagom"
+
   val apiTools = config("api-tools").hide
 
   override def projectSettings: Seq[Setting[_]] = {
@@ -186,6 +191,8 @@ case object LagomPlayScalaApp extends LagomApp {
 }
 
 case object PlayApp extends App {
+  val applicationType: String = "play"
+
   override def projectSettings: Seq[Setting[_]] = {
     super.projectSettings ++ Vector(
       // Note: Play & Lagom need their endpoints defined first (see play-http-binding)
@@ -198,7 +205,9 @@ case object PlayApp extends App {
   }
 }
 
-case object BasicApp extends App
+case object BasicApp extends App {
+  val applicationType: String = "basic"
+}
 
 object App {
   def apply: App =

@@ -22,6 +22,7 @@ class SbtReactiveAppSpec extends UnitSpec {
       SbtReactiveApp.labels(
         namespace = None,
         appName = None,
+        appType = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -32,13 +33,15 @@ class SbtReactiveAppSpec extends UnitSpec {
         readinessCheck = None,
         environmentVariables = Map.empty,
         version = None,
-        secrets = Set.empty) shouldBe Map.empty
+        secrets = Set.empty,
+        modules = Vector.empty) shouldBe Map.empty
     }
 
     "work for all values (except checks)" in {
       SbtReactiveApp.labels(
         namespace = Some("font"),
         appName = Some("myapp"),
+        appType = Some("mytype"),
         diskSpace = Some(1234),
         memory = Some(5678),
         nrOfCpus = Some(0.25),
@@ -65,10 +68,14 @@ class SbtReactiveAppSpec extends UnitSpec {
           "env2" -> kubernetes.ConfigMapEnvironmentVariable("my-map", "my-key"),
           "env3" -> kubernetes.FieldRefEnvironmentVariable("my-field-path")),
         version = Some((1, 2, 3, Some("SNAPSHOT"))),
-        secrets = Set(Secret("myns1", "myname1"), Secret("myns2", "myname2"))) shouldBe Map(
+        secrets = Set(Secret("myns1", "myname1"), Secret("myns2", "myname2")),
+        modules = Vector("mod1" -> true, "mod2" -> false)) shouldBe Map(
 
           "com.lightbend.rp.namespace" -> "font",
           "com.lightbend.rp.app-name" -> "myapp",
+          "com.lightbend.rp.app-type" -> "mytype",
+          "com.lightbend.rp.modules.mod1.enabled" -> "true",
+          "com.lightbend.rp.modules.mod2.enabled" -> "false",
           "com.lightbend.rp.disk-space" -> "1234",
           "com.lightbend.rp.memory" -> "5678",
           "com.lightbend.rp.nr-of-cpus" -> "0.25",
@@ -142,6 +149,7 @@ class SbtReactiveAppSpec extends UnitSpec {
       SbtReactiveApp.labels(
         namespace = None,
         appName = None,
+        appType = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -152,7 +160,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         readinessCheck = Some(TcpCheck(90, 5)),
         environmentVariables = Map.empty,
         version = None,
-        secrets = Set.empty) shouldBe Map(
+        secrets = Set.empty,
+        modules = Vector.empty) shouldBe Map(
           "com.lightbend.rp.health-check.type" -> "tcp",
           "com.lightbend.rp.health-check.port" -> "80",
           "com.lightbend.rp.health-check.interval" -> "10",
@@ -163,6 +172,7 @@ class SbtReactiveAppSpec extends UnitSpec {
       SbtReactiveApp.labels(
         namespace = None,
         appName = None,
+        appType = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -173,7 +183,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         readinessCheck = Some(TcpCheck("test2", 5)),
         environmentVariables = Map.empty,
         version = None,
-        secrets = Set.empty) shouldBe Map(
+        secrets = Set.empty,
+        modules = Vector.empty) shouldBe Map(
           "com.lightbend.rp.health-check.type" -> "tcp",
           "com.lightbend.rp.health-check.service-name" -> "test",
           "com.lightbend.rp.health-check.interval" -> "10",
@@ -186,6 +197,7 @@ class SbtReactiveAppSpec extends UnitSpec {
       SbtReactiveApp.labels(
         namespace = None,
         appName = None,
+        appType = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -196,7 +208,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         readinessCheck = Some(HttpCheck(90, 5, "/other-health")),
         environmentVariables = Map.empty,
         version = None,
-        secrets = Set.empty) shouldBe Map(
+        secrets = Set.empty,
+        modules = Vector.empty) shouldBe Map(
           "com.lightbend.rp.health-check.type" -> "http",
           "com.lightbend.rp.health-check.port" -> "80",
           "com.lightbend.rp.health-check.interval" -> "10",
@@ -209,6 +222,7 @@ class SbtReactiveAppSpec extends UnitSpec {
       SbtReactiveApp.labels(
         namespace = None,
         appName = None,
+        appType = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -219,7 +233,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         readinessCheck = Some(HttpCheck("test2", 5, "/other-health")),
         environmentVariables = Map.empty,
         version = None,
-        secrets = Set.empty) shouldBe Map(
+        secrets = Set.empty,
+        modules = Vector.empty) shouldBe Map(
           "com.lightbend.rp.health-check.type" -> "http",
           "com.lightbend.rp.health-check.service-name" -> "test",
           "com.lightbend.rp.health-check.interval" -> "10",
@@ -234,6 +249,7 @@ class SbtReactiveAppSpec extends UnitSpec {
       SbtReactiveApp.labels(
         namespace = None,
         appName = None,
+        appType = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -244,7 +260,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         readinessCheck = Some(CommandCheck("/bin/ash", "arg 1", "arg 2")),
         environmentVariables = Map.empty,
         version = None,
-        secrets = Set.empty) shouldBe Map(
+        secrets = Set.empty,
+        modules = Vector.empty) shouldBe Map(
           "com.lightbend.rp.health-check.type" -> "command",
           "com.lightbend.rp.health-check.args.0" -> "/bin/bash",
           "com.lightbend.rp.health-check.args.1" -> "arg one",

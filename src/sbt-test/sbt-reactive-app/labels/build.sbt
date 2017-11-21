@@ -65,7 +65,12 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.secrets.0.namespace="myns1"""",
     """LABEL com.lightbend.rp.secrets.0.name="key"""",
     """LABEL com.lightbend.rp.secrets.1.namespace="myns2"""",
-    """LABEL com.lightbend.rp.secrets.1.name="otherkey""""
+    """LABEL com.lightbend.rp.secrets.1.name="otherkey"""",
+    """LABEL com.lightbend.rp.app-type="basic"""",
+    """LABEL com.lightbend.rp.modules.akka-cluster-bootstrapping.enabled="false"""",
+    """LABEL com.lightbend.rp.modules.common.enabled="true"""",
+    """LABEL com.lightbend.rp.modules.play-http-binding.enabled="false"""",
+    """LABEL com.lightbend.rp.modules.secrets.enabled="true""""
   )
 
   lines.foreach { line =>

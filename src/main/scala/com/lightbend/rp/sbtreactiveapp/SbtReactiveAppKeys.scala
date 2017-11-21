@@ -22,6 +22,8 @@ import scala.collection.immutable.Seq
 trait SbtReactiveAppKeys {
   val namespace = SettingKey[Option[String]]("rp-namespace")
 
+  val appType = SettingKey[String]("rp-app-type")
+
   val diskSpace = SettingKey[Option[Long]]("rp-disk-space")
 
   val memory = SettingKey[Option[Long]]("rp-memory")
