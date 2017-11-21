@@ -34,6 +34,7 @@ sealed trait App extends SbtReactiveAppKeys {
 
   def projectSettings: Seq[Setting[_]] = Vector(
     namespace := None,
+    appName := name.value,
     appType := applicationType,
     nrOfCpus := None,
     diskSpace := None,
@@ -112,6 +113,13 @@ sealed trait LagomApp extends App {
     // fullClasspath contains the Lagom services, Lagom framework and all its dependencies
 
     super.projectSettings ++ Vector(
+      // For naming Lagom services, we take this overall approach:
+      // Calculate the endpoints (lagomRawEndpoints) and make this the "appName"
+      // Then, rename the first endpoint (which is the Lagom service itself) to "lagom-api" which the
+      // service discovery module understands via convention.
+
+      appName := lagomRawEndpoints.value.headOption.map(_.name).getOrElse(name.value),
+
       enableServiceDiscovery := true,
       enablePlayHttpBinding := true,
       enableAkkaClusterBootstrap := None,
@@ -128,7 +136,7 @@ sealed trait LagomApp extends App {
 
       // Note: Play & Lagom need their endpoints defined first (see play-http-binding)
 
-      endpoints := {
+      lagomRawEndpoints := {
         val ingressPorts = httpIngressPorts.value
         val ingressHosts = httpIngressHosts.value
         val ingressPaths = httpIngressPaths.value
@@ -151,8 +159,15 @@ sealed trait LagomApp extends App {
           else
             Vector(HttpEndpoint(endpointName, 0, HttpIngress(ingressPorts, ingressHosts, Vector("/"))))
 
-        autoEndpoints ++ endpoints.value
-      })
+        autoEndpoints
+      },
+
+      endpoints := {
+        lagomRawEndpoints.value.zipWithIndex.map {
+          case (e, 0) => e.withName("lagom-api")
+          case (e, _) => e
+        }
+      } ++ endpoints.value)
   }
 }
 

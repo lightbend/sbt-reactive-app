@@ -130,7 +130,7 @@ object SbtReactiveAppPlugin extends AutoPlugin {
         dockerCommands.value ++ addCommand ++ SbtReactiveApp
           .labels(
             namespace = namespace.value,
-            appName = Some(Keys.name.value),
+            appName = Some(appName.value),
             appType = Some(appType.value),
             diskSpace = diskSpace.value,
             memory = memory.value,
@@ -145,7 +145,7 @@ object SbtReactiveAppPlugin extends AutoPlugin {
             secrets = secrets.value,
             modules = Seq(
               "akka-cluster-bootstrapping" -> bootstrapEnabled,
-              "common" -> enableCommon.value,
+              "common" -> commonEnabled,
               "play-http-binding" -> playHttpBindingEnabled,
               "secrets" -> secretsEnabled,
               "service-discovery" -> serviceDiscoveryEnabled))

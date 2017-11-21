@@ -1,5 +1,7 @@
 name := "akka-cluster-bootstrapping-adds-endpoint"
 
+scalaVersion := "2.11.11"
+
 enablePlugins(SbtReactiveAppPlugin)
 
 enableAkkaClusterBootstrap := Some(true)
@@ -18,8 +20,6 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.modules.play-http-binding.enabled="false"""",
     """LABEL com.lightbend.rp.modules.secrets.enabled="false""""
   )
-
-  println(contents)
 
   lines.foreach { line =>
     if (!contents.contains(line)) {

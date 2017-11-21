@@ -22,6 +22,8 @@ import scala.collection.immutable.Seq
 trait SbtReactiveAppKeys {
   val namespace = SettingKey[Option[String]]("rp-namespace")
 
+  val appName = TaskKey[String]("rp-app-name")
+
   val appType = SettingKey[String]("rp-app-type")
 
   val diskSpace = SettingKey[Option[Long]]("rp-disk-space")
@@ -77,6 +79,8 @@ trait SbtReactiveAppKeys {
   val secrets = SettingKey[Set[Secret]]("rp-secrets")
 
   private[sbtreactiveapp] val akkaClusterBootstrapEnabled = TaskKey[Boolean]("rp-akka-cluster-bootstrap-enabled")
+
+  private[sbtreactiveapp] val lagomRawEndpoints = TaskKey[Seq[Endpoint]]("rp-lagom-raw-endpoints")
 
   private[sbtreactiveapp] val secretsEnabled = TaskKey[Boolean]("rp-secrets-enabled")
 }
