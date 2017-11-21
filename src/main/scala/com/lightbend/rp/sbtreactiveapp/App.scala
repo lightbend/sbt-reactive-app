@@ -122,13 +122,29 @@ sealed trait LagomApp extends App {
 
       // Note: Play & Lagom need their endpoints defined first (see play-http-binding)
 
-      endpoints := magic.Lagom.endpoints(
-        ((managedClasspath in apiTools).value ++ (fullClasspath in Compile).value).toVector,
-        scalaInstance.value.loader,
-        httpIngressPorts.value,
-        httpIngressHosts.value,
-        httpIngressPaths.value)
-        .getOrElse(Seq.empty) ++ endpoints.value)
+      endpoints := {
+        val ingressPorts = httpIngressPorts.value
+        val ingressHosts = httpIngressHosts.value
+        val ingressPaths = httpIngressPaths.value
+        val endpointName = name.value
+
+        val magicEndpoints =
+          magic.Lagom.endpoints(
+            ((managedClasspath in apiTools).value ++ (fullClasspath in Compile).value).toVector,
+            scalaInstance.value.loader,
+            httpIngressPorts.value,
+            httpIngressHosts.value,
+            httpIngressPaths.value)
+            .getOrElse(Seq.empty)
+
+        val autoEndpoints =
+          if (magicEndpoints.nonEmpty)
+            magicEndpoints
+          else
+            Vector(HttpEndpoint(endpointName, 0, HttpIngress(ingressPorts, ingressHosts, Vector("/"))))
+
+        autoEndpoints ++ endpoints.value
+      })
   }
 }
 
