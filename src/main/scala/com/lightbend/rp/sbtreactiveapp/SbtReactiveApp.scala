@@ -56,16 +56,6 @@ object SbtReactiveApp {
               ns("endpoints", i.toString, "name") -> endpoint.name,
               ns("endpoints", i.toString, "protocol") -> endpoint.protocol)
 
-            val versionKeys =
-              endpoint.version.toVector.map {
-                case MajorVersion =>
-                  ns("endpoints", i.toString, "version") -> version.fold("0")(_._1.toString)
-                case MajorMinorVersion =>
-                  ns("endpoints", i.toString, "version") -> version.fold("0.0")(e => s"${e._1}.${e._2}")
-                case LiteralVersion(v) =>
-                  ns("endpoints", i.toString, "version") -> v
-              }
-
             val portKey =
               if (endpoint.port != 0)
                 Vector(ns(s"endpoints", i.toString, "port") -> endpoint.port.toString)
@@ -96,15 +86,15 @@ object SbtReactiveApp {
 
             val ingressKeys =
               endpoint match {
-                case HttpEndpoint(_, _, ingress, _) =>
+                case HttpEndpoint(_, _, ingress) =>
                   ingress.zipWithIndex.flatMap { case (h, j) => encodeHttpIngress(h, j) }
-                case TcpEndpoint(_, _, ingress, _) =>
+                case TcpEndpoint(_, _, ingress) =>
                   ingress.toVector.flatMap(encodePortIngress)
-                case UdpEndpoint(_, _, ingress, _) =>
+                case UdpEndpoint(_, _, ingress) =>
                   ingress.toVector.flatMap(encodePortIngress)
               }
 
-            baseKeys ++ versionKeys ++ portKey ++ ingressKeys
+            baseKeys ++ portKey ++ ingressKeys
         } ++
         volumes
         .toSeq
