@@ -132,11 +132,13 @@ sealed trait LagomApp extends App {
           magic.Lagom.endpoints(
             ((managedClasspath in apiTools).value ++ (fullClasspath in Compile).value).toVector,
             scalaInstance.value.loader,
-            httpIngressPorts.value,
-            httpIngressHosts.value,
-            httpIngressPaths.value)
+            ingressPorts,
+            ingressHosts,
+            ingressPaths)
             .getOrElse(Seq.empty)
 
+        // If we don't have any magic endpoints, we want to explicitly add one for "/" as we are
+        // effectively a Play endpoint then.
         val autoEndpoints =
           if (magicEndpoints.nonEmpty)
             magicEndpoints
