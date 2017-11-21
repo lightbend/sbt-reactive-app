@@ -20,6 +20,7 @@ class SbtReactiveAppSpec extends UnitSpec {
   "labels" should {
     "work for defaults" in {
       SbtReactiveApp.labels(
+        namespace = None,
         appName = None,
         diskSpace = None,
         memory = None,
@@ -36,6 +37,7 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for all values (except checks)" in {
       SbtReactiveApp.labels(
+        namespace = Some("font"),
         appName = Some("myapp"),
         diskSpace = Some(1234),
         memory = Some(5678),
@@ -65,6 +67,7 @@ class SbtReactiveAppSpec extends UnitSpec {
         version = Some((1, 2, 3, Some("SNAPSHOT"))),
         secrets = Set(Secret("myns1", "myname1"), Secret("myns2", "myname2"))) shouldBe Map(
 
+          "com.lightbend.rp.namespace" -> "font",
           "com.lightbend.rp.app-name" -> "myapp",
           "com.lightbend.rp.disk-space" -> "1234",
           "com.lightbend.rp.memory" -> "5678",
@@ -137,6 +140,7 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for tcp checks" in {
       SbtReactiveApp.labels(
+        namespace = None,
         appName = None,
         diskSpace = None,
         memory = None,
@@ -157,6 +161,7 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.readiness-check.interval" -> "5")
 
       SbtReactiveApp.labels(
+        namespace = None,
         appName = None,
         diskSpace = None,
         memory = None,
@@ -179,6 +184,7 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for http checks" in {
       SbtReactiveApp.labels(
+        namespace = None,
         appName = None,
         diskSpace = None,
         memory = None,
@@ -201,6 +207,7 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.readiness-check.path" -> "/other-health")
 
       SbtReactiveApp.labels(
+        namespace = None,
         appName = None,
         diskSpace = None,
         memory = None,
@@ -225,6 +232,7 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for command checks" in {
       SbtReactiveApp.labels(
+        namespace = None,
         appName = None,
         diskSpace = None,
         memory = None,

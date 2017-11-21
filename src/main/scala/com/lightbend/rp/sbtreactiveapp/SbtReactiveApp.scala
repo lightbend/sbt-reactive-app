@@ -21,6 +21,7 @@ import scala.collection.immutable.Seq
 
 object SbtReactiveApp {
   def labels(
+    namespace: Option[String],
     appName: Option[String],
     diskSpace: Option[Long],
     memory: Option[Long],
@@ -36,7 +37,10 @@ object SbtReactiveApp {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
 
     val keyValuePairs =
-      appName
+      namespace
+        .map(ns("namespace") -> _.toString)
+        .toSeq ++
+        appName
         .map(ns("app-name") -> _.toString)
         .toSeq ++
         diskSpace
