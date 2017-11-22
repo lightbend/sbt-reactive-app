@@ -22,10 +22,14 @@ sealed trait Endpoint {
   def name: String
   def port: Int
   def protocol: String
+
+  def withName(s: String): Endpoint
 }
 
 case class HttpEndpoint(name: String, port: Int, ingress: Seq[HttpIngress]) extends Endpoint {
   val protocol: String = "http"
+
+  def withName(n: String): Endpoint = copy(name = n)
 }
 
 object HttpEndpoint {
@@ -37,6 +41,8 @@ object HttpEndpoint {
 
 case class TcpEndpoint(name: String, port: Int, ingress: Option[PortIngress]) extends Endpoint {
   val protocol: String = "tcp"
+
+  def withName(n: String): Endpoint = copy(name = n)
 }
 
 object TcpEndpoint {
@@ -48,6 +54,8 @@ object TcpEndpoint {
 
 case class UdpEndpoint(name: String, port: Int, ingress: Option[PortIngress]) extends Endpoint {
   val protocol: String = "udp"
+
+  def withName(n: String): Endpoint = copy(name = n)
 }
 
 object UdpEndpoint {

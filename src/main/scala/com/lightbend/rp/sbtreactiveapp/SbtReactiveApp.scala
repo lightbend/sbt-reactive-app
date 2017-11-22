@@ -23,6 +23,7 @@ object SbtReactiveApp {
   def labels(
     namespace: Option[String],
     appName: Option[String],
+    appType: Option[String],
     diskSpace: Option[Long],
     memory: Option[Long],
     nrOfCpus: Option[Double],
@@ -33,7 +34,8 @@ object SbtReactiveApp {
     readinessCheck: Option[Check],
     environmentVariables: Map[String, EnvironmentVariable],
     version: Option[(Int, Int, Int, Option[String])],
-    secrets: Set[Secret]): Map[String, String] = {
+    secrets: Set[Secret],
+    modules: Seq[(String, Boolean)]): Map[String, String] = {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
 
     val keyValuePairs =
@@ -43,6 +45,11 @@ object SbtReactiveApp {
         appName
         .map(ns("app-name") -> _.toString)
         .toSeq ++
+        appType
+        .map(ns("app-type") -> _)
+        .toSeq ++
+        modules
+        .map { case (m, enabled) => ns("modules", m, "enabled") -> enabled.toString } ++
         diskSpace
         .map(ns("disk-space") -> _.toString)
         .toSeq ++
