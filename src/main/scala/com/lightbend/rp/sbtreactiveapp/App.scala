@@ -17,6 +17,7 @@
 package com.lightbend.rp.sbtreactiveapp
 
 import sbt._
+import sbt.Resolver.bintrayRepo
 import scala.collection.immutable.Seq
 
 import Keys._
@@ -56,6 +57,10 @@ sealed trait App extends SbtReactiveAppKeys {
     enableCommon := true,
     enablePlayHttpBinding := false,
     enableSecrets := None,
+    // TODO: service discovery must be enabled if Akka Cluster bootstrap is enabled.
+    // Because `enableServiceDiscovery` is a setting, while `akkaClusterBootstrapEndpointName` is a task, we can't
+    // simply evaluate the task value.
+    // I will need to investigate why `akkaClusterBootstrapEnabled` is a task, not a setting.
     enableServiceDiscovery := false,
     akkaClusterBootstrapEndpointName := "akka-remote",
     akkaClusterBootstrapEnabled := false,
@@ -90,8 +95,16 @@ sealed trait App extends SbtReactiveAppKeys {
       }
     },
 
+    // This repository is required to resolve Akka DNS dependency hosted at https://bintray.com/hajile/maven/akka-dns
+    // Akka DNS is a transitive dependencies from reactive-lib service discovery project which is added as dependency
+    // below.
+    // TODO: the proper way to do this is to detect if service locator is enabled, including when cluster is enabled.
+    // We still have problem setting enableServiceDiscovery := true if akkaClusterBootstrapEnabled task is set to true
+    // The workaround is to add the resolvers at all times.
+    resolvers += bintrayRepo("hajile", "maven"),
+
     libraryDependencies ++=
-      lib(reactiveLibCommonProject.value, reactiveLibVersion.value, true),
+      lib(reactiveLibCommonProject.value, reactiveLibVersion.value, filter = true),
 
     libraryDependencies ++=
       lib(reactiveLibPlayHttpBindingProject.value, reactiveLibVersion.value, enablePlayHttpBinding.value),
