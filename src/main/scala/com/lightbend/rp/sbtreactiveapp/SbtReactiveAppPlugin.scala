@@ -16,6 +16,7 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
+import com.typesafe.sbt.SbtNativePackager
 import com.typesafe.sbt.packager.Keys._
 import com.typesafe.sbt.packager.archetypes.scripts.AshScriptPlugin
 import com.typesafe.sbt.packager.docker
@@ -111,6 +112,17 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] =
     App.apply.projectSettings ++ Vector(
+      resourceGenerators in Compile += Def.task {
+        val file = (resourceManaged in Compile).value / "app.conf"
+
+        IO.write(file, readResource("app.conf"))
+
+        Seq(file)
+      }.taskValue,
+
+      javaOptions in SbtNativePackager.Universal ++= Vector(
+        "-Dconfig.resource=app.conf"),
+
       dockerEntrypoint := startScriptLocation.value.fold(dockerEntrypoint.value)(_ +: dockerEntrypoint.value),
 
       dockerBaseImage := "openjdk:8-jre-alpine",
@@ -158,12 +170,7 @@ object SbtReactiveAppPlugin extends AutoPlugin {
           val target = stage.value
           val localPath = target / localName
 
-          val data =
-            scala.io.Source
-              .fromInputStream(getClass.getClassLoader.getResourceAsStream(localName))
-              .mkString
-
-          IO.write(localPath, data)
+          IO.write(localPath, readResource(localName))
 
           localPath.setExecutable(true)
 
@@ -186,4 +193,9 @@ object SbtReactiveAppPlugin extends AutoPlugin {
     value
       .replaceAllLiterally("\n", "\\\n")
       .replaceAllLiterally("\"", "\\\"")
+
+  private def readResource(name: String): String =
+    scala.io.Source
+      .fromInputStream(getClass.getClassLoader.getResourceAsStream(name))
+      .mkString
 }
