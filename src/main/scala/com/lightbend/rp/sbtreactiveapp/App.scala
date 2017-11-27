@@ -128,7 +128,7 @@ sealed trait LagomApp extends App {
     super.projectSettings ++ Vector(
       // For naming Lagom services, we take this overall approach:
       // Calculate the endpoints (lagomRawEndpoints) and make this the "appName"
-      // Then, rename the first endpoint (which is the Lagom service itself) to "lagom-api" which the
+      // Then, rename the first endpoint (which is the Lagom service itself) to "lagom-http-api" which the
       // service discovery module understands via convention.
 
       appName := lagomRawEndpoints.value.headOption.map(_.name).getOrElse(name.value),
@@ -177,7 +177,7 @@ sealed trait LagomApp extends App {
 
       endpoints := {
         lagomRawEndpoints.value.zipWithIndex.map {
-          case (e, 0) => e.withName("lagom-api")
+          case (e, 0) => e.withName("lagom-http-api")
           case (e, _) => e
         }
       } ++ endpoints.value)
