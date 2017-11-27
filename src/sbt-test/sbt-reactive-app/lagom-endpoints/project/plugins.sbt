@@ -6,4 +6,3 @@ sys.props.get("plugin.version") match {
 
 addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % "1.3.10")
 
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.0")

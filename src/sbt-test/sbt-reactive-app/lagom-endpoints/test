@@ -1,2 +1,2 @@
-> docker:stage
+> hello-impl/docker:stage
 > check
