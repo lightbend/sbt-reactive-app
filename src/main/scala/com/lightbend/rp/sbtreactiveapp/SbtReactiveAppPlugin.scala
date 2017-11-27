@@ -120,8 +120,13 @@ object SbtReactiveAppPlugin extends AutoPlugin {
         Seq(file)
       }.taskValue,
 
-      javaOptions in SbtNativePackager.Universal ++= Vector(
-        "-Dconfig.resource=app.conf"),
+      javaOptions in SbtNativePackager.Universal ++=
+        Vector(
+          "-Dconfig.resource=app.conf") ++
+          (
+            if (memory.value.isDefined)
+              Vector("-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap")
+            else Vector.empty),
 
       dockerEntrypoint := startScriptLocation.value.fold(dockerEntrypoint.value)(_ +: dockerEntrypoint.value),
 
