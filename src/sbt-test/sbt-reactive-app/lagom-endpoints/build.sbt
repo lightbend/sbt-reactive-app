@@ -41,8 +41,6 @@ lazy val `hello-impl` = (project in file("hello-impl"))
         """LABEL com.lightbend.rp.modules.service-discovery.enabled="true""""
       )
 
-      println(contents)
-
       expectedLines.foreach { line =>
         if(!contents.contains(line)) {
           sys.error(s"""Dockerfile is missing line "$line"""")
