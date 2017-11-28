@@ -19,7 +19,7 @@ lazy val `hello-impl` = (project in file("hello-impl"))
   .enablePlugins(LagomScala, SbtReactiveAppPlugin)
   .settings(
     packageName in Docker := "hello-lagom",
-    dockerExposedPorts in Docker := Seq(9000),
+    httpIngressPorts := scala.collection.immutable.Seq(9000),
     check := {
       val outputDir = (stage in Docker).value
       val contents = IO.readLines(outputDir / "Dockerfile")
@@ -27,11 +27,10 @@ lazy val `hello-impl` = (project in file("hello-impl"))
         """COPY rp-start /rp-start""",
         """ENTRYPOINT ["/rp-start", "bin/hello-impl"]""",
         """LABEL com.lightbend.rp.endpoints.0.protocol="http"""",
-        """LABEL com.lightbend.rp.endpoints.0.ingress.0.ingress-ports.0="80"""",
+        """LABEL com.lightbend.rp.endpoints.0.ingress.0.ingress-ports.0="9000"""",
         """LABEL com.lightbend.rp.endpoints.0.name="lagom-api"""",
         """LABEL com.lightbend.rp.modules.akka-cluster-bootstrapping.enabled="false"""",
         """LABEL com.lightbend.rp.modules.play-http-binding.enabled="true"""",
-        """LABEL com.lightbend.rp.endpoints.0.ingress.0.ingress-ports.1="443"""",
         """LABEL com.lightbend.rp.app-type="lagom"""",
         """LABEL com.lightbend.rp.endpoints.0.ingress.0.type="http"""",
         """LABEL com.lightbend.rp.app-name="hello"""",
