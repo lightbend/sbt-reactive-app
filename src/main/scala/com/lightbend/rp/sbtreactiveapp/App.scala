@@ -21,6 +21,7 @@ import sbt.Resolver.bintrayRepo
 import scala.collection.immutable.Seq
 
 import Keys._
+import com.typesafe.sbt.packager.Keys.dockerRepository
 
 sealed trait App extends SbtReactiveAppKeys {
   private def lib(nameAndCross: (String, Boolean), version: String, filter: Boolean): Seq[ModuleID] =
@@ -115,7 +116,9 @@ sealed trait App extends SbtReactiveAppKeys {
       lib(reactiveLibSecretsProject.value, reactiveLibVersion.value, enableSecrets.value.getOrElse(secrets.value.nonEmpty)),
 
     libraryDependencies ++=
-      lib(reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value))
+      lib(reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value),
+
+    dockerRepository := namespace.value)
 }
 
 sealed trait LagomApp extends App {
