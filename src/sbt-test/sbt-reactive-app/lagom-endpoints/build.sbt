@@ -28,7 +28,7 @@ lazy val `hello-impl` = (project in file("hello-impl"))
         """ENTRYPOINT ["/rp-start", "bin/hello-impl"]""",
         """LABEL com.lightbend.rp.endpoints.0.protocol="http"""",
         """LABEL com.lightbend.rp.endpoints.0.ingress.0.ingress-ports.0="9000"""",
-        """LABEL com.lightbend.rp.endpoints.0.name="lagom-api"""",
+        """LABEL com.lightbend.rp.endpoints.0.name="lagom-http-api"""",
         """LABEL com.lightbend.rp.modules.akka-cluster-bootstrapping.enabled="false"""",
         """LABEL com.lightbend.rp.modules.play-http-binding.enabled="true"""",
         """LABEL com.lightbend.rp.app-type="lagom"""",
