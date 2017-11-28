@@ -64,6 +64,8 @@ trait SbtReactiveAppKeys {
 
   val enableServiceDiscovery = SettingKey[Boolean]("rp-enable-service-discovery")
 
+  val prependRpConf = SettingKey[Option[String]]("rp-prepend-rp-application-conf")
+
   val reactiveLibAkkaClusterBootstrapProject = SettingKey[(String, Boolean)]("rp-reactive-lib-akka-cluster-bootstrap-project")
 
   val reactiveLibCommonProject = SettingKey[(String, Boolean)]("rp-reactive-lib-common-project")
