@@ -229,6 +229,8 @@ case object PlayApp extends App {
 
       httpIngressPaths := Vector("/"),
 
+      enablePlayHttpBinding := true,
+
       endpoints :=
         HttpEndpoint(name.value, 0, HttpIngress(httpIngressPorts.value, httpIngressHosts.value, httpIngressPaths.value)) +:
         endpoints.value)
