@@ -63,6 +63,7 @@ sealed trait App extends SbtReactiveAppKeys {
     // I will need to investigate why `akkaClusterBootstrapEnabled` is a task, not a setting.
     enableServiceDiscovery := false,
     akkaClusterBootstrapEndpointName := "akka-remote",
+    akkaClusterBootstrapManagementEndpointName := "akka-mgmt-http",
     akkaClusterBootstrapEnabled := false,
 
     httpIngressHosts := Seq.empty,
@@ -85,11 +86,12 @@ sealed trait App extends SbtReactiveAppKeys {
 
     endpoints := {
       val endpointName = akkaClusterBootstrapEndpointName.value
+      val managementEndpointName = akkaClusterBootstrapManagementEndpointName.value
       val bootstrapEnabled = enableAkkaClusterBootstrap.value.getOrElse(akkaClusterBootstrapEnabled.value)
 
       endpoints.?.value.getOrElse(Seq.empty) ++ {
         if (bootstrapEnabled)
-          Seq(TcpEndpoint(endpointName, 0))
+          Seq(TcpEndpoint(endpointName, 0), TcpEndpoint(managementEndpointName, 0))
         else
           Seq.empty
       }

@@ -44,6 +44,8 @@ trait SbtReactiveAppKeys {
 
   val akkaClusterBootstrapEndpointName = SettingKey[String]("rp-akka-cluster-bootstrap-endpoint-name")
 
+  val akkaClusterBootstrapManagementEndpointName = SettingKey[String]("rp-akka-cluster-bootstrap-management-endpoint-name")
+
   val httpIngressHosts = SettingKey[Seq[String]]("rp-ingress-hosts")
 
   val httpIngressPaths = TaskKey[Seq[String]]("rp-ingress-paths")
