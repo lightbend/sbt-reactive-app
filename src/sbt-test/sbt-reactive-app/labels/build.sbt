@@ -75,7 +75,10 @@ TaskKey[Unit]("check") := {
 
   lines.foreach { line =>
     if (!contents.contains(line)) {
-      sys.error(s"""Dockerfile is missing line "$line"""")
+      sys.error(
+        s"""Dockerfile is missing line "$line" - Dockerfile contents:
+           |${contents.mkString("\n")}
+         """.stripMargin)
     }
   }
 

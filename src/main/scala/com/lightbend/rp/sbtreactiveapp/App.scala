@@ -26,10 +26,19 @@ import com.typesafe.sbt.packager.Keys.dockerRepository
 sealed trait App extends SbtReactiveAppKeys {
   private val ToolingConfig = "rp-tooling.conf"
 
-  private def lib(nameAndCross: (String, Boolean), version: String, filter: Boolean): Seq[ModuleID] =
-    if (filter && nameAndCross._2)
+  private def libIsPublished(scalaVersion: String) =
+    SemVer
+      .parse(scalaVersion)
+      .fold(false) { case (major, minor, _, _) => major >= 2 && minor >= 11 }
+
+  private def lib(
+    scalaVersion: String,
+    nameAndCross: (String, Boolean),
+    version: String,
+    filter: Boolean): Seq[ModuleID] =
+    if (filter && nameAndCross._2 && libIsPublished(scalaVersion))
       Seq("com.lightbend.rp" %% nameAndCross._1 % version)
-    else if (filter)
+    else if (filter && libIsPublished(scalaVersion))
       Seq("com.lightbend.rp" % nameAndCross._1 % version)
     else
       Seq.empty
@@ -37,7 +46,7 @@ sealed trait App extends SbtReactiveAppKeys {
   def applicationType: String
 
   def projectSettings: Seq[Setting[_]] = Vector(
-    namespace := None,
+    namespace := Some(App.normalizeNamespace((name in LocalRootProject).value)),
     appName := name.value,
     appType := applicationType,
     nrOfCpus := None,
@@ -138,7 +147,7 @@ sealed trait App extends SbtReactiveAppKeys {
       val bootstrapEnabled = enableAkkaClusterBootstrap.value.getOrElse(akkaClusterBootstrapEnabled.value)
 
       val bootstrapDependencies =
-        lib(reactiveLibAkkaClusterBootstrapProject.value, reactiveLibVersion.value, bootstrapEnabled)
+        lib(scalaVersion.value, reactiveLibAkkaClusterBootstrapProject.value, reactiveLibVersion.value, bootstrapEnabled)
 
       allDependencies.value ++ bootstrapDependencies
     },
@@ -165,18 +174,19 @@ sealed trait App extends SbtReactiveAppKeys {
     resolvers += bintrayRepo("hajile", "maven"),
 
     libraryDependencies ++=
-      lib(reactiveLibCommonProject.value, reactiveLibVersion.value, filter = true),
+      lib(scalaVersion.value, reactiveLibCommonProject.value, reactiveLibVersion.value, filter = true),
 
     libraryDependencies ++=
-      lib(reactiveLibPlayHttpBindingProject.value, reactiveLibVersion.value, enablePlayHttpBinding.value),
+      lib(scalaVersion.value, reactiveLibPlayHttpBindingProject.value, reactiveLibVersion.value, enablePlayHttpBinding.value),
 
     libraryDependencies ++=
-      lib(reactiveLibSecretsProject.value, reactiveLibVersion.value, enableSecrets.value.getOrElse(secrets.value.nonEmpty)),
+      lib(scalaVersion.value, reactiveLibSecretsProject.value, reactiveLibVersion.value, enableSecrets.value.getOrElse(secrets.value.nonEmpty)),
 
     libraryDependencies ++=
-      lib(reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value),
+      lib(scalaVersion.value, reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value),
 
     dockerRepository := namespace.value)
+
 }
 
 sealed trait LagomApp extends App {
@@ -303,6 +313,20 @@ case object BasicApp extends App {
 }
 
 object App {
+  private val ValidNamespaceChars =
+    (('0' to '9') ++ ('A' to 'Z') ++ ('a' to 'z') ++ Seq('-')).toSet
+
+  private val NamespaceTrimChars = Set('-')
+
+  private[sbtreactiveapp] def normalizeNamespace(namespace: String): String =
+    namespace
+      .map(c => if (ValidNamespaceChars.contains(c)) c else '-')
+      .dropWhile(NamespaceTrimChars.contains)
+      .reverse
+      .dropWhile(NamespaceTrimChars.contains)
+      .reverse
+      .toLowerCase
+
   def apply: App =
     if (magic.Lagom.isPlayJava)
       LagomPlayJavaApp
