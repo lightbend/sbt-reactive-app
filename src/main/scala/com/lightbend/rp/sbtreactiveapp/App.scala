@@ -37,7 +37,7 @@ sealed trait App extends SbtReactiveAppKeys {
   def applicationType: String
 
   def projectSettings: Seq[Setting[_]] = Vector(
-    namespace := None,
+    namespace := Some(App.normalizeNamespace((name in LocalRootProject).value)),
     appName := name.value,
     appType := applicationType,
     nrOfCpus := None,
@@ -177,6 +177,7 @@ sealed trait App extends SbtReactiveAppKeys {
       lib(reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value),
 
     dockerRepository := namespace.value)
+
 }
 
 sealed trait LagomApp extends App {
@@ -303,6 +304,20 @@ case object BasicApp extends App {
 }
 
 object App {
+  private val ValidNamespaceChars =
+    (('0' to '9') ++ ('A' to 'Z') ++ ('a' to 'z') ++ Seq('-')).toSet
+
+  private val NamespaceTrimChars = Set('-')
+
+  private[sbtreactiveapp] def normalizeNamespace(namespace: String): String =
+    namespace
+      .map(c => if (ValidNamespaceChars.contains(c)) c else '-')
+      .dropWhile(NamespaceTrimChars.contains)
+      .reverse
+      .dropWhile(NamespaceTrimChars.contains)
+      .reverse
+      .toLowerCase
+
   def apply: App =
     if (magic.Lagom.isPlayJava)
       LagomPlayJavaApp
