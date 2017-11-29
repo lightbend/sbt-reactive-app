@@ -112,21 +112,11 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] =
     App.apply.projectSettings ++ Vector(
-      resourceGenerators in Compile += Def.task {
-        val file = (resourceManaged in Compile).value / "app.conf"
-
-        IO.write(file, readResource("app.conf"))
-
-        Seq(file)
-      }.taskValue,
-
-      javaOptions in SbtNativePackager.Universal ++=
-        Vector(
-          "-Dconfig.resource=app.conf") ++
-          (
-            if (memory.value.isDefined)
-              Vector("-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap")
-            else Vector.empty),
+      javaOptions in SbtNativePackager.Universal ++= (
+        if (memory.value.isDefined)
+          Vector("-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap")
+        else
+          Vector.empty),
 
       dockerEntrypoint := startScriptLocation.value.fold(dockerEntrypoint.value)(_ +: dockerEntrypoint.value),
 
