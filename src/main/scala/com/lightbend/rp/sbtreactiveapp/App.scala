@@ -59,7 +59,7 @@ sealed trait App extends SbtReactiveAppKeys {
     environmentVariables := Map.empty,
     startScriptLocation := Some("/rp-start"),
     secrets := Set.empty,
-    reactiveLibVersion := "0.1.1",
+    reactiveLibVersion := "0.2.0",
     reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
     reactiveLibCommonProject := "reactive-lib-common" -> true,
     reactiveLibPlayHttpBindingProject := "reactive-lib-play-http-binding" -> true,
