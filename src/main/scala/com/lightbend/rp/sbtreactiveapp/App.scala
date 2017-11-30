@@ -21,7 +21,7 @@ import sbt.Resolver.bintrayRepo
 import scala.collection.immutable.Seq
 import scala.collection.JavaConverters._
 import Keys._
-import com.typesafe.sbt.packager.Keys.dockerRepository
+import com.typesafe.sbt.packager.Keys.dockerUsername
 
 sealed trait App extends SbtReactiveAppKeys {
   private val ToolingConfig = "rp-tooling.conf"
@@ -185,7 +185,7 @@ sealed trait App extends SbtReactiveAppKeys {
     libraryDependencies ++=
       lib(scalaVersion.value, reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value),
 
-    dockerRepository := namespace.value)
+    dockerUsername := namespace.value)
 
 }
 

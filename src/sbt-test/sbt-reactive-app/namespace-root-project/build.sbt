@@ -25,10 +25,10 @@ TaskKey[Unit]("check") := {
     }
   }
 
-  val dockerRepositoryValue = (dockerRepository in Docker in boxes).value
-  val dockerRepositoryValueExpected = Some("hello-building")
-  assert(dockerRepositoryValue == dockerRepositoryValueExpected,
-    s"Docker repository value is $dockerRepositoryValue - expected $dockerRepositoryValueExpected}")
+  val dockerUsernameValue = (dockerUsername in Docker in boxes).value
+  val dockerUsernameValueExpected = Some("hello-building")
+  assert(dockerUsernameValue == dockerUsernameValueExpected,
+    s"Docker repository value is $dockerUsernameValue - expected $dockerUsernameValueExpected}")
 
   val namespaceValue = namespace.value
   val namespaceValueExpected = Some("hello-building")
