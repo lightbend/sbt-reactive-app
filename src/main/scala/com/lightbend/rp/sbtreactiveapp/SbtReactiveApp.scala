@@ -33,7 +33,7 @@ object SbtReactiveApp {
     healthCheck: Option[Check],
     readinessCheck: Option[Check],
     environmentVariables: Map[String, EnvironmentVariable],
-    version: Option[(Int, Int, Int, Option[String])],
+    version: Option[String],
     secrets: Set[Secret],
     modules: Seq[(String, Boolean)]): Map[String, String] = {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
@@ -44,6 +44,9 @@ object SbtReactiveApp {
         .toSeq ++
         appName
         .map(ns("app-name") -> _.toString)
+        .toSeq ++
+        version
+        .map(ns("app-version") -> _)
         .toSeq ++
         appType
         .map(ns("app-type") -> _)
@@ -150,16 +153,6 @@ object SbtReactiveApp {
                   ns("environment-variables", i.toString, "name") -> envName,
                   ns("environment-variables", i.toString, "field-path") -> fieldPath)
             }
-        } ++
-        version
-        .toSeq
-        .flatMap {
-          case (major, minor, patch, maybeLabel) =>
-            Vector(
-              ns("version-major") -> major.toString,
-              ns("version-minor") -> minor.toString,
-              ns("version-patch") -> patch.toString) ++
-              maybeLabel.toVector.map(label => ns("version-patch-label") -> label)
         } ++
         secrets
         .toSeq

@@ -148,7 +148,7 @@ object SbtReactiveAppPlugin extends AutoPlugin {
             healthCheck = healthCheck.value,
             readinessCheck = readinessCheck.value,
             environmentVariables = environmentVariables.value,
-            version = SemVer.parse(Keys.version.value),
+            version = Some(Keys.version.value),
             secrets = secrets.value,
             modules = Seq(
               "akka-cluster-bootstrapping" -> bootstrapEnabled,
