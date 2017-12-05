@@ -136,7 +136,6 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
         dockerCommands.value ++ addCommand ++ SbtReactiveApp
           .labels(
-            namespace = namespace.value,
             appName = Some(appName.value),
             appType = Some(appType.value),
             configResource = (prependRpConf in Compile).value.map(_ => LocalApplicationConfig),

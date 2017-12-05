@@ -20,7 +20,6 @@ class SbtReactiveAppSpec extends UnitSpec {
   "labels" should {
     "work for defaults" in {
       SbtReactiveApp.labels(
-        namespace = None,
         appName = None,
         appType = None,
         configResource = None,
@@ -40,7 +39,6 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for all values (except checks)" in {
       SbtReactiveApp.labels(
-        namespace = Some("font"),
         appName = Some("myapp"),
         appType = Some("mytype"),
         configResource = Some("my-config.conf"),
@@ -73,7 +71,6 @@ class SbtReactiveAppSpec extends UnitSpec {
         secrets = Set(Secret("myns1", "myname1"), Secret("myns2", "myname2")),
         modules = Vector("mod1" -> true, "mod2" -> false)) shouldBe Map(
 
-          "com.lightbend.rp.namespace" -> "font",
           "com.lightbend.rp.app-name" -> "myapp",
           "com.lightbend.rp.app-type" -> "mytype",
           "com.lightbend.rp.config-resource" -> "my-config.conf",
@@ -147,7 +144,6 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for tcp checks" in {
       SbtReactiveApp.labels(
-        namespace = None,
         appName = None,
         appType = None,
         configResource = None,
@@ -171,7 +167,6 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.readiness-check.interval" -> "5")
 
       SbtReactiveApp.labels(
-        namespace = None,
         appName = None,
         appType = None,
         configResource = None,
@@ -197,7 +192,6 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for http checks" in {
       SbtReactiveApp.labels(
-        namespace = None,
         appName = None,
         appType = None,
         configResource = None,
@@ -223,7 +217,6 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.readiness-check.path" -> "/other-health")
 
       SbtReactiveApp.labels(
-        namespace = None,
         appName = None,
         appType = None,
         configResource = None,
@@ -251,7 +244,6 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for command checks" in {
       SbtReactiveApp.labels(
-        namespace = None,
         appName = None,
         appType = None,
         configResource = None,

@@ -17,14 +17,14 @@
 package com.lightbend.rp.sbtreactiveapp
 
 class AppSpec extends UnitSpec {
-  "normalizeNamespace" should {
+  "normalizeName" should {
     Seq(
       "hello" -> "hello",
       "hello there" -> "hello-there",
       "?? hello?there++=))" -> "hello-there").foreach { x =>
         val (input, expectedResult) = x
         s"normalize [$input] to [$expectedResult]" in {
-          App.normalizeNamespace(input) shouldBe expectedResult
+          App.normalizeName(input) shouldBe expectedResult
         }
       }
   }

@@ -44,7 +44,6 @@ sealed trait App extends SbtReactiveAppKeys {
   def applicationType: String
 
   def projectSettings: Seq[Setting[_]] = Vector(
-    namespace := Some(App.normalizeNamespace((name in LocalRootProject).value)),
     appName := name.value,
     appType := applicationType,
     nrOfCpus := None,
@@ -183,7 +182,7 @@ sealed trait App extends SbtReactiveAppKeys {
     libraryDependencies ++=
       lib(scalaVersion.value, reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value),
 
-    dockerUsername := namespace.value)
+    dockerUsername := Some(App.normalizeName((name in LocalRootProject).value)))
 
 }
 
@@ -311,17 +310,17 @@ case object BasicApp extends App {
 }
 
 object App {
-  private val ValidNamespaceChars =
+  private val ValidNameChars =
     (('0' to '9') ++ ('A' to 'Z') ++ ('a' to 'z') ++ Seq('-')).toSet
 
-  private val NamespaceTrimChars = Set('-')
+  private val NameTrimChars = Set('-')
 
-  private[sbtreactiveapp] def normalizeNamespace(namespace: String): String =
-    namespace
-      .map(c => if (ValidNamespaceChars.contains(c)) c else '-')
-      .dropWhile(NamespaceTrimChars.contains)
+  private[sbtreactiveapp] def normalizeName(name: String): String =
+    name
+      .map(c => if (ValidNameChars.contains(c)) c else '-')
+      .dropWhile(NameTrimChars.contains)
       .reverse
-      .dropWhile(NamespaceTrimChars.contains)
+      .dropWhile(NameTrimChars.contains)
       .reverse
       .toLowerCase
 

@@ -21,7 +21,6 @@ import scala.collection.immutable.Seq
 
 object SbtReactiveApp {
   def labels(
-    namespace: Option[String],
     appName: Option[String],
     appType: Option[String],
     configResource: Option[String],
@@ -40,10 +39,7 @@ object SbtReactiveApp {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
 
     val keyValuePairs =
-      namespace
-        .map(ns("namespace") -> _.toString)
-        .toSeq ++
-        appName
+      appName
         .map(ns("app-name") -> _.toString)
         .toSeq ++
         version

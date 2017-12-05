@@ -4,7 +4,6 @@ scalaVersion := "2.12.4"
 
 enablePlugins(SbtReactiveAppPlugin)
 
-namespace := Some("fonts")
 nrOfCpus := Some(0.5)
 memory := Some(65536)
 diskSpace := Some(32768)
@@ -25,7 +24,6 @@ TaskKey[Unit]("check") := {
     """COPY rp-start /rp-start""",
     """ENTRYPOINT ["/rp-start", "bin/labels"]""",
     """LABEL com.lightbend.rp.config-resource="rp-application.conf"""",
-    """LABEL com.lightbend.rp.namespace="fonts"""",
     """LABEL com.lightbend.rp.app-name="labels"""",
     """LABEL com.lightbend.rp.disk-space="32768"""",
     """LABEL com.lightbend.rp.endpoints.0.ingress.0.type="http"""",
@@ -85,7 +83,7 @@ TaskKey[Unit]("check") := {
     "Docker image incorrectly set")
 
   val dockerUsernameValue = (dockerUsername in Docker).value
-  val dockerUsernameValueExpected = Some("fonts")
+  val dockerUsernameValueExpected = Some("labels")
   assert(dockerUsernameValue == dockerUsernameValueExpected,
     s"Docker repository value is $dockerUsernameValue - expected $dockerUsernameValueExpected}")
 }
