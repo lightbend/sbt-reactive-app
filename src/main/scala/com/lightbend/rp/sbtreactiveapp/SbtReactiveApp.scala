@@ -24,6 +24,7 @@ object SbtReactiveApp {
     namespace: Option[String],
     appName: Option[String],
     appType: Option[String],
+    configResource: Option[String],
     diskSpace: Option[Long],
     memory: Option[Long],
     nrOfCpus: Option[Double],
@@ -50,6 +51,9 @@ object SbtReactiveApp {
         .toSeq ++
         appType
         .map(ns("app-type") -> _)
+        .toSeq ++
+        configResource
+        .map(ns("config-resource") -> _)
         .toSeq ++
         modules
         .map { case (m, enabled) => ns("modules", m, "enabled") -> enabled.toString } ++

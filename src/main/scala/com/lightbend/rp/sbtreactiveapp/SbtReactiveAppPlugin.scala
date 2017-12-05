@@ -139,6 +139,7 @@ object SbtReactiveAppPlugin extends AutoPlugin {
             namespace = namespace.value,
             appName = Some(appName.value),
             appType = Some(appType.value),
+            configResource = (prependRpConf in Compile).value.map(_ => LocalApplicationConfig),
             diskSpace = diskSpace.value,
             memory = memory.value,
             nrOfCpus = nrOfCpus.value,

@@ -24,6 +24,7 @@ TaskKey[Unit]("check") := {
   val lines = Seq(
     """COPY rp-start /rp-start""",
     """ENTRYPOINT ["/rp-start", "bin/labels"]""",
+    """LABEL com.lightbend.rp.config-resource="rp-application.conf"""",
     """LABEL com.lightbend.rp.namespace="fonts"""",
     """LABEL com.lightbend.rp.app-name="labels"""",
     """LABEL com.lightbend.rp.disk-space="32768"""",

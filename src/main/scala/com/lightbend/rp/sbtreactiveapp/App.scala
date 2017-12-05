@@ -24,8 +24,6 @@ import Keys._
 import com.typesafe.sbt.packager.Keys.dockerUsername
 
 sealed trait App extends SbtReactiveAppKeys {
-  private val ToolingConfig = "rp-tooling.conf"
-
   private def libIsPublished(scalaVersion: String) =
     SemVer
       .parse(scalaVersion)
@@ -124,7 +122,7 @@ sealed trait App extends SbtReactiveAppKeys {
         prependRpConf
           .value
           .map { conf =>
-            val dest = baseDest / conf
+            val dest = baseDest / LocalApplicationConfig
 
             val existingFile = base.find(_.name == conf)
 
@@ -135,7 +133,7 @@ sealed trait App extends SbtReactiveAppKeys {
                 IO.write(dest, annotate(mergedConfig + IO.Newline + withHeader(f.toURI.toString, IO.read(f))))
             }
 
-            existingFile.fold(base)(remove => base.filterNot(_ == remove)) :+ dest
+            base :+ dest
           }
           .getOrElse(base)
       } else {
