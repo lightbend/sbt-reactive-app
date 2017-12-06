@@ -17,7 +17,6 @@
 package com.lightbend.rp.sbtreactiveapp
 
 import sbt._
-import scala.collection.immutable.Seq
 
 trait SbtReactiveAppKeys {
   /**

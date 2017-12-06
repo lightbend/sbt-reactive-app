@@ -16,12 +16,13 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
+import com.typesafe.sbt.packager.Keys.dockerUsername
 import sbt._
 import sbt.Resolver.bintrayRepo
 import scala.collection.immutable.Seq
 import scala.collection.JavaConverters._
+
 import Keys._
-import com.typesafe.sbt.packager.Keys.dockerUsername
 
 sealed trait App extends SbtReactiveAppKeys {
   private def libIsPublished(scalaVersion: String) =
@@ -229,9 +230,9 @@ sealed trait LagomApp extends App {
           magic.Lagom.endpoints(
             ((managedClasspath in apiTools).value ++ (fullClasspath in Compile).value).toVector,
             scalaInstance.value.loader,
-            ingressPorts,
-            ingressHosts,
-            ingressPaths)
+            ingressPorts.toVector,
+            ingressHosts.toVector,
+            ingressPaths.toVector)
             .getOrElse(Seq.empty)
 
         // If we don't have any magic endpoints, we want to explicitly add one for "/" as we are
