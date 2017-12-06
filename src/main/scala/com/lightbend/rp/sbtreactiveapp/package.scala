@@ -20,4 +20,6 @@ import sbt.TaskKey
 
 package object sbtreactiveapp {
   private[rp] val rpDockerPublish = TaskKey[Unit]("rp-docker-publish")
+  private[rp] val LocalApplicationConfig = "rp-application.conf"
+  private[rp] val ToolingConfig = "rp-tooling.conf"
 }

@@ -4,7 +4,6 @@ scalaVersion := "2.12.4"
 
 enablePlugins(SbtReactiveAppPlugin)
 
-namespace := Some("fonts")
 nrOfCpus := Some(0.5)
 memory := Some(65536)
 diskSpace := Some(32768)
@@ -24,7 +23,7 @@ TaskKey[Unit]("check") := {
   val lines = Seq(
     """COPY rp-start /rp-start""",
     """ENTRYPOINT ["/rp-start", "bin/labels"]""",
-    """LABEL com.lightbend.rp.namespace="fonts"""",
+    """LABEL com.lightbend.rp.config-resource="rp-application.conf"""",
     """LABEL com.lightbend.rp.app-name="labels"""",
     """LABEL com.lightbend.rp.disk-space="32768"""",
     """LABEL com.lightbend.rp.endpoints.0.ingress.0.type="http"""",
@@ -58,10 +57,7 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.volumes.1.guest-path="/data2"""",
     """LABEL com.lightbend.rp.volumes.1.path="/var/log"""",
     """LABEL com.lightbend.rp.volumes.1.type="host-path"""",
-    """LABEL com.lightbend.rp.version-major="0"""",
-    """LABEL com.lightbend.rp.version-minor="1"""",
-    """LABEL com.lightbend.rp.version-patch="2"""",
-    """LABEL com.lightbend.rp.version-patch-label="SNAPSHOT"""",
+    """LABEL com.lightbend.rp.app-version="0.1.2-SNAPSHOT"""",
     """LABEL com.lightbend.rp.secrets.0.namespace="myns1"""",
     """LABEL com.lightbend.rp.secrets.0.name="key"""",
     """LABEL com.lightbend.rp.secrets.1.namespace="myns2"""",
@@ -87,7 +83,7 @@ TaskKey[Unit]("check") := {
     "Docker image incorrectly set")
 
   val dockerUsernameValue = (dockerUsername in Docker).value
-  val dockerUsernameValueExpected = Some("fonts")
+  val dockerUsernameValueExpected = Some("labels")
   assert(dockerUsernameValue == dockerUsernameValueExpected,
     s"Docker repository value is $dockerUsernameValue - expected $dockerUsernameValueExpected}")
 }

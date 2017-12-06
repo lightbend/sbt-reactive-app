@@ -21,12 +21,6 @@ import scala.collection.immutable.Seq
 
 trait SbtReactiveAppKeys {
   /**
-   * Defines the namespace. On Kubernetes, this directly populates the namespace of each resource. Defaults to
-   * the root project name after being scrubbed according to the service name logic.
-   */
-  val namespace = SettingKey[Option[String]]("rp-namespace")
-
-  /**
    * Defines the application name. This defaults to the project name and is used in naming services. On Kubernetes,
    * this gets used for the `Service` name (after being scrubbed according to service name logic)
    */

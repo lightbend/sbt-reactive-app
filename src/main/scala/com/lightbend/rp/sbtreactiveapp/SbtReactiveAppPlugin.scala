@@ -136,9 +136,9 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
         dockerCommands.value ++ addCommand ++ SbtReactiveApp
           .labels(
-            namespace = namespace.value,
             appName = Some(appName.value),
             appType = Some(appType.value),
+            configResource = (prependRpConf in Compile).value.map(_ => LocalApplicationConfig),
             diskSpace = diskSpace.value,
             memory = memory.value,
             nrOfCpus = nrOfCpus.value,
@@ -148,7 +148,7 @@ object SbtReactiveAppPlugin extends AutoPlugin {
             healthCheck = healthCheck.value,
             readinessCheck = readinessCheck.value,
             environmentVariables = environmentVariables.value,
-            version = SemVer.parse(Keys.version.value),
+            version = Some(Keys.version.value),
             secrets = secrets.value,
             modules = Seq(
               "akka-cluster-bootstrapping" -> bootstrapEnabled,

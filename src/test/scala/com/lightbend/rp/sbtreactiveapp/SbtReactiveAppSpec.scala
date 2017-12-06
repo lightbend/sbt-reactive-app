@@ -20,9 +20,9 @@ class SbtReactiveAppSpec extends UnitSpec {
   "labels" should {
     "work for defaults" in {
       SbtReactiveApp.labels(
-        namespace = None,
         appName = None,
         appType = None,
+        configResource = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -39,9 +39,9 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for all values (except checks)" in {
       SbtReactiveApp.labels(
-        namespace = Some("font"),
         appName = Some("myapp"),
         appType = Some("mytype"),
+        configResource = Some("my-config.conf"),
         diskSpace = Some(1234),
         memory = Some(5678),
         nrOfCpus = Some(0.25),
@@ -67,13 +67,13 @@ class SbtReactiveAppSpec extends UnitSpec {
           "env1" -> LiteralEnvironmentVariable("my env one"),
           "env2" -> kubernetes.ConfigMapEnvironmentVariable("my-map", "my-key"),
           "env3" -> kubernetes.FieldRefEnvironmentVariable("my-field-path")),
-        version = Some((1, 2, 3, Some("SNAPSHOT"))),
+        version = Some("1.2.3-SNAPSHOT"),
         secrets = Set(Secret("myns1", "myname1"), Secret("myns2", "myname2")),
         modules = Vector("mod1" -> true, "mod2" -> false)) shouldBe Map(
 
-          "com.lightbend.rp.namespace" -> "font",
           "com.lightbend.rp.app-name" -> "myapp",
           "com.lightbend.rp.app-type" -> "mytype",
+          "com.lightbend.rp.config-resource" -> "my-config.conf",
           "com.lightbend.rp.modules.mod1.enabled" -> "true",
           "com.lightbend.rp.modules.mod2.enabled" -> "false",
           "com.lightbend.rp.disk-space" -> "1234",
@@ -135,10 +135,7 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.environment-variables.2.name" -> "env3",
           "com.lightbend.rp.environment-variables.2.type" -> "kubernetes.fieldRef",
           "com.lightbend.rp.environment-variables.2.field-path" -> "my-field-path",
-          "com.lightbend.rp.version-major" -> "1",
-          "com.lightbend.rp.version-minor" -> "2",
-          "com.lightbend.rp.version-patch" -> "3",
-          "com.lightbend.rp.version-patch-label" -> "SNAPSHOT",
+          "com.lightbend.rp.app-version" -> "1.2.3-SNAPSHOT",
           "com.lightbend.rp.secrets.0.namespace" -> "myns1",
           "com.lightbend.rp.secrets.0.name" -> "myname1",
           "com.lightbend.rp.secrets.1.namespace" -> "myns2",
@@ -147,9 +144,9 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for tcp checks" in {
       SbtReactiveApp.labels(
-        namespace = None,
         appName = None,
         appType = None,
+        configResource = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -170,9 +167,9 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.readiness-check.interval" -> "5")
 
       SbtReactiveApp.labels(
-        namespace = None,
         appName = None,
         appType = None,
+        configResource = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -195,9 +192,9 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for http checks" in {
       SbtReactiveApp.labels(
-        namespace = None,
         appName = None,
         appType = None,
+        configResource = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -220,9 +217,9 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.readiness-check.path" -> "/other-health")
 
       SbtReactiveApp.labels(
-        namespace = None,
         appName = None,
         appType = None,
+        configResource = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,
@@ -247,9 +244,9 @@ class SbtReactiveAppSpec extends UnitSpec {
 
     "work for command checks" in {
       SbtReactiveApp.labels(
-        namespace = None,
         appName = None,
         appType = None,
+        configResource = None,
         diskSpace = None,
         memory = None,
         nrOfCpus = None,

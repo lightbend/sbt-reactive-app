@@ -21,9 +21,9 @@ import scala.collection.immutable.Seq
 
 object SbtReactiveApp {
   def labels(
-    namespace: Option[String],
     appName: Option[String],
     appType: Option[String],
+    configResource: Option[String],
     diskSpace: Option[Long],
     memory: Option[Long],
     nrOfCpus: Option[Double],
@@ -33,20 +33,23 @@ object SbtReactiveApp {
     healthCheck: Option[Check],
     readinessCheck: Option[Check],
     environmentVariables: Map[String, EnvironmentVariable],
-    version: Option[(Int, Int, Int, Option[String])],
+    version: Option[String],
     secrets: Set[Secret],
     modules: Seq[(String, Boolean)]): Map[String, String] = {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
 
     val keyValuePairs =
-      namespace
-        .map(ns("namespace") -> _.toString)
-        .toSeq ++
-        appName
+      appName
         .map(ns("app-name") -> _.toString)
+        .toSeq ++
+        version
+        .map(ns("app-version") -> _)
         .toSeq ++
         appType
         .map(ns("app-type") -> _)
+        .toSeq ++
+        configResource
+        .map(ns("config-resource") -> _)
         .toSeq ++
         modules
         .map { case (m, enabled) => ns("modules", m, "enabled") -> enabled.toString } ++
@@ -150,16 +153,6 @@ object SbtReactiveApp {
                   ns("environment-variables", i.toString, "name") -> envName,
                   ns("environment-variables", i.toString, "field-path") -> fieldPath)
             }
-        } ++
-        version
-        .toSeq
-        .flatMap {
-          case (major, minor, patch, maybeLabel) =>
-            Vector(
-              ns("version-major") -> major.toString,
-              ns("version-minor") -> minor.toString,
-              ns("version-patch") -> patch.toString) ++
-              maybeLabel.toVector.map(label => ns("version-patch-label") -> label)
         } ++
         secrets
         .toSeq
