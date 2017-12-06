@@ -142,7 +142,7 @@ object SbtReactiveAppPlugin extends AutoPlugin {
             diskSpace = diskSpace.value,
             memory = memory.value,
             nrOfCpus = nrOfCpus.value,
-            endpoints = endpoints.value,
+            endpoints = endpoints.value.toVector,
             volumes = volumes.value,
             privileged = privileged.value,
             healthCheck = healthCheck.value,
