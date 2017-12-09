@@ -16,4 +16,4 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
-case class Secret(namespace: String, name: String)
+case class Secret(name: String, key: String)

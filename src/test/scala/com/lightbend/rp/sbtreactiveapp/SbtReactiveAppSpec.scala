@@ -136,10 +136,10 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.environment-variables.2.type" -> "kubernetes.fieldRef",
           "com.lightbend.rp.environment-variables.2.field-path" -> "my-field-path",
           "com.lightbend.rp.app-version" -> "1.2.3-SNAPSHOT",
-          "com.lightbend.rp.secrets.0.namespace" -> "myns1",
-          "com.lightbend.rp.secrets.0.name" -> "myname1",
-          "com.lightbend.rp.secrets.1.namespace" -> "myns2",
-          "com.lightbend.rp.secrets.1.name" -> "myname2")
+          "com.lightbend.rp.secrets.0.name" -> "myns1",
+          "com.lightbend.rp.secrets.0.key" -> "myname1",
+          "com.lightbend.rp.secrets.1.name" -> "myns2",
+          "com.lightbend.rp.secrets.1.key" -> "myname2")
     }
 
     "work for tcp checks" in {

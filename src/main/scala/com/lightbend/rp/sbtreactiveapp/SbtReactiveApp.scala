@@ -160,8 +160,8 @@ object SbtReactiveApp {
         .flatMap {
           case (secret, i) =>
             Vector(
-              ns("secrets", i.toString, "namespace") -> secret.namespace,
-              ns("secrets", i.toString, "name") -> secret.name)
+              ns("secrets", i.toString, "name") -> secret.name,
+              ns("secrets", i.toString, "key") -> secret.key)
         }
 
     keyValuePairs.toMap
