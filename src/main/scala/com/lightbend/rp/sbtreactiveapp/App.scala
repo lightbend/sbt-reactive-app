@@ -272,23 +272,6 @@ case object LagomScalaApp extends LagomApp {
       .map(v => reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-scala" -> true)
 }
 
-case object LagomPlayJavaApp extends LagomApp {
-  override def projectSettings: Seq[Setting[_]] =
-    super.projectSettings ++ magic.Lagom
-      .version
-      .toVector
-      .map(v =>
-        reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-java" -> false)
-}
-
-case object LagomPlayScalaApp extends LagomApp {
-  override def projectSettings: Seq[Setting[_]] =
-    super.projectSettings ++ magic.Lagom
-      .version
-      .toVector
-      .map(v => reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-scala" -> true)
-}
-
 case object PlayApp extends App {
   val applicationType: String = "play"
 
@@ -324,20 +307,6 @@ object App {
       .dropWhile(NameTrimChars.contains)
       .reverse
       .toLowerCase
-
-  def apply: App =
-    if (magic.Lagom.isPlayJava)
-      LagomPlayJavaApp
-    else if (magic.Lagom.isPlayScala)
-      LagomPlayScalaApp
-    else if (magic.Lagom.isJava)
-      LagomJavaApp
-    else if (magic.Lagom.isScala)
-      LagomScalaApp
-    else if (magic.Play.isPlay)
-      PlayApp
-    else
-      BasicApp
 }
 
 private object SemVer {

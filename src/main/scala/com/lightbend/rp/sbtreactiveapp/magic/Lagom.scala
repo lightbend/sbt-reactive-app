@@ -19,8 +19,10 @@ package com.lightbend.rp.sbtreactiveapp.magic
 import com.lightbend.rp.sbtreactiveapp._
 import play.api.libs.json.{ JsObject, Json }
 import sbt._
+
 import scala.collection.immutable.Seq
 import scala.language.reflectiveCalls
+import scala.util.Try
 
 object Lagom {
   def component(id: String): Option[ModuleID] = {
@@ -50,13 +52,15 @@ object Lagom {
         d.name.contains("-persistence") || d.name.contains("-pubsub") || d.name.contains("-cluster")))
   }
 
-  def isJava: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomJava$")
+  def lagomJavaPlugin(classLoader: ClassLoader): Try[AutoPlugin] =
+    withContextClassloader(classLoader) { loader =>
+      getSingletonObject[AutoPlugin](loader, "com.lightbend.lagom.sbt.LagomJava$")
+    }
 
-  def isPlayJava: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomPlayJava$")
-
-  def isPlayScala: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomPlayScala$")
-
-  def isScala: Boolean = localObjectExists("com.lightbend.lagom.sbt.LagomScala$")
+  def lagomScalaPlugin(classLoader: ClassLoader): Try[AutoPlugin] =
+    withContextClassloader(classLoader) { loader =>
+      getSingletonObject[AutoPlugin](loader, "com.lightbend.lagom.sbt.LagomScala$")
+    }
 
   def services(classPath: Seq[Attributed[File]], scalaLoader: ClassLoader): Option[String] = {
     // `ServiceDetector` mirror from the Lagom api tools library.

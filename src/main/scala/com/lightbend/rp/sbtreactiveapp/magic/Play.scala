@@ -16,12 +16,15 @@
 
 package com.lightbend.rp.sbtreactiveapp.magic
 
+import sbt.AutoPlugin
+
 import scala.language.reflectiveCalls
+import scala.util.Try
 
 object Play {
-  def isPlay: Boolean =
-    withContextClassloader(this.getClass.getClassLoader) { loader =>
-      objectExists(loader, "play.sbt.Play$")
+  def playPlugin(classLoader: ClassLoader): Try[AutoPlugin] =
+    withContextClassloader(classLoader) { loader =>
+      getSingletonObject[AutoPlugin](loader, "play.sbt.Play$")
     }
 
   def version: Option[String] = {
