@@ -163,14 +163,6 @@ sealed trait App extends SbtReactiveAppKeys {
       }
     },
 
-    // This repository is required to resolve Akka DNS dependency hosted at https://bintray.com/hajile/maven/akka-dns
-    // Akka DNS is a transitive dependencies from reactive-lib service discovery project which is added as dependency
-    // below.
-    // TODO: the proper way to do this is to detect if service locator is enabled, including when cluster is enabled.
-    // We still have problem setting enableServiceDiscovery := true if akkaClusterBootstrapEnabled task is set to true
-    // The workaround is to add the resolvers at all times.
-    resolvers += bintrayRepo("hajile", "maven"),
-
     libraryDependencies ++=
       lib(scalaVersion.value, reactiveLibCommonProject.value, reactiveLibVersion.value, filter = true),
 
