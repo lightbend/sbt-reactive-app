@@ -23,8 +23,10 @@ import com.typesafe.sbt.packager.docker
 import sbt._
 import sbt.Keys._
 import sbt.plugins.JvmPlugin
+
 import scala.collection.{ Seq => DefaultSeq }
 import scala.collection.immutable.Seq
+import scala.util.{ Failure, Success }
 
 object SbtReactiveAppPluginAll extends AutoPlugin {
   override def requires = JvmPlugin
@@ -111,7 +113,7 @@ object SbtReactiveAppPlugin extends AutoPlugin {
   val localName = "rp-start"
 
   override def projectSettings: Seq[Setting[_]] =
-    App.apply.projectSettings ++ Vector(
+    BasicApp.projectSettings ++ Vector(
       javaOptions in SbtNativePackager.Universal ++= (
         if (memory.value.isDefined)
           Vector("-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap")
@@ -193,4 +195,52 @@ object SbtReactiveAppPlugin extends AutoPlugin {
     scala.io.Source
       .fromInputStream(getClass.getClassLoader.getResourceAsStream(name))
       .mkString
+}
+
+object SbtReactiveAppLagomScalaPlugin extends AutoPlugin {
+  private val classLoader = this.getClass.getClassLoader
+
+  override def requires = magic.Lagom.lagomScalaPlugin(classLoader) match {
+    case Success(plugin) => SbtReactiveAppPlugin && plugin
+    case Failure(_) => NoOpPlugin
+  }
+
+  override def trigger = allRequirements
+
+  override def projectSettings = super.projectSettings ++ LagomScalaApp.projectSettings
+}
+
+object SbtReactiveAppLagomJavaPlugin extends AutoPlugin {
+  private val classLoader = this.getClass.getClassLoader
+
+  override def requires = magic.Lagom.lagomJavaPlugin(classLoader) match {
+    case Success(plugin) => SbtReactiveAppPlugin && plugin
+    case Failure(_) => NoOpPlugin
+  }
+
+  override def trigger = allRequirements
+
+  override def projectSettings = super.projectSettings ++ LagomJavaApp.projectSettings
+
+}
+
+object SbtReactiveAppPlayPlugin extends AutoPlugin {
+  private val classLoader = this.getClass.getClassLoader
+
+  override def requires = magic.Play.playPlugin(classLoader) match {
+    case Success(plugin) => SbtReactiveAppPlugin && plugin
+    case Failure(_) => NoOpPlugin
+  }
+
+  override def trigger = allRequirements
+
+  override def projectSettings = super.projectSettings ++ PlayApp.projectSettings
+}
+
+/**
+ * This plugin is created so other plugins which depends on the [[NoOpPlugin]] will be disabled, as it's not possible
+ * to enable [[NoOpPlugin]] due to its private access modifier.
+ */
+private[sbtreactiveapp] object NoOpPlugin extends AutoPlugin {
+  override def trigger = noTrigger
 }
