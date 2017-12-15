@@ -221,7 +221,32 @@ object SbtReactiveAppLagomJavaPlugin extends AutoPlugin {
   override def trigger = allRequirements
 
   override def projectSettings = super.projectSettings ++ LagomJavaApp.projectSettings
+}
 
+object SbtReactiveAppPlayLagomScalaPlugin extends AutoPlugin {
+  private val classLoader = this.getClass.getClassLoader
+
+  override def requires = magic.Lagom.lagomPlayScalaPlugin(classLoader) match {
+    case Success(plugin) => SbtReactiveAppPlugin && plugin
+    case Failure(_) => NoOpPlugin
+  }
+
+  override def trigger = allRequirements
+
+  override def projectSettings = super.projectSettings ++ LagomPlayScalaApp.projectSettings
+}
+
+object SbtReactiveAppPlayLagomJavaPlugin extends AutoPlugin {
+  private val classLoader = this.getClass.getClassLoader
+
+  override def requires = magic.Lagom.lagomPlayJavaPlugin(classLoader) match {
+    case Success(plugin) => SbtReactiveAppPlugin && plugin
+    case Failure(_) => NoOpPlugin
+  }
+
+  override def trigger = allRequirements
+
+  override def projectSettings = super.projectSettings ++ LagomPlayJavaApp.projectSettings
 }
 
 object SbtReactiveAppPlayPlugin extends AutoPlugin {

@@ -62,6 +62,16 @@ object Lagom {
       getSingletonObject[AutoPlugin](loader, "com.lightbend.lagom.sbt.LagomScala$")
     }
 
+  def lagomPlayJavaPlugin(classLoader: ClassLoader): Try[AutoPlugin] =
+    withContextClassloader(classLoader) { loader =>
+      getSingletonObject[AutoPlugin](loader, "com.lightbend.lagom.sbt.LagomPlayJava$")
+    }
+
+  def lagomPlayScalaPlugin(classLoader: ClassLoader): Try[AutoPlugin] =
+    withContextClassloader(classLoader) { loader =>
+      getSingletonObject[AutoPlugin](loader, "com.lightbend.lagom.sbt.LagomPlayScala$")
+    }
+
   def services(classPath: Seq[Attributed[File]], scalaLoader: ClassLoader): Option[String] = {
     // `ServiceDetector` mirror from the Lagom api tools library.
     // The method signature equals the signature from the api tools `ServiceDetector`
