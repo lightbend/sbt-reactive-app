@@ -26,7 +26,7 @@ object SbtReactiveApp {
     configResource: Option[String],
     diskSpace: Option[Long],
     memory: Option[Long],
-    nrOfCpus: Option[Double],
+    cpu: Option[Double],
     endpoints: Seq[Endpoint],
     volumes: Map[String, Volume],
     privileged: Boolean,
@@ -59,8 +59,8 @@ object SbtReactiveApp {
         memory
         .map(ns("memory") -> _.toString)
         .toSeq ++
-        nrOfCpus
-        .map(ns("nr-of-cpus") -> _.toString)
+        cpu
+        .map(ns("cpu") -> _.toString)
         .toSeq ++
         endpoints
         .zipWithIndex

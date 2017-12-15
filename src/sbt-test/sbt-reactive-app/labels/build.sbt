@@ -4,7 +4,7 @@ scalaVersion := "2.12.4"
 
 enablePlugins(SbtReactiveAppPlugin)
 
-nrOfCpus := Some(0.5)
+cpu := Some(0.5)
 memory := Some(65536)
 diskSpace := Some(32768)
 privileged := true
@@ -45,7 +45,7 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.health-check.args.2="exit 0"""",
     """LABEL com.lightbend.rp.health-check.type="command"""",
     """LABEL com.lightbend.rp.memory="65536"""",
-    """LABEL com.lightbend.rp.nr-of-cpus="0.5"""",
+    """LABEL com.lightbend.rp.cpu="0.5"""",
     """LABEL com.lightbend.rp.privileged="true"""",
     """LABEL com.lightbend.rp.readiness-check.interval="60"""",
     """LABEL com.lightbend.rp.readiness-check.path="/healthz"""",

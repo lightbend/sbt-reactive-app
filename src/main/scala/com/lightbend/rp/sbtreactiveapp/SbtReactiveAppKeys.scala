@@ -45,7 +45,7 @@ trait SbtReactiveAppKeys {
    * Defines the optional CPU share requirement for scheduling this application. This follows Mesos conventions, so
    * for CGroup shares this value is multiplied by 1024. A reasonable starting value is 0.1.
    */
-  val nrOfCpus = SettingKey[Option[Double]]("rp-nr-of-cpus")
+  val cpu = SettingKey[Option[Double]]("rp-cpu")
 
   /**
    * Defines the endpoints for this application. On Kubernetes, Services will be created for each endpoint, and if
