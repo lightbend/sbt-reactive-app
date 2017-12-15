@@ -115,7 +115,7 @@ object SbtReactiveAppPlugin extends AutoPlugin {
   override def projectSettings: Seq[Setting[_]] =
     BasicApp.projectSettings ++ Vector(
       javaOptions in SbtNativePackager.Universal ++= (
-        if (memory.value.isDefined)
+        if (memory.value.isDefined && enableCGroupMemoryLimit.value)
           Vector("-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap")
         else
           Vector.empty),
