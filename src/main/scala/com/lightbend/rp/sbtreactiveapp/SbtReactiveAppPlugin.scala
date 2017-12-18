@@ -16,14 +16,12 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
-import com.typesafe.sbt.SbtNativePackager
 import com.typesafe.sbt.packager.Keys._
 import com.typesafe.sbt.packager.archetypes.scripts.AshScriptPlugin
 import com.typesafe.sbt.packager.docker
 import sbt._
 import sbt.Keys._
 import sbt.plugins.JvmPlugin
-
 import scala.collection.{ Seq => DefaultSeq }
 import scala.collection.immutable.Seq
 import scala.util.{ Failure, Success }
@@ -100,10 +98,6 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
   object localImport extends docker.DockerKeys
 
-  import autoImport._
-  import localImport._
-  import docker.DockerPlugin._
-
   override def requires = SbtReactiveAppPluginAll && docker.DockerPlugin && AshScriptPlugin && SbtReactiveAppPluginAll
 
   override def trigger = noTrigger
@@ -111,80 +105,6 @@ object SbtReactiveAppPlugin extends AutoPlugin {
   val Docker = docker.DockerPlugin.autoImport.Docker
 
   val localName = "rp-start"
-
-  override def projectSettings: Seq[Setting[_]] =
-    BasicApp.projectSettings ++ Vector(
-      javaOptions in SbtNativePackager.Universal ++= (
-        if (memory.value.isDefined && enableCGroupMemoryLimit.value)
-          Vector("-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap")
-        else
-          Vector.empty),
-
-      dockerEntrypoint := startScriptLocation.value.fold(dockerEntrypoint.value)(_ +: dockerEntrypoint.value),
-
-      dockerBaseImage := "openjdk:8-jre-alpine",
-
-      dockerCommands := {
-        val addCommand = startScriptLocation
-          .value
-          .toVector
-          .map(path => docker.Cmd("COPY", localName, path))
-
-        val bootstrapEnabled = enableAkkaClusterBootstrap.value.getOrElse(akkaClusterBootstrapEnabled.value)
-        val commonEnabled = enableCommon.value
-        val playHttpBindingEnabled = enablePlayHttpBinding.value
-        val secretsEnabled = enableSecrets.value.getOrElse(secrets.value.nonEmpty)
-        val serviceDiscoveryEnabled = enableServiceDiscovery.value
-
-        dockerCommands.value ++ addCommand ++ SbtReactiveApp
-          .labels(
-            appName = Some(appName.value),
-            appType = Some(appType.value),
-            configResource = (prependRpConf in Compile).value.map(_ => LocalApplicationConfig),
-            diskSpace = diskSpace.value,
-            memory = memory.value,
-            cpu = cpu.value,
-            endpoints = endpoints.value.toVector,
-            volumes = volumes.value,
-            privileged = privileged.value,
-            healthCheck = healthCheck.value,
-            readinessCheck = readinessCheck.value,
-            environmentVariables = environmentVariables.value,
-            version = Some(Keys.version.value),
-            secrets = secrets.value,
-            modules = Seq(
-              "akka-cluster-bootstrapping" -> bootstrapEnabled,
-              "common" -> commonEnabled,
-              "play-http-binding" -> playHttpBindingEnabled,
-              "secrets" -> secretsEnabled,
-              "service-discovery" -> serviceDiscoveryEnabled))
-          .map {
-            case (key, value) =>
-              docker.Cmd("LABEL", s"""$key="${encodeLabelValue(value)}"""")
-          }
-      }) ++ inConfig(Docker)(Seq(
-        stage := {
-          val target = stage.value
-          val localPath = target / localName
-
-          IO.write(localPath, readResource(localName))
-
-          localPath.setExecutable(true)
-
-          target
-        },
-        rpDockerPublish := {
-          val _ = publishLocal.value
-          val alias = dockerAlias.value
-          val log = streams.value.log
-          val execCommand = dockerExecCommand.value
-
-          publishDocker(execCommand, alias.versioned, log)
-
-          if (dockerUpdateLatest.value) {
-            publishDocker(execCommand, alias.latest, log)
-          }
-        }))
 
   private def encodeLabelValue(value: String) =
     value
@@ -195,6 +115,8 @@ object SbtReactiveAppPlugin extends AutoPlugin {
     scala.io.Source
       .fromInputStream(getClass.getClassLoader.getResourceAsStream(name))
       .mkString
+
+  override def projectSettings: Seq[Setting[_]] = BasicApp.projectSettings
 }
 
 object SbtReactiveAppLagomScalaPlugin extends AutoPlugin {
@@ -207,7 +129,7 @@ object SbtReactiveAppLagomScalaPlugin extends AutoPlugin {
 
   override def trigger = allRequirements
 
-  override def projectSettings = super.projectSettings ++ LagomScalaApp.projectSettings
+  override def projectSettings = LagomScalaApp.projectSettings
 }
 
 object SbtReactiveAppLagomJavaPlugin extends AutoPlugin {
@@ -220,8 +142,41 @@ object SbtReactiveAppLagomJavaPlugin extends AutoPlugin {
 
   override def trigger = allRequirements
 
-  override def projectSettings = super.projectSettings ++ LagomJavaApp.projectSettings
+  override def projectSettings = LagomJavaApp.projectSettings
+}
 
+object SbtReactiveAppPlayLagomScalaPlugin extends AutoPlugin {
+  private val classLoader = this.getClass.getClassLoader
+
+  override def requires =
+    magic
+      .Lagom
+      .lagomPlayScalaPlugin(classLoader)
+      .flatMap(lagom => magic.Play.playPlugin(classLoader).map(play => Seq(lagom, play))) match {
+        case Success(plugins) => plugins.foldLeft[Plugins](SbtReactiveAppPlugin)(_ && _)
+        case Failure(_) => NoOpPlugin
+      }
+
+  override def trigger = allRequirements
+
+  override def projectSettings = LagomPlayScalaApp.projectSettings
+}
+
+object SbtReactiveAppPlayLagomJavaPlugin extends AutoPlugin {
+  private val classLoader = this.getClass.getClassLoader
+
+  override def requires =
+    magic
+      .Lagom
+      .lagomPlayJavaPlugin(classLoader)
+      .flatMap(lagom => magic.Play.playPlugin(classLoader).map(play => Seq(lagom, play))) match {
+        case Success(plugins) => plugins.foldLeft[Plugins](SbtReactiveAppPlugin)(_ && _)
+        case Failure(_) => NoOpPlugin
+      }
+
+  override def trigger = allRequirements
+
+  override def projectSettings = LagomPlayJavaApp.projectSettings
 }
 
 object SbtReactiveAppPlayPlugin extends AutoPlugin {
@@ -234,7 +189,7 @@ object SbtReactiveAppPlayPlugin extends AutoPlugin {
 
   override def trigger = allRequirements
 
-  override def projectSettings = super.projectSettings ++ PlayApp.projectSettings
+  override def projectSettings = PlayApp.projectSettings
 }
 
 /**

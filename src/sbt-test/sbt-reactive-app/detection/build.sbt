@@ -20,6 +20,15 @@ lazy val `simple-app` = (project in file("simple-app"))
 lazy val frontend = (project in file("frontend"))
   .enablePlugins(PlayScala, LagomPlay, SbtReactiveAppPlugin)
   .settings(
+    libraryDependencies ++= Seq(
+      guice, // This is required to configure Play's application loader
+      ws
+    )
+  )
+
+lazy val `frontend-play` = (project in file("frontend-play"))
+  .enablePlugins(PlayScala, SbtReactiveAppPlugin)
+  .settings(
     enableServiceDiscovery := true,
     libraryDependencies ++= Seq(
       guice, // This is required to configure Play's application loader
@@ -59,7 +68,12 @@ TaskKey[Unit]("checkAppType") := {
   )
 
   assert(
-    (appType in frontend).value == "play",
+    (appType in `frontend-play`).value == "play",
+    s"Incorrect appType for ${(name in `frontend-play`).value}: ${(appType in `frontend-play`).value}"
+  )
+
+  assert(
+    (appType in frontend).value == "lagom",
     s"Incorrect appType for ${(name in frontend).value}: ${(appType in frontend).value}"
   )
 
@@ -83,10 +97,11 @@ TaskKey[Unit]("checkServiceDiscoveryLibraries") := {
   val rpCommon: ModuleID = "com.lightbend.rp" %% "reactive-lib-common" % (reactiveLibVersion in `simple-app`).value
   val rpLagomServiceLocatorJava: ModuleID = "com.lightbend.rp" %% "reactive-lib-service-discovery-lagom14-java" % (reactiveLibVersion in `lagom-java-impl`).value
   val rpLagomServiceLocatorScala: ModuleID = "com.lightbend.rp" %% "reactive-lib-service-discovery-lagom14-scala" % (reactiveLibVersion in `lagom-scala-impl`).value
-  val rpServiceLocator: ModuleID = "com.lightbend.rp" %% "reactive-lib-service-discovery" % (reactiveLibVersion in frontend).value
+  val rpServiceLocator: ModuleID = "com.lightbend.rp" %% "reactive-lib-service-discovery" % (reactiveLibVersion in `frontend-play`).value
 
   val simpleAppLibs = (libraryDependencies in `simple-app`).value
   val frontendLibs = (libraryDependencies in frontend).value
+  val frontendPlayLibs = (libraryDependencies in `frontend-play`).value
   val lagomJavaImplLibs = (libraryDependencies in `lagom-java-impl`).value
   val lagomScalaImplLibs = (libraryDependencies in `lagom-scala-impl`).value
 
@@ -111,8 +126,13 @@ TaskKey[Unit]("checkServiceDiscoveryLibraries") := {
   )
 
   assert(
-    frontendLibs.exists(isSame(_, rpServiceLocator)),
-    s"Unable to find [$rpServiceLocator] in Play project: $frontendLibs"
+    frontendLibs.exists(isSame(_, rpLagomServiceLocatorScala)),
+    s"Unable to find [$rpLagomServiceLocatorScala] in Lagom Play project: $frontendLibs"
+  )
+
+  assert(
+    frontendPlayLibs.exists(isSame(_, rpServiceLocator)),
+    s"Unable to find [$rpServiceLocator] in Play project: $frontendPlayLibs"
   )
 
   assert(
@@ -121,7 +141,7 @@ TaskKey[Unit]("checkServiceDiscoveryLibraries") := {
   )
 
   assert(
-    !frontendLibs.exists(isSame(_, rpLagomServiceLocatorScala)),
+    !frontendPlayLibs.exists(isSame(_, rpLagomServiceLocatorScala)),
     s"Should not find [$rpLagomServiceLocatorScala] in Play project: $frontendLibs"
   )
 
