@@ -50,6 +50,7 @@ sealed trait App extends SbtReactiveAppKeys {
     cpu := None,
     diskSpace := None,
     memory := None,
+    enableCGroupMemoryLimit := true,
     volumes := Map.empty,
     privileged := false,
     healthCheck := None,

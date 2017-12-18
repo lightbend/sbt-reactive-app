@@ -42,6 +42,12 @@ trait SbtReactiveAppKeys {
   val memory = SettingKey[Option[Long]]("rp-memory")
 
   /**
+   * If true, `memory` setting will set CGroup limits for the JVM in addition to platform (eg. Kubernetes) limits.
+   * If false, only platform limits will be enforced. Default is true.
+   */
+  val enableCGroupMemoryLimit = SettingKey[Boolean]("rp-enable-cgroup-memory-limit")
+
+  /**
    * Defines the optional CPU share requirement for scheduling this application. This follows Mesos conventions, so
    * for CGroup shares this value is multiplied by 1024. A reasonable starting value is 0.1.
    */
