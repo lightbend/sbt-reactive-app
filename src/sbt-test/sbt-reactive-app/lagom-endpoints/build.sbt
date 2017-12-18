@@ -5,7 +5,14 @@ scalaVersion in ThisBuild := "2.11.12"
 enablePlugins(SbtReactiveAppPlugin)
 
 lazy val `hello` = (project in file("."))
-  .aggregate(`hello-api`, `hello-impl`)
+  .aggregate(`hello-api`, `hello-impl`, `echo-api`, `echo-impl`)
+
+lazy val `echo-api` = (project in file("echo-api"))
+  .settings(
+    libraryDependencies ++= Seq(
+      lagomScaladslApi
+    )
+  )
 
 lazy val `hello-api` = (project in file("hello-api"))
   .settings(
@@ -53,3 +60,19 @@ lazy val `hello-impl` = (project in file("hello-impl"))
   )
   .dependsOn(`hello-api`)
 
+
+lazy val `echo-impl` = (project in file("echo-impl"))
+  .enablePlugins(LagomScala, SbtReactiveAppPlugin)
+  .settings(
+    packageName in Docker := "echo-lagom",
+    httpIngressPorts := scala.collection.immutable.Seq(9000),
+    check := {
+      val outputDir = (stage in Docker).value
+      val contents = IO.readLines(outputDir / "Dockerfile")
+
+      assert(
+        contents.forall(!_.contains("ingress")),
+        s"echo service should not have any ingress\n${contents.mkString("\n")}")
+    }
+  )
+  .dependsOn(`echo-api`)

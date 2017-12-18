@@ -101,11 +101,6 @@ object Lagom {
     }
   }
 
-  private def localObjectExists(className: String): Boolean =
-    withContextClassloader(this.getClass.getClassLoader) { loader =>
-      objectExists(loader, className)
-    }
-
   private def decodeServices(services: String, ports: Seq[Int], hosts: Seq[String], paths: Seq[String]): Seq[HttpEndpoint] = {
     def toEndpoint(serviceName: String, pathBegins: Seq[String]): HttpEndpoint = {
       // If we're provided an explicit path listing, use that instead. A future improvement would be to
@@ -115,9 +110,12 @@ object Lagom {
         if (paths.nonEmpty)
           paths
         else
-          pathBegins.distinct.map(p => if (p == "") "/" else p)
+          pathBegins.distinct.filter(_.nonEmpty)
 
-      HttpEndpoint(serviceName, HttpIngress(ports, hosts, pathsToUse))
+      if (pathsToUse.nonEmpty)
+        HttpEndpoint(serviceName, HttpIngress(ports, hosts, pathsToUse))
+      else
+        HttpEndpoint(serviceName)
     }
 
     def mergeEndpoint(endpoints: Seq[HttpEndpoint], endpointEntry: HttpEndpoint): Seq[HttpEndpoint] = {
