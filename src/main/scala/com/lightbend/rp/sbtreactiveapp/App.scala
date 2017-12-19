@@ -199,7 +199,7 @@ case object BasicApp extends App {
       environmentVariables := Map.empty,
       startScriptLocation := Some("/rp-start"),
       secrets := Set.empty,
-      reactiveLibVersion := "0.3.4",
+      reactiveLibVersion := "0.3.5",
       reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
       reactiveLibCommonProject := "reactive-lib-common" -> true,
       reactiveLibPlayHttpBindingProject := "reactive-lib-play-http-binding" -> true,
