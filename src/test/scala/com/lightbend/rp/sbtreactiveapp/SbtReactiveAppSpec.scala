@@ -34,7 +34,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         environmentVariables = Map.empty,
         version = None,
         secrets = Set.empty,
-        modules = Vector.empty) shouldBe Map.empty
+        modules = Vector.empty,
+        akkaClusterBootstrapSystemName = None) shouldBe Map.empty
     }
 
     "work for all values (except checks)" in {
@@ -69,7 +70,8 @@ class SbtReactiveAppSpec extends UnitSpec {
           "env3" -> kubernetes.FieldRefEnvironmentVariable("my-field-path")),
         version = Some("1.2.3-SNAPSHOT"),
         secrets = Set(Secret("myns1", "myname1"), Secret("myns2", "myname2")),
-        modules = Vector("mod1" -> true, "mod2" -> false)) shouldBe Map(
+        modules = Vector("mod1" -> true, "mod2" -> false),
+        akkaClusterBootstrapSystemName = Some("test")) shouldBe Map(
 
           "com.lightbend.rp.app-name" -> "myapp",
           "com.lightbend.rp.app-type" -> "mytype",
@@ -139,7 +141,8 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.secrets.0.name" -> "myns1",
           "com.lightbend.rp.secrets.0.key" -> "myname1",
           "com.lightbend.rp.secrets.1.name" -> "myns2",
-          "com.lightbend.rp.secrets.1.key" -> "myname2")
+          "com.lightbend.rp.secrets.1.key" -> "myname2",
+          "com.lightbend.rp.akka-cluster-bootstrap.system-name" -> "test")
     }
 
     "work for tcp checks" in {
@@ -158,7 +161,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         environmentVariables = Map.empty,
         version = None,
         secrets = Set.empty,
-        modules = Vector.empty) shouldBe Map(
+        modules = Vector.empty,
+        akkaClusterBootstrapSystemName = None) shouldBe Map(
           "com.lightbend.rp.health-check.type" -> "tcp",
           "com.lightbend.rp.health-check.port" -> "80",
           "com.lightbend.rp.health-check.interval" -> "10",
@@ -181,7 +185,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         environmentVariables = Map.empty,
         version = None,
         secrets = Set.empty,
-        modules = Vector.empty) shouldBe Map(
+        modules = Vector.empty,
+        akkaClusterBootstrapSystemName = None) shouldBe Map(
           "com.lightbend.rp.health-check.type" -> "tcp",
           "com.lightbend.rp.health-check.service-name" -> "test",
           "com.lightbend.rp.health-check.interval" -> "10",
@@ -206,7 +211,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         environmentVariables = Map.empty,
         version = None,
         secrets = Set.empty,
-        modules = Vector.empty) shouldBe Map(
+        modules = Vector.empty,
+        akkaClusterBootstrapSystemName = None) shouldBe Map(
           "com.lightbend.rp.health-check.type" -> "http",
           "com.lightbend.rp.health-check.port" -> "80",
           "com.lightbend.rp.health-check.interval" -> "10",
@@ -231,7 +237,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         environmentVariables = Map.empty,
         version = None,
         secrets = Set.empty,
-        modules = Vector.empty) shouldBe Map(
+        modules = Vector.empty,
+        akkaClusterBootstrapSystemName = None) shouldBe Map(
           "com.lightbend.rp.health-check.type" -> "http",
           "com.lightbend.rp.health-check.service-name" -> "test",
           "com.lightbend.rp.health-check.interval" -> "10",
@@ -258,7 +265,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         environmentVariables = Map.empty,
         version = None,
         secrets = Set.empty,
-        modules = Vector.empty) shouldBe Map(
+        modules = Vector.empty,
+        akkaClusterBootstrapSystemName = None) shouldBe Map(
           "com.lightbend.rp.health-check.type" -> "command",
           "com.lightbend.rp.health-check.args.0" -> "/bin/bash",
           "com.lightbend.rp.health-check.args.1" -> "arg one",

@@ -220,6 +220,7 @@ case object BasicApp extends App {
       akkaClusterBootstrapEndpointName := "akka-remote",
       akkaClusterBootstrapManagementEndpointName := "akka-mgmt-http",
       akkaClusterBootstrapEnabled := false,
+      akkaClusterBootstrapSystemName := None,
 
       httpIngressHosts := Seq.empty,
 
@@ -344,6 +345,7 @@ case object BasicApp extends App {
           .map(path => docker.Cmd("COPY", localName, path))
 
         val bootstrapEnabled = enableAkkaClusterBootstrap.value.getOrElse(akkaClusterBootstrapEnabled.value)
+        val bootstrapSystemName = akkaClusterBootstrapSystemName.value.filter(_ => bootstrapEnabled)
         val commonEnabled = enableCommon.value
         val playHttpBindingEnabled = enablePlayHttpBinding.value
         val secretsEnabled = enableSecrets.value.getOrElse(secrets.value.nonEmpty)
@@ -370,7 +372,8 @@ case object BasicApp extends App {
               "common" -> commonEnabled,
               "play-http-binding" -> playHttpBindingEnabled,
               "secrets" -> secretsEnabled,
-              "service-discovery" -> serviceDiscoveryEnabled))
+              "service-discovery" -> serviceDiscoveryEnabled),
+            akkaClusterBootstrapSystemName = bootstrapSystemName)
           .map {
             case (key, value) =>
               docker.Cmd("LABEL", s"""$key="${encodeLabelValue(value)}"""")
