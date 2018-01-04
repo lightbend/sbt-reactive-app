@@ -12,7 +12,8 @@ lazy val root = (project in file("."))
     ),
 
     packageName in Docker := "hello-akka",
-    enableAkkaClusterBootstrap := Some(true)
+    enableAkkaClusterBootstrap := Some(true),
+    akkaClusterBootstrapSystemName := Some("hey")
   )
 
 TaskKey[Unit]("check") := {
@@ -31,12 +32,16 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.app-name="hello-akka"""",
     """LABEL com.lightbend.rp.modules.common.enabled="true"""",
     """LABEL com.lightbend.rp.modules.secrets.enabled="false"""",
-    """LABEL com.lightbend.rp.modules.service-discovery.enabled="false""""
+    """LABEL com.lightbend.rp.modules.service-discovery.enabled="false"""",
+    """LABEL com.lightbend.rp.akka-cluster-bootstrap.system-name="hey""""
   )
 
   lines.foreach { line =>
     if (!contents.contains(line)) {
-      sys.error(s"""Dockerfile is missing line "$line"""")
+      sys.error(
+        s"""|Dockerfile is missing line "$line" - Dockerfile contents:
+            |${contents.mkString("\n")}
+            |""".stripMargin)
     }
   }
 }

@@ -94,6 +94,12 @@ trait SbtReactiveAppKeys {
   val akkaClusterBootstrapManagementEndpointName = SettingKey[String]("rp-akka-cluster-bootstrap-management-endpoint-name")
 
   /**
+   * If specified, app will join other nodes that specify this same system name. This can be used to allow different
+   * applications to join the same cluster.
+   */
+  val akkaClusterBootstrapSystemName = SettingKey[Option[String]]("rp-akka-cluster-bootstrap-system-name")
+
+  /**
    * For endpoints that are autopopulated, they will declare ingress for these hosts. That is, they'll be available
    * on the public nodes or ingress controllers at these hostnames. Defaults to nothing for Basic apps, "/" for Play
    * apps, and the collection of service endpoints for Lagom apps.

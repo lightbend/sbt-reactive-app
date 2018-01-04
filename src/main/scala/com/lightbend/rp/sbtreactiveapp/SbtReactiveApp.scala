@@ -35,7 +35,8 @@ object SbtReactiveApp {
     environmentVariables: Map[String, EnvironmentVariable],
     version: Option[String],
     secrets: Set[Secret],
-    modules: Seq[(String, Boolean)]): Map[String, String] = {
+    modules: Seq[(String, Boolean)],
+    akkaClusterBootstrapSystemName: Option[String]): Map[String, String] = {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
 
     val keyValuePairs =
@@ -162,7 +163,10 @@ object SbtReactiveApp {
             Vector(
               ns("secrets", i.toString, "name") -> secret.name,
               ns("secrets", i.toString, "key") -> secret.key)
-        }
+        } ++
+        akkaClusterBootstrapSystemName
+        .toSeq
+        .map(n => ns("akka-cluster-bootstrap", "system-name") -> n)
 
     keyValuePairs.toMap
   }
