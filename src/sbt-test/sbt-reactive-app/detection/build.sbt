@@ -99,15 +99,15 @@ TaskKey[Unit]("checkServiceDiscoveryLibraries") := {
   val rpLagomServiceLocatorScala: ModuleID = "com.lightbend.rp" %% "reactive-lib-service-discovery-lagom14-scala" % (reactiveLibVersion in `lagom-scala-impl`).value
   val rpServiceLocator: ModuleID = "com.lightbend.rp" %% "reactive-lib-service-discovery" % (reactiveLibVersion in `frontend-play`).value
 
-  val simpleAppLibs = (libraryDependencies in `simple-app`).value
-  val frontendLibs = (libraryDependencies in frontend).value
-  val frontendPlayLibs = (libraryDependencies in `frontend-play`).value
-  val lagomJavaImplLibs = (libraryDependencies in `lagom-java-impl`).value
-  val lagomScalaImplLibs = (libraryDependencies in `lagom-scala-impl`).value
+  val simpleAppLibs = (allDependencies in `simple-app`).value
+  val frontendLibs = (allDependencies in frontend).value
+  val frontendPlayLibs = (allDependencies in `frontend-play`).value
+  val lagomJavaImplLibs = (allDependencies in `lagom-java-impl`).value
+  val lagomScalaImplLibs = (allDependencies in `lagom-scala-impl`).value
 
   assert(
     simpleAppLibs.exists(isSame(_, rpCommon)),
-    s"Unable not find [$rpCommon] in basic project: $simpleAppLibs"
+    s"Unable to find [$rpCommon] in basic project: $simpleAppLibs"
   )
 
   assert(

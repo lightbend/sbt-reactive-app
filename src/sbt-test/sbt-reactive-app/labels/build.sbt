@@ -4,9 +4,9 @@ scalaVersion := "2.12.4"
 
 enablePlugins(SbtReactiveAppPlugin)
 
-cpu := Some(0.5)
-memory := Some(65536)
-diskSpace := Some(32768)
+cpu := 0.5
+memory := 65536
+diskSpace := 32768
 privileged := true
 volumes := Map("/data" -> HostPathVolume("/var/local"), "/data2" -> HostPathVolume("/var/log"))
 endpoints := Vector(HttpEndpoint("test1", 2551, HttpIngress(ingressPorts = Seq(80, 443), hosts = Seq("hi.com"), paths = Seq("/test.*$"))))

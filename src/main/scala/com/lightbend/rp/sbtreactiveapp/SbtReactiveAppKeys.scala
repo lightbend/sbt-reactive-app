@@ -34,12 +34,12 @@ trait SbtReactiveAppKeys {
   /**
    * Defines the optional disk space requirement for scheduling this application.
    */
-  val diskSpace = SettingKey[Option[Long]]("rp-disk-space")
+  val diskSpace = SettingKey[Long]("rp-disk-space")
 
   /**
-   * Defines the optional memory requirement for scheduling this application.
+   * Defines the optional memory requirement for scheduling this application. Defaults to 0, i.e. disabled.
    */
-  val memory = SettingKey[Option[Long]]("rp-memory")
+  val memory = SettingKey[Long]("rp-memory")
 
   /**
    * If true, `memory` setting will set CGroup limits for the JVM in addition to platform (eg. Kubernetes) limits.
@@ -49,9 +49,10 @@ trait SbtReactiveAppKeys {
 
   /**
    * Defines the optional CPU share requirement for scheduling this application. This follows Mesos conventions, so
-   * for CGroup shares this value is multiplied by 1024. A reasonable starting value is 0.1.
+   * for CGroup shares this value is multiplied by 1024. A reasonable starting value is 0.1. Defaults to 0, i.e.
+   * disabled.
    */
-  val cpu = SettingKey[Option[Double]]("rp-cpu")
+  val cpu = SettingKey[Double]("rp-cpu")
 
   /**
    * Defines the endpoints for this application. On Kubernetes, Services will be created for each endpoint, and if
@@ -88,16 +89,17 @@ trait SbtReactiveAppKeys {
   val akkaClusterBootstrapEndpointName = SettingKey[String]("rp-akka-cluster-bootstrap-endpoint-name")
 
   /**
-   * Defines the endpoint name for the akka cluster management port. reactive-lib expects the default values here so you
-   * should not have to change this under normal circumstances.
+   * If specified, app will join other nodes that specify this same system name. This can be used to allow different
+   * applications to join the same cluster. If empty (default), the default logic of using the appName will be
+   * used instead.
    */
-  val akkaClusterBootstrapManagementEndpointName = SettingKey[String]("rp-akka-cluster-bootstrap-management-endpoint-name")
+  val akkaClusterBootstrapSystemName = SettingKey[String]("rp-akka-cluster-bootstrap-system-name")
 
   /**
-   * If specified, app will join other nodes that specify this same system name. This can be used to allow different
-   * applications to join the same cluster.
+   * Defines the endpoint name for the akka management port. reactive-lib expects the default values here so you
+   * should not have to change this under normal circumstances.
    */
-  val akkaClusterBootstrapSystemName = SettingKey[Option[String]]("rp-akka-cluster-bootstrap-system-name")
+  val akkaManagementEndpointName = SettingKey[String]("rp-akka-management-endpoint-name")
 
   /**
    * For endpoints that are autopopulated, they will declare ingress for these hosts. That is, they'll be available
@@ -124,50 +126,56 @@ trait SbtReactiveAppKeys {
   val environmentVariables = SettingKey[Map[String, EnvironmentVariable]]("rp-environment-variables")
 
   /**
-   * Enables Akka Cluster Bootstraping (reactive-lib). To auto detect if it is needed, set to None,
-   * otherwise set to Some(true) to enable or Some(false) to disable.
+   * Enables Akka Cluster Bootstrapping (reactive-lib).
    */
-  val enableAkkaClusterBootstrap = SettingKey[Option[Boolean]]("rp-enable-akka-cluster-bootstrap", "Include Akka Cluster Bootstrapping. By default, included if a Lagom persistence module is defined.")
+  val enableAkkaClusterBootstrap = TaskKey[Boolean]("rp-enable-akka-cluster-bootstrap", "Include Akka Cluster Bootstrapping. By default, included if a Lagom persistence module is defined.")
+
+  /**
+   * Enables Akka Management (reactive-lib).
+   *
+   * By default, this is enabled if one of the following modules is enabled:
+   *   - akka-cluster-bootstrap
+   *   - status
+   */
+  val enableAkkaManagement = TaskKey[Boolean]("rp-enable-akka-management")
 
   /**
    * Enables the common library (reactive-lib). This defaults to true. It provides a few APIs that the application
    * is using to determine what target platform its running on, what ports it should bind on, etc.
    */
-  val enableCommon = SettingKey[Boolean]("rp-enable-common")
+  val enableCommon = TaskKey[Boolean]("rp-enable-common")
 
   /**
    * Enable the Play HTTP binding library (reactive-lib). This is enabled by default for Lagom and Play projects and
    * allows the tooling to automatically assign ports.
    */
-  val enablePlayHttpBinding = SettingKey[Boolean]("rp-enable-play-http-binding")
+  val enablePlayHttpBinding = TaskKey[Boolean]("rp-enable-play-http-binding")
 
   /**
-   * Enable the secret library (reactive-lib). If None (default), it will automatically be enabled if any secrets are
-   * declared. If Some(value), it will be forced on (true) or off (false)
+   * Enable the secret library (reactive-lib). By default, it will automatically be enabled if any secrets are
+   * declared.
    */
-  val enableSecrets = SettingKey[Option[Boolean]]("rp-enable-secrets", "Include Secrets API. By default, included if any secrets are defined.")
+  val enableSecrets = TaskKey[Boolean]("rp-enable-secrets", "Include Secrets API. By default, included if any secrets are defined.")
 
   /**
    * Enables the service discovery library (reactive-lib). If enabled, a service locator API will be on the classpath
    * and for Lagom projects, an implementation of Lagom's service locator will be provided.
    */
-  val enableServiceDiscovery = SettingKey[Boolean]("rp-enable-service-discovery")
+  val enableServiceDiscovery = TaskKey[Boolean]("rp-enable-service-discovery")
 
   /**
-   * If defined (default: Some("rp-tooling.conf")), all resources with the given name will be prepended to the
-   * unmanaged application.conf file, or one will be created if none exists. To disable this behavior, specify `None`.
+   * Enables the status library (reactive-lib). By default, it will automatically be enabled if any modules
+   * that define health/readiness checks are enabled. Currently, this is only `akka-cluster-bootstrap`. At runtime,
+   * routes for health and readiness will be added to the Akka Management HTTP server, and at resource generation
+   * the appropriate health/readiness configuration will be generated to monitor these endpoints.
    */
-  val prependRpConf = SettingKey[Option[String]]("rp-prepend-rp-application-conf")
+  val enableStatus = TaskKey[Boolean]("rp-enable-status")
 
-  val reactiveLibAkkaClusterBootstrapProject = SettingKey[(String, Boolean)]("rp-reactive-lib-akka-cluster-bootstrap-project")
-
-  val reactiveLibCommonProject = SettingKey[(String, Boolean)]("rp-reactive-lib-common-project")
-
-  val reactiveLibPlayHttpBindingProject = SettingKey[(String, Boolean)]("rp-reactive-lib-play-http-binding-project")
-
-  val reactiveLibSecretsProject = SettingKey[(String, Boolean)]("rp-reactive-lib-secrets-project")
-
-  val reactiveLibServiceDiscoveryProject = SettingKey[(String, Boolean)]("rp-reactive-lib-service-discovery-project")
+  /**
+   * If non-empty (default: "rp-tooling.conf"), all resources with the given name will be prepended to the
+   * unmanaged application.conf file, or one will be created if none exists. To disable this behavior, specify "".
+   */
+  val prependRpConf = SettingKey[String]("rp-prepend-rp-application-conf")
 
   /**
    * Defines the published reactive-lib version to include in the project. You can set this value to upgrade
@@ -175,7 +183,11 @@ trait SbtReactiveAppKeys {
    */
   val reactiveLibVersion = SettingKey[String]("rp-reactive-lib-version")
 
-  val startScriptLocation = SettingKey[Option[String]]("rp-start-script")
+  /**
+   * Defines location where the wrapper script for app execution should be placed (in the container). If empty,
+   * no wrapper script is used.
+   */
+  val startScriptLocation = SettingKey[String]("rp-start-script")
 
   /**
    * Defines secrets that will be made available to the application at runtime. The secrets API in reactive-lib
@@ -183,9 +195,17 @@ trait SbtReactiveAppKeys {
    */
   val secrets = SettingKey[Set[Secret]]("rp-secrets")
 
-  private[sbtreactiveapp] val akkaClusterBootstrapEnabled = TaskKey[Boolean]("rp-akka-cluster-bootstrap-enabled")
-
   private[sbtreactiveapp] val lagomRawEndpoints = TaskKey[Seq[Endpoint]]("rp-lagom-raw-endpoints")
 
-  private[sbtreactiveapp] val secretsEnabled = TaskKey[Boolean]("rp-secrets-enabled")
+  private[sbtreactiveapp] val reactiveLibAkkaClusterBootstrapProject = SettingKey[(String, Boolean)]("rp-reactive-lib-akka-cluster-bootstrap-project")
+
+  private[sbtreactiveapp] val reactiveLibCommonProject = SettingKey[(String, Boolean)]("rp-reactive-lib-common-project")
+
+  private[sbtreactiveapp] val reactiveLibPlayHttpBindingProject = SettingKey[(String, Boolean)]("rp-reactive-lib-play-http-binding-project")
+
+  private[sbtreactiveapp] val reactiveLibSecretsProject = SettingKey[(String, Boolean)]("rp-reactive-lib-secrets-project")
+
+  private[sbtreactiveapp] val reactiveLibServiceDiscoveryProject = SettingKey[(String, Boolean)]("rp-reactive-lib-service-discovery-project")
+
+  private[sbtreactiveapp] val reactiveLibStatusProject = SettingKey[(String, Boolean)]("rp-reactive-lib-status-project")
 }

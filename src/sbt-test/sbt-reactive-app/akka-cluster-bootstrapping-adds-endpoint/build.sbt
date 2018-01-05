@@ -4,7 +4,7 @@ scalaVersion := "2.11.11"
 
 enablePlugins(SbtReactiveAppPlugin)
 
-enableAkkaClusterBootstrap := Some(true)
+enableAkkaClusterBootstrap := true
 
 akkaClusterBootstrapEndpointName := "my-akka-remote"
 

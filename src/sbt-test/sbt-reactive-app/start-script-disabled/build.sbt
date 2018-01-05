@@ -2,7 +2,7 @@ name := "start-script-disabled"
 scalaVersion := "2.12.4"
 enablePlugins(SbtReactiveAppPlugin)
 
-startScriptLocation := None
+startScriptLocation := ""
 
 TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value
