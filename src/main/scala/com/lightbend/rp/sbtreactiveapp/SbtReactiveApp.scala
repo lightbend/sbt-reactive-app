@@ -28,7 +28,6 @@ object SbtReactiveApp {
     memory: Option[Long],
     cpu: Option[Double],
     endpoints: Seq[Endpoint],
-    volumes: Map[String, Volume],
     privileged: Boolean,
     environmentVariables: Map[String, EnvironmentVariable],
     version: Option[String],
@@ -108,19 +107,6 @@ object SbtReactiveApp {
               }
 
             baseKeys ++ portKey ++ ingressKeys
-        } ++
-        volumes
-        .toSeq
-        .zipWithIndex
-        .flatMap {
-          case ((guestPath, vol), i) =>
-            vol match {
-              case HostPathVolume(path) =>
-                Vector(
-                  ns("volumes", i.toString, "type") -> "host-path",
-                  ns("volumes", i.toString, "path") -> path,
-                  ns("volumes", i.toString, "guest-path") -> guestPath)
-            }
         } ++
         (if (privileged) Some(ns("privileged") -> "true") else None).toVector ++
         environmentVariables

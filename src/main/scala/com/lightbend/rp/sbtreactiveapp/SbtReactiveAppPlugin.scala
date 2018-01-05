@@ -79,11 +79,6 @@ object SbtReactiveAppPlugin extends AutoPlugin {
     type LiteralEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.LiteralEnvironmentVariable
     val LiteralEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.LiteralEnvironmentVariable
 
-    type Volume = com.lightbend.rp.sbtreactiveapp.Volume
-
-    type HostPathVolume = com.lightbend.rp.sbtreactiveapp.HostPathVolume
-    val HostPathVolume = com.lightbend.rp.sbtreactiveapp.HostPathVolume
-
     type Secret = com.lightbend.rp.sbtreactiveapp.Secret
     val Secret = com.lightbend.rp.sbtreactiveapp.Secret
 

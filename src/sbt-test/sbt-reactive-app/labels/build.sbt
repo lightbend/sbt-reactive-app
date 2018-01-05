@@ -8,7 +8,6 @@ cpu := 0.5
 memory := 65536
 diskSpace := 32768
 privileged := true
-volumes := Map("/data" -> HostPathVolume("/var/local"), "/data2" -> HostPathVolume("/var/log"))
 endpoints := Vector(HttpEndpoint("test1", 2551, HttpIngress(ingressPorts = Seq(80, 443), hosts = Seq("hi.com"), paths = Seq("/test.*$"))))
 environmentVariables := Map(
   "LD_LIBRARY_PATH" -> LiteralEnvironmentVariable("/lib"),
@@ -41,12 +40,6 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.memory="65536"""",
     """LABEL com.lightbend.rp.cpu="0.5"""",
     """LABEL com.lightbend.rp.privileged="true"""",
-    """LABEL com.lightbend.rp.volumes.0.guest-path="/data"""",
-    """LABEL com.lightbend.rp.volumes.0.path="/var/local"""",
-    """LABEL com.lightbend.rp.volumes.0.type="host-path"""",
-    """LABEL com.lightbend.rp.volumes.1.guest-path="/data2"""",
-    """LABEL com.lightbend.rp.volumes.1.path="/var/log"""",
-    """LABEL com.lightbend.rp.volumes.1.type="host-path"""",
     """LABEL com.lightbend.rp.app-version="0.1.2-SNAPSHOT"""",
     """LABEL com.lightbend.rp.secrets.0.name="myns1"""",
     """LABEL com.lightbend.rp.secrets.0.key="key"""",

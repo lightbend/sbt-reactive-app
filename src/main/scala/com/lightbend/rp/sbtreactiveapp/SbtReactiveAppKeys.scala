@@ -61,11 +61,6 @@ trait SbtReactiveAppKeys {
   val endpoints = TaskKey[Seq[Endpoint]]("rp-endpoints")
 
   /**
-   * Defines the volumes for this application. This is a mapping from the guest path to the details for the volume.
-   */
-  val volumes = TaskKey[Map[String, Volume]]("rp-volumes")
-
-  /**
    * If true, the container should be run in a privileged setting, i.e. with root privileges.
    */
   val privileged = SettingKey[Boolean]("rp-privileged")
