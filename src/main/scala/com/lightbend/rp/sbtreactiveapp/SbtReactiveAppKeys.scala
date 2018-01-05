@@ -71,18 +71,6 @@ trait SbtReactiveAppKeys {
   val privileged = SettingKey[Boolean]("rp-privileged")
 
   /**
-   * Defines a health check for this application. If the health check fails, the application will be scheduled
-   * elsewhere.
-   */
-  val healthCheck = TaskKey[Option[Check]]("rp-health-check")
-
-  /**
-   * Defines a readiness check for this application. The application will not be available for service discovery
-   * until it passes its readiness check.
-   */
-  val readinessCheck = TaskKey[Option[Check]]("rp-readiness-check")
-
-  /**
    * Defines the endpoint name for the akka remoting port. reactive-lib expects the default values here so you
    * should not have to change this under normal circumstances.
    */
