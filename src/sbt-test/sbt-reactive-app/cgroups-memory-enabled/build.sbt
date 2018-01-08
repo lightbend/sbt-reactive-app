@@ -3,7 +3,7 @@ scalaVersion := "2.11.11"
 
 enablePlugins(SbtReactiveAppPlugin)
 
-memory := Some(1048576)
+memory := 1048576
 enableCGroupMemoryLimit := true
 
 TaskKey[Unit]("check") := {

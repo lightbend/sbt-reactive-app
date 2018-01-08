@@ -27,10 +27,7 @@ class SbtReactiveAppSpec extends UnitSpec {
         memory = None,
         cpu = None,
         endpoints = Vector.empty,
-        volumes = Map.empty,
         privileged = false,
-        healthCheck = None,
-        readinessCheck = None,
         environmentVariables = Map.empty,
         version = None,
         secrets = Set.empty,
@@ -58,12 +55,7 @@ class SbtReactiveAppSpec extends UnitSpec {
           HttpEndpoint("ep5", 1235, ingress = Vector.empty),
           HttpEndpoint("ep6", 1236, ingress = Vector.empty),
           HttpEndpoint("ep7", 1237, ingress = Vector.empty)),
-        volumes = Map(
-          "/data/vol1" -> HostPathVolume("/var/lib/vol1"),
-          "/data/vol2" -> HostPathVolume("/var/lib/vol2")),
         privileged = true,
-        healthCheck = None,
-        readinessCheck = None,
         environmentVariables = Map(
           "env1" -> LiteralEnvironmentVariable("my env one"),
           "env2" -> kubernetes.ConfigMapEnvironmentVariable("my-map", "my-key"),
@@ -121,12 +113,6 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.endpoints.6.name" -> "ep7",
           "com.lightbend.rp.endpoints.6.port" -> "1237",
           "com.lightbend.rp.endpoints.6.protocol" -> "http",
-          "com.lightbend.rp.volumes.0.type" -> "host-path",
-          "com.lightbend.rp.volumes.0.path" -> "/var/lib/vol1",
-          "com.lightbend.rp.volumes.0.guest-path" -> "/data/vol1",
-          "com.lightbend.rp.volumes.1.type" -> "host-path",
-          "com.lightbend.rp.volumes.1.path" -> "/var/lib/vol2",
-          "com.lightbend.rp.volumes.1.guest-path" -> "/data/vol2",
           "com.lightbend.rp.environment-variables.0.name" -> "env1",
           "com.lightbend.rp.environment-variables.0.type" -> "literal",
           "com.lightbend.rp.environment-variables.0.value" -> "my env one",
@@ -143,138 +129,6 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.secrets.1.name" -> "myns2",
           "com.lightbend.rp.secrets.1.key" -> "myname2",
           "com.lightbend.rp.akka-cluster-bootstrap.system-name" -> "test")
-    }
-
-    "work for tcp checks" in {
-      SbtReactiveApp.labels(
-        appName = None,
-        appType = None,
-        configResource = None,
-        diskSpace = None,
-        memory = None,
-        cpu = None,
-        endpoints = Vector.empty,
-        volumes = Map.empty,
-        privileged = false,
-        healthCheck = Some(TcpCheck(80, 10)),
-        readinessCheck = Some(TcpCheck(90, 5)),
-        environmentVariables = Map.empty,
-        version = None,
-        secrets = Set.empty,
-        modules = Vector.empty,
-        akkaClusterBootstrapSystemName = None) shouldBe Map(
-          "com.lightbend.rp.health-check.type" -> "tcp",
-          "com.lightbend.rp.health-check.port" -> "80",
-          "com.lightbend.rp.health-check.interval" -> "10",
-          "com.lightbend.rp.readiness-check.type" -> "tcp",
-          "com.lightbend.rp.readiness-check.port" -> "90",
-          "com.lightbend.rp.readiness-check.interval" -> "5")
-
-      SbtReactiveApp.labels(
-        appName = None,
-        appType = None,
-        configResource = None,
-        diskSpace = None,
-        memory = None,
-        cpu = None,
-        endpoints = Vector.empty,
-        volumes = Map.empty,
-        privileged = false,
-        healthCheck = Some(TcpCheck("test", 10)),
-        readinessCheck = Some(TcpCheck("test2", 5)),
-        environmentVariables = Map.empty,
-        version = None,
-        secrets = Set.empty,
-        modules = Vector.empty,
-        akkaClusterBootstrapSystemName = None) shouldBe Map(
-          "com.lightbend.rp.health-check.type" -> "tcp",
-          "com.lightbend.rp.health-check.service-name" -> "test",
-          "com.lightbend.rp.health-check.interval" -> "10",
-          "com.lightbend.rp.readiness-check.type" -> "tcp",
-          "com.lightbend.rp.readiness-check.service-name" -> "test2",
-          "com.lightbend.rp.readiness-check.interval" -> "5")
-    }
-
-    "work for http checks" in {
-      SbtReactiveApp.labels(
-        appName = None,
-        appType = None,
-        configResource = None,
-        diskSpace = None,
-        memory = None,
-        cpu = None,
-        endpoints = Vector.empty,
-        volumes = Map.empty,
-        privileged = false,
-        healthCheck = Some(HttpCheck(80, 10, "/health")),
-        readinessCheck = Some(HttpCheck(90, 5, "/other-health")),
-        environmentVariables = Map.empty,
-        version = None,
-        secrets = Set.empty,
-        modules = Vector.empty,
-        akkaClusterBootstrapSystemName = None) shouldBe Map(
-          "com.lightbend.rp.health-check.type" -> "http",
-          "com.lightbend.rp.health-check.port" -> "80",
-          "com.lightbend.rp.health-check.interval" -> "10",
-          "com.lightbend.rp.health-check.path" -> "/health",
-          "com.lightbend.rp.readiness-check.type" -> "http",
-          "com.lightbend.rp.readiness-check.port" -> "90",
-          "com.lightbend.rp.readiness-check.interval" -> "5",
-          "com.lightbend.rp.readiness-check.path" -> "/other-health")
-
-      SbtReactiveApp.labels(
-        appName = None,
-        appType = None,
-        configResource = None,
-        diskSpace = None,
-        memory = None,
-        cpu = None,
-        endpoints = Vector.empty,
-        volumes = Map.empty,
-        privileged = false,
-        healthCheck = Some(HttpCheck("test", 10, "/health")),
-        readinessCheck = Some(HttpCheck("test2", 5, "/other-health")),
-        environmentVariables = Map.empty,
-        version = None,
-        secrets = Set.empty,
-        modules = Vector.empty,
-        akkaClusterBootstrapSystemName = None) shouldBe Map(
-          "com.lightbend.rp.health-check.type" -> "http",
-          "com.lightbend.rp.health-check.service-name" -> "test",
-          "com.lightbend.rp.health-check.interval" -> "10",
-          "com.lightbend.rp.health-check.path" -> "/health",
-          "com.lightbend.rp.readiness-check.type" -> "http",
-          "com.lightbend.rp.readiness-check.service-name" -> "test2",
-          "com.lightbend.rp.readiness-check.interval" -> "5",
-          "com.lightbend.rp.readiness-check.path" -> "/other-health")
-    }
-
-    "work for command checks" in {
-      SbtReactiveApp.labels(
-        appName = None,
-        appType = None,
-        configResource = None,
-        diskSpace = None,
-        memory = None,
-        cpu = None,
-        endpoints = Vector.empty,
-        volumes = Map.empty,
-        privileged = false,
-        healthCheck = Some(CommandCheck("/bin/bash", "arg one", "arg two")),
-        readinessCheck = Some(CommandCheck("/bin/ash", "arg 1", "arg 2")),
-        environmentVariables = Map.empty,
-        version = None,
-        secrets = Set.empty,
-        modules = Vector.empty,
-        akkaClusterBootstrapSystemName = None) shouldBe Map(
-          "com.lightbend.rp.health-check.type" -> "command",
-          "com.lightbend.rp.health-check.args.0" -> "/bin/bash",
-          "com.lightbend.rp.health-check.args.1" -> "arg one",
-          "com.lightbend.rp.health-check.args.2" -> "arg two",
-          "com.lightbend.rp.readiness-check.type" -> "command",
-          "com.lightbend.rp.readiness-check.args.0" -> "/bin/ash",
-          "com.lightbend.rp.readiness-check.args.1" -> "arg 1",
-          "com.lightbend.rp.readiness-check.args.2" -> "arg 2")
     }
   }
 }

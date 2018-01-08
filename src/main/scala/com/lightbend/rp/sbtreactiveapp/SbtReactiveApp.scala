@@ -28,10 +28,7 @@ object SbtReactiveApp {
     memory: Option[Long],
     cpu: Option[Double],
     endpoints: Seq[Endpoint],
-    volumes: Map[String, Volume],
     privileged: Boolean,
-    healthCheck: Option[Check],
-    readinessCheck: Option[Check],
     environmentVariables: Map[String, EnvironmentVariable],
     version: Option[String],
     secrets: Set[Secret],
@@ -111,26 +108,7 @@ object SbtReactiveApp {
 
             baseKeys ++ portKey ++ ingressKeys
         } ++
-        volumes
-        .toSeq
-        .zipWithIndex
-        .flatMap {
-          case ((guestPath, vol), i) =>
-            vol match {
-              case HostPathVolume(path) =>
-                Vector(
-                  ns("volumes", i.toString, "type") -> "host-path",
-                  ns("volumes", i.toString, "path") -> path,
-                  ns("volumes", i.toString, "guest-path") -> guestPath)
-            }
-        } ++
         (if (privileged) Some(ns("privileged") -> "true") else None).toVector ++
-        healthCheck
-        .toSeq
-        .flatMap( /*_*/ encodeCheck(suffix => ns("health-check" +: suffix: _*)) /*_*/ ) ++
-        readinessCheck
-        .toSeq
-        .flatMap( /*_*/ encodeCheck(suffix => ns("readiness-check" +: suffix: _*)) /*_*/ ) ++
         environmentVariables
         .toSeq
         .zipWithIndex
@@ -169,46 +147,5 @@ object SbtReactiveApp {
         .map(n => ns("akka-cluster-bootstrap", "system-name") -> n)
 
     keyValuePairs.toMap
-  }
-
-  private def encodeCheck(makeNs: (String*) => String)(c: Check) = c match {
-    case CommandCheck(args) =>
-      Vector(makeNs("type") -> "command") ++
-        args
-        .zipWithIndex
-        .map {
-          case (arg, i) =>
-            makeNs("args", i.toString) -> arg
-        }
-
-    case HttpCheck(port, serviceName, intervalSeconds, path) =>
-      if (port != 0)
-        Vector(
-          makeNs("type") -> "http",
-          makeNs("port") -> port.toString,
-          makeNs("interval") -> intervalSeconds.toString,
-          makeNs("path") -> path)
-      else if (serviceName != "")
-        Vector(
-          makeNs("type") -> "http",
-          makeNs("service-name") -> serviceName,
-          makeNs("interval") -> intervalSeconds.toString,
-          makeNs("path") -> path)
-      else
-        Vector.empty
-
-    case TcpCheck(port, serviceName, intervalSeconds) =>
-      if (port != 0)
-        Vector(
-          makeNs("type") -> "tcp",
-          makeNs("port") -> port.toString,
-          makeNs("interval") -> intervalSeconds.toString)
-      else if (serviceName != "")
-        Vector(
-          makeNs("type") -> "tcp",
-          makeNs("service-name") -> serviceName,
-          makeNs("interval") -> intervalSeconds.toString)
-      else
-        Vector.empty
   }
 }

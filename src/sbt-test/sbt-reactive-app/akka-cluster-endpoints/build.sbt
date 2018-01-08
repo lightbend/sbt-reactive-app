@@ -12,8 +12,8 @@ lazy val root = (project in file("."))
     ),
 
     packageName in Docker := "hello-akka",
-    enableAkkaClusterBootstrap := Some(true),
-    akkaClusterBootstrapSystemName := Some("hey")
+    enableAkkaClusterBootstrap := true,
+    akkaClusterBootstrapSystemName := "hey"
   )
 
 TaskKey[Unit]("check") := {
@@ -32,7 +32,7 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.app-name="hello-akka"""",
     """LABEL com.lightbend.rp.modules.common.enabled="true"""",
     """LABEL com.lightbend.rp.modules.secrets.enabled="false"""",
-    """LABEL com.lightbend.rp.modules.service-discovery.enabled="false"""",
+    """LABEL com.lightbend.rp.modules.service-discovery.enabled="true"""",
     """LABEL com.lightbend.rp.akka-cluster-bootstrap.system-name="hey""""
   )
 

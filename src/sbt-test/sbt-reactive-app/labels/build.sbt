@@ -4,18 +4,15 @@ scalaVersion := "2.12.4"
 
 enablePlugins(SbtReactiveAppPlugin)
 
-cpu := Some(0.5)
-memory := Some(65536)
-diskSpace := Some(32768)
+cpu := 0.5
+memory := 65536
+diskSpace := 32768
 privileged := true
-volumes := Map("/data" -> HostPathVolume("/var/local"), "/data2" -> HostPathVolume("/var/log"))
 endpoints := Vector(HttpEndpoint("test1", 2551, HttpIngress(ingressPorts = Seq(80, 443), hosts = Seq("hi.com"), paths = Seq("/test.*$"))))
 environmentVariables := Map(
   "LD_LIBRARY_PATH" -> LiteralEnvironmentVariable("/lib"),
   "HOME" -> LiteralEnvironmentVariable("/home/testing"))
 secrets := Set(Secret("myns1", "key"), Secret("myns2", "otherkey"))
-healthCheck := Some(CommandCheck("/bin/bash", "-c", "exit 0"))
-readinessCheck := Some(HttpCheck(1234, 60, "/healthz"))
 
 TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value
@@ -40,23 +37,9 @@ TaskKey[Unit]("check") := {
     """LABEL com.lightbend.rp.environment-variables.1.name="HOME"""",
     """LABEL com.lightbend.rp.environment-variables.1.type="literal"""",
     """LABEL com.lightbend.rp.environment-variables.1.value="/home/testing"""",
-    """LABEL com.lightbend.rp.health-check.args.0="/bin/bash"""",
-    """LABEL com.lightbend.rp.health-check.args.1="-c"""",
-    """LABEL com.lightbend.rp.health-check.args.2="exit 0"""",
-    """LABEL com.lightbend.rp.health-check.type="command"""",
     """LABEL com.lightbend.rp.memory="65536"""",
     """LABEL com.lightbend.rp.cpu="0.5"""",
     """LABEL com.lightbend.rp.privileged="true"""",
-    """LABEL com.lightbend.rp.readiness-check.interval="60"""",
-    """LABEL com.lightbend.rp.readiness-check.path="/healthz"""",
-    """LABEL com.lightbend.rp.readiness-check.port="1234"""",
-    """LABEL com.lightbend.rp.readiness-check.type="http"""",
-    """LABEL com.lightbend.rp.volumes.0.guest-path="/data"""",
-    """LABEL com.lightbend.rp.volumes.0.path="/var/local"""",
-    """LABEL com.lightbend.rp.volumes.0.type="host-path"""",
-    """LABEL com.lightbend.rp.volumes.1.guest-path="/data2"""",
-    """LABEL com.lightbend.rp.volumes.1.path="/var/log"""",
-    """LABEL com.lightbend.rp.volumes.1.type="host-path"""",
     """LABEL com.lightbend.rp.app-version="0.1.2-SNAPSHOT"""",
     """LABEL com.lightbend.rp.secrets.0.name="myns1"""",
     """LABEL com.lightbend.rp.secrets.0.key="key"""",
