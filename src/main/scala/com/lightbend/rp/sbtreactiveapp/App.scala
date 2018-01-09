@@ -55,8 +55,6 @@ sealed trait LagomApp extends App {
     Vector(
       // For naming Lagom services, we take this overall approach:
       // Calculate the endpoints (lagomRawEndpoints) and make this the "appName"
-      // Then, rename the first endpoint (which is the Lagom service itself) to "lagom-http-api" which the
-      // service discovery module understands via convention.
 
       appName := lagomRawEndpoints.value.headOption.map(_.name).getOrElse(name.value),
 
@@ -105,11 +103,11 @@ sealed trait LagomApp extends App {
       endpoints := {
         // We don't have any guarantees on plugin order between Play <-> Lagom so we check in both places
 
-        val current = endpoints.value.filterNot(_.name == "play-http-api")
+        val current = endpoints.value.filterNot(_.name == "http")
 
         val lagom =
           lagomRawEndpoints.value.zipWithIndex.map {
-            case (e, 0) => e.withName("lagom-http-api")
+            case (e, 0) => e.withName("http")
             case (e, _) => e
           }
 
@@ -168,14 +166,14 @@ case object PlayApp extends App {
         val ports = httpIngressPorts.value
         val hosts = httpIngressHosts.value
 
-        if (current.exists(_.name == "lagom-http-api")) {
+        if (current.exists(_.name == "http")) {
           current
         } else {
           val endpoint =
             if (paths.nonEmpty)
-              HttpEndpoint("play-http-api", HttpIngress(ports, hosts, paths))
+              HttpEndpoint("http", HttpIngress(ports, hosts, paths))
             else
-              HttpEndpoint("play-http-api")
+              HttpEndpoint("http")
 
           endpoint +: current
         }
