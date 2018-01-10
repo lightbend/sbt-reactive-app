@@ -144,7 +144,10 @@ object SbtReactiveApp {
         } ++
         akkaClusterBootstrapSystemName
         .toSeq
-        .map(n => ns("akka-cluster-bootstrap", "system-name") -> n)
+        .map(n => ns("akka-cluster-bootstrap", "system-name") -> n) ++
+        List(ProgramVersion.current)
+        .toSeq
+        .map(ns("sbt-reactive-app-version") -> _)
 
     keyValuePairs.toMap
   }
