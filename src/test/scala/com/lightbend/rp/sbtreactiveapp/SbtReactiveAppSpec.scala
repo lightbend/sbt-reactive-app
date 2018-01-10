@@ -32,7 +32,8 @@ class SbtReactiveAppSpec extends UnitSpec {
         version = None,
         secrets = Set.empty,
         modules = Vector.empty,
-        akkaClusterBootstrapSystemName = None) shouldBe Map.empty
+        akkaClusterBootstrapSystemName = None) shouldBe Map(
+        "com.lightbend.rp.sbt-reactive-app-version" -> ProgramVersion.current)
     }
 
     "work for all values (except checks)" in {
@@ -128,7 +129,8 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.secrets.0.key" -> "myname1",
           "com.lightbend.rp.secrets.1.name" -> "myns2",
           "com.lightbend.rp.secrets.1.key" -> "myname2",
-          "com.lightbend.rp.akka-cluster-bootstrap.system-name" -> "test")
+          "com.lightbend.rp.akka-cluster-bootstrap.system-name" -> "test",
+          "com.lightbend.rp.sbt-reactive-app-version" -> ProgramVersion.current)
     }
   }
 }
