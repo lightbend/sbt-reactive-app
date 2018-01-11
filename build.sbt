@@ -1,4 +1,6 @@
+import sbt.IO
 import ReleaseTransformations._
+import scala.collection.immutable.Seq
 
 sbtPlugin := true
 
@@ -26,6 +28,22 @@ libraryDependencies ++= Vector(
 )
 
 enablePlugins(AutomateHeaderPlugin)
+
+sourceGenerators in Compile += Def.task {
+  val versionFile = (sourceManaged in Compile).value / "ProgramVersion.scala"
+
+  val versionSource =
+    """|package com.lightbend.rp.sbtreactiveapp
+       |
+       |object ProgramVersion {
+       |  val current = "%s"
+       |}
+    """.stripMargin.format(version.value)
+
+  IO.write(versionFile, versionSource)
+
+  Seq(versionFile)
+}
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % Versions.nativePackager)
 

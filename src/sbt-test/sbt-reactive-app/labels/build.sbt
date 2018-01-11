@@ -61,6 +61,10 @@ TaskKey[Unit]("check") := {
     }
   }
 
+  // One of the labels must specify sbt-reactive-app version, number itself does not matter for this test
+  assert(contents.exists(_.startsWith("LABEL com.lightbend.rp.sbt-reactive-app-version=")),
+    "Label with sbt-reactive-app version not found")
+
   assert(
     (dockerBaseImage in Docker).value == "openjdk:8-jre-alpine" || true,
     "Docker image incorrectly set")
