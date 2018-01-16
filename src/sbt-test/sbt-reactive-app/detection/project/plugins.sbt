@@ -5,4 +5,4 @@ sys.props.get("plugin.version") match {
 }
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.6.7")
-addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % "1.4.0-M3")
+addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % "1.4.0-RC1")
