@@ -6,6 +6,18 @@
 
 set -e
 
+# Lots of people seem to want to use these images outside of intended
+# platforms, so warn if that's the case
+
+if [ "$RP_PLATFORM" = "" ]; then
+  echo "********************************************************************************"
+  echo "* Unable to detect active platform; this Docker image is intended to be run in *"
+  echo "* a supported orchestration environment such as Kubernetes, not stand-alone.   *"
+  echo "********************************************************************************"
+
+  exit 1
+fi
+
 # Our tooling generates RP_JAVA_OPTS so that we stay separate from
 # JAVA_OPTS, so add that to JAVA_OPTS which the native packager script
 # will respect.
