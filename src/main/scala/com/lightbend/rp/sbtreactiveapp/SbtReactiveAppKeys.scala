@@ -85,6 +85,18 @@ trait SbtReactiveAppKeys {
   val akkaManagementEndpointName = SettingKey[String]("rp-akka-management-endpoint-name")
 
   /**
+   * Defines packages to install on top of the base alpine image. By default, this includes bash but you can
+   * arbitrarily add to it by using +=, e.g. `alpinePackages += "coreutils"`
+   */
+  val alpinePackages = SettingKey[Seq[String]]("rp-alpine-packages")
+
+  /**
+   * Defines the available applications. This is a list of appName -> appArgs. The operator can specify alternate
+   * applications to dynamically override the command/arguments that are executed.
+   */
+  val applications = TaskKey[Seq[(String, Seq[String])]]("rp-applications")
+
+  /**
    * For endpoints that are autopopulated, they will declare ingress for these hosts. That is, they'll be available
    * on the public nodes or ingress controllers at these hostnames. Defaults to nothing for Basic apps, "/" for Play
    * apps, and the collection of service endpoints for Lagom apps.

@@ -31,8 +31,6 @@ lazy val `hello-impl` = (project in file("hello-impl"))
       val outputDir = (stage in Docker).value
       val contents = IO.readLines(outputDir / "Dockerfile")
       val expectedLines = Seq(
-        """COPY rp-start /rp-start""",
-        """ENTRYPOINT ["/rp-start", "bin/hello-impl"]""",
         """LABEL com.lightbend.rp.endpoints.0.protocol="http"""",
         """LABEL com.lightbend.rp.endpoints.0.ingress.0.ingress-ports.0="9000"""",
         """LABEL com.lightbend.rp.endpoints.0.name="http"""",

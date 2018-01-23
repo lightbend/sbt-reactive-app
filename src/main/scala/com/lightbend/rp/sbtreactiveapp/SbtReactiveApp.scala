@@ -23,6 +23,7 @@ object SbtReactiveApp {
   def labels(
     appName: Option[String],
     appType: Option[String],
+    applications: Seq[(String, Seq[String])],
     configResource: Option[String],
     diskSpace: Option[Long],
     memory: Option[Long],
@@ -40,6 +41,18 @@ object SbtReactiveApp {
       appName
         .map(ns("app-name") -> _.toString)
         .toSeq ++
+        applications
+        .zipWithIndex
+        .flatMap {
+          case ((appN, appArgs), i) =>
+            (ns("applications", i.toString, "name") -> appN) +:
+              appArgs
+              .zipWithIndex
+              .map {
+                case (arg, argIndex) =>
+                  ns("applications", i.toString, "arguments", argIndex.toString) -> arg
+              }
+        } ++
         version
         .map(ns("app-version") -> _)
         .toSeq ++

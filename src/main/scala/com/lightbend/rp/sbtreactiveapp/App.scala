@@ -21,7 +21,7 @@ import com.lightbend.rp.sbtreactiveapp.SbtReactiveAppPlugin._
 import com.typesafe.sbt.SbtNativePackager
 import com.typesafe.sbt.packager.docker
 import com.typesafe.sbt.packager.docker.DockerPlugin.publishDocker
-import com.typesafe.sbt.packager.Keys.{ dockerUsername, stage }
+import com.typesafe.sbt.packager.Keys.{ dockerUsername, executableScriptName, stage }
 import sbt._
 import sbt.Resolver.bintrayRepo
 import scala.collection.immutable.Seq
@@ -183,8 +183,10 @@ case object PlayApp extends App {
 case object BasicApp extends App {
   def projectSettings: Seq[Setting[_]] =
     Vector(
+      alpinePackages := Vector("bash"),
       appName := name.value,
       appType := "basic",
+      applications := Vector("default" -> Vector(s"bin/${executableScriptName.value}")),
       cpu := 0.0D,
       diskSpace := 0L,
       memory := 0L,
@@ -317,6 +319,8 @@ case object BasicApp extends App {
 
       dockerBaseImage := "openjdk:8-jre-alpine",
 
+      dockerEntrypoint := Vector.empty,
+
       dockerCommands := {
         val addCommand = Some(startScriptLocation.value)
           .filter(_.nonEmpty)
@@ -331,11 +335,31 @@ case object BasicApp extends App {
         val serviceDiscoveryEnabled = enableServiceDiscovery.value
         val statusEnabled = enableStatus.value
         val akkaManagementEnabled = bootstrapEnabled || statusEnabled
+        val rawDockerCommands = dockerCommands.value
+        val alpinePackagesValue = alpinePackages.value
 
-        dockerCommands.value ++ addCommand ++ SbtReactiveApp
+        val dockerWithPackagesCommands =
+          if (rawDockerCommands.isEmpty || alpinePackagesValue.isEmpty)
+            rawDockerCommands
+          else
+            rawDockerCommands.head +:
+              docker.Cmd("RUN", Vector("/sbin/apk", "add", "--no-cache") ++ alpinePackagesValue: _*) +:
+              rawDockerCommands.tail
+
+        dockerWithPackagesCommands ++ addCommand ++ SbtReactiveApp
           .labels(
             appName = Some(appName.value),
             appType = Some(appType.value),
+            applications = applications.value.toVector.map {
+              case (aName, appValue) =>
+                val script =
+                  startScriptLocation.value
+
+                val args =
+                  (if (script.isEmpty) appValue else script +: appValue).toVector
+
+                aName -> args
+            },
             configResource = Some((prependRpConf in Compile).value)
               .filter(_.nonEmpty)
               .map(_ => LocalApplicationConfig),

@@ -15,8 +15,6 @@ TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value
   val contents = IO.readLines(outputDir / "Dockerfile")
   val lines = Seq(
-    """ENTRYPOINT ["/rp-start", "bin/hello-play"]""",
-    """COPY rp-start /rp-start""",
     """LABEL com.lightbend.rp.endpoints.0.protocol="http"""",
     """LABEL com.lightbend.rp.endpoints.0.ingress.0.ingress-ports.0="9000"""",
     """LABEL com.lightbend.rp.endpoints.0.ingress.0.type="http"""",
