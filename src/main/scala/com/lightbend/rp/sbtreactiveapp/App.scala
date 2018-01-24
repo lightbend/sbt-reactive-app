@@ -183,7 +183,7 @@ case object PlayApp extends App {
 case object BasicApp extends App {
   def projectSettings: Seq[Setting[_]] =
     Vector(
-      alpinePackages := Vector("bash"),
+      alpinePackages := Vector.empty,
       appName := name.value,
       appType := "basic",
       applications := Vector("default" -> Vector(s"bin/${executableScriptName.value}")),
@@ -202,6 +202,7 @@ case object BasicApp extends App {
       reactiveLibSecretsProject := "reactive-lib-secrets" -> true,
       reactiveLibServiceDiscoveryProject := "reactive-lib-service-discovery" -> true,
       reactiveLibStatusProject := "reactive-lib-status" -> true,
+      requiredAlpinePackages := Vector("bash"),
       enableAkkaClusterBootstrap := false,
       enableAkkaManagement := enableAkkaClusterBootstrap.value || enableStatus.value,
       enableCommon := true,
@@ -337,13 +338,15 @@ case object BasicApp extends App {
         val akkaManagementEnabled = bootstrapEnabled || statusEnabled
         val rawDockerCommands = dockerCommands.value
         val alpinePackagesValue = alpinePackages.value
+        val requiredAlpinePackagesValue = requiredAlpinePackages.value
+        val allAlpinePackages = (alpinePackagesValue ++ requiredAlpinePackagesValue).distinct.sorted
 
         val dockerWithPackagesCommands =
-          if (rawDockerCommands.isEmpty || alpinePackagesValue.isEmpty)
+          if (rawDockerCommands.isEmpty || allAlpinePackages.isEmpty)
             rawDockerCommands
           else
             rawDockerCommands.head +:
-              docker.Cmd("RUN", Vector("/sbin/apk", "add", "--no-cache") ++ alpinePackagesValue: _*) +:
+              docker.Cmd("RUN", Vector("/sbin/apk", "add", "--no-cache") ++ allAlpinePackages: _*) +:
               rawDockerCommands.tail
 
         dockerWithPackagesCommands ++ addCommand ++ SbtReactiveApp

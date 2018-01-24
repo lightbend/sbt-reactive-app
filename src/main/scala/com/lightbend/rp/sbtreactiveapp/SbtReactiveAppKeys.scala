@@ -85,8 +85,7 @@ trait SbtReactiveAppKeys {
   val akkaManagementEndpointName = SettingKey[String]("rp-akka-management-endpoint-name")
 
   /**
-   * Defines packages to install on top of the base alpine image. By default, this includes bash but you can
-   * arbitrarily add to it by using +=, e.g. `alpinePackages += "coreutils"`
+   * Defines packages to install on top of the base alpine image.
    */
   val alpinePackages = SettingKey[Seq[String]]("rp-alpine-packages")
 
@@ -203,4 +202,10 @@ trait SbtReactiveAppKeys {
   private[sbtreactiveapp] val reactiveLibServiceDiscoveryProject = SettingKey[(String, Boolean)]("rp-reactive-lib-service-discovery-project")
 
   private[sbtreactiveapp] val reactiveLibStatusProject = SettingKey[(String, Boolean)]("rp-reactive-lib-status-project")
+
+  /**
+   * Defines alpine packages that are installed (and required) by this plugin. This is combined with the user-defined
+   * packages (`alpinePackages`).
+   */
+  private[sbtreactiveapp] val requiredAlpinePackages = SettingKey[Seq[String]]("rp-required-alpine-packages")
 }
