@@ -121,7 +121,7 @@ case object LagomJavaApp extends LagomApp {
       .version
       .toVector
       .map(v =>
-        reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-java" -> false)
+        reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-java" -> true)
 }
 
 case object LagomScalaApp extends LagomApp {
@@ -138,7 +138,7 @@ case object LagomPlayJavaApp extends LagomApp {
       .version
       .toVector
       .map(v =>
-        reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-java" -> false)
+        reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-java" -> true)
 }
 
 case object LagomPlayScalaApp extends LagomApp {
