@@ -17,7 +17,7 @@
 package com.lightbend.rp.sbtreactiveapp
 
 import com.typesafe.sbt.packager.Keys._
-import com.typesafe.sbt.packager.archetypes.scripts.AshScriptPlugin
+import com.typesafe.sbt.packager.archetypes.scripts.BashStartScriptPlugin
 import com.typesafe.sbt.packager.docker
 import sbt._
 import sbt.Keys._
@@ -93,23 +93,13 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
   object localImport extends docker.DockerKeys
 
-  override def requires = SbtReactiveAppPluginAll && docker.DockerPlugin && AshScriptPlugin && SbtReactiveAppPluginAll
+  override def requires = SbtReactiveAppPluginAll && docker.DockerPlugin && BashStartScriptPlugin && SbtReactiveAppPluginAll
 
   override def trigger = noTrigger
 
   val Docker = docker.DockerPlugin.autoImport.Docker
 
   val localName = "rp-start"
-
-  private def encodeLabelValue(value: String) =
-    value
-      .replaceAllLiterally("\n", "\\\n")
-      .replaceAllLiterally("\"", "\\\"")
-
-  private def readResource(name: String): String =
-    scala.io.Source
-      .fromInputStream(getClass.getClassLoader.getResourceAsStream(name))
-      .mkString
 
   override def projectSettings: Seq[Setting[_]] = BasicApp.projectSettings
 }

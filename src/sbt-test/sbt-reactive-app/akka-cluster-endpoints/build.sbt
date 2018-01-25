@@ -20,8 +20,6 @@ TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value
   val contents = IO.readLines(outputDir / "Dockerfile")
   val lines = Seq(
-    """ENTRYPOINT ["/rp-start", "bin/hello-akka"]""",
-    """COPY rp-start /rp-start""",
     """LABEL com.lightbend.rp.endpoints.0.protocol="tcp"""",
     """LABEL com.lightbend.rp.endpoints.0.name="akka-remote"""",
     """LABEL com.lightbend.rp.endpoints.1.protocol="tcp"""",

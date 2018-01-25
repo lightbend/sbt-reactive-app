@@ -6,39 +6,12 @@
 
 set -e
 
-# Lots of people seem to want to use these images outside of intended
-# platforms, so warn if that's the case
-
-if [ "$RP_PLATFORM" = "" ]; then
-  echo "********************************************************************************"
-  echo "* Unable to detect active platform; this Docker image is intended to be run in *"
-  echo "* a supported orchestration environment such as Kubernetes, not stand-alone.   *"
-  echo "********************************************************************************"
-
-  exit 1
-fi
-
 # Our tooling generates RP_JAVA_OPTS so that we stay separate from
 # JAVA_OPTS, so add that to JAVA_OPTS which the native packager script
 # will respect.
 
 if [ "$RP_JAVA_OPTS" != "" ]; then
   export JAVA_OPTS="$RP_JAVA_OPTS $JAVA_OPTS"
-fi
-
-# @TODO FIXME when upstream fixes this, see https://github.com/sbt/sbt-native-packager/issues/978
-# Hack around a bug in sbt-native-packager causing args
-# to not work when Ash Scripting is enabled
-
-if [ -d "$PWD/bin" ]; then
-  cat <<EOT >> "$PWD/bin/is_cygwin"
-#!/usr/bin/env sh
-exit 1
-EOT
-
-  chmod +x "$PWD/bin/is_cygwin"
-
-  export PATH="$PWD/bin:$PATH"
 fi
 
 exec "$@"

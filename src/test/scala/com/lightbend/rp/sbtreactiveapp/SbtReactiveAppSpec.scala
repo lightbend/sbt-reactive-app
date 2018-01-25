@@ -22,6 +22,7 @@ class SbtReactiveAppSpec extends UnitSpec {
       SbtReactiveApp.labels(
         appName = None,
         appType = None,
+        applications = Vector.empty,
         configResource = None,
         diskSpace = None,
         memory = None,
@@ -40,6 +41,9 @@ class SbtReactiveAppSpec extends UnitSpec {
       SbtReactiveApp.labels(
         appName = Some("myapp"),
         appType = Some("mytype"),
+        applications = Vector(
+          "default" -> Vector("com.acme.Hello1", "test"),
+          "alt" -> Vector("com.acme.Hello2")),
         configResource = Some("my-config.conf"),
         diskSpace = Some(1234),
         memory = Some(5678),
@@ -65,7 +69,11 @@ class SbtReactiveAppSpec extends UnitSpec {
         secrets = Set(Secret("myns1", "myname1"), Secret("myns2", "myname2")),
         modules = Vector("mod1" -> true, "mod2" -> false),
         akkaClusterBootstrapSystemName = Some("test")) shouldBe Map(
-
+          "com.lightbend.rp.applications.0.name" -> "default",
+          "com.lightbend.rp.applications.0.arguments.0" -> "com.acme.Hello1",
+          "com.lightbend.rp.applications.0.arguments.1" -> "test",
+          "com.lightbend.rp.applications.1.name" -> "alt",
+          "com.lightbend.rp.applications.1.arguments.0" -> "com.acme.Hello2",
           "com.lightbend.rp.app-name" -> "myapp",
           "com.lightbend.rp.app-type" -> "mytype",
           "com.lightbend.rp.config-resource" -> "my-config.conf",
