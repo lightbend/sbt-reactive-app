@@ -195,7 +195,7 @@ case object BasicApp extends App {
       environmentVariables := Map.empty,
       startScriptLocation := "/rp-start",
       secrets := Set.empty,
-      reactiveLibVersion := "0.3.7",
+      reactiveLibVersion := "0.4.0",
       reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
       reactiveLibCommonProject := "reactive-lib-common" -> true,
       reactiveLibPlayHttpBindingProject := "reactive-lib-play-http-binding" -> true,
@@ -297,12 +297,6 @@ case object BasicApp extends App {
           (if (bootstrapEnabled) Seq(TcpEndpoint(clusterEndpointName)) else Seq.empty) ++
           (if (managementEnabled) Seq(TcpEndpoint(managementEndpointName)) else Seq.empty)
       },
-
-      // This repository is required to resolve Akka DNS dependency hosted at https://bintray.com/hajile/maven/akka-dns
-      // Akka DNS is a transitive dependencies from reactive-lib service discovery project which is added as dependency
-      // below.
-      // The workaround is to add the resolvers at all times.
-      resolvers += bintrayRepo("hajile", "maven"),
 
       dockerUsername := Some(App.normalizeName((name in LocalRootProject).value)),
 
