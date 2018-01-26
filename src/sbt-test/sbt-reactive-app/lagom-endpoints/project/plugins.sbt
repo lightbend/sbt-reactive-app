@@ -4,5 +4,5 @@ sys.props.get("plugin.version") match {
                          |Specify this property using the scriptedLaunchOpts -D.""".stripMargin)
 }
 
-addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % "1.3.10")
+addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % "1.4.0")
 
