@@ -17,7 +17,6 @@
 package com.lightbend.rp.sbtreactiveapp
 
 import SbtReactiveAppPlugin.autoImport._
-import scala.collection.immutable.Seq
 
 object SbtReactiveApp {
   def labels(

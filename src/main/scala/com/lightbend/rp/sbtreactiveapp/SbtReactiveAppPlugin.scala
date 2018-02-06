@@ -19,9 +19,10 @@ package com.lightbend.rp.sbtreactiveapp
 import com.typesafe.sbt.packager.Keys._
 import com.typesafe.sbt.packager.archetypes.scripts.BashStartScriptPlugin
 import com.typesafe.sbt.packager.docker
-import sbt._
+import sbt.{ Def, _ }
 import sbt.Keys._
 import sbt.plugins.JvmPlugin
+
 import scala.collection.{ Seq => DefaultSeq }
 import scala.collection.immutable.Seq
 import scala.util.{ Failure, Success }
@@ -100,6 +101,8 @@ object SbtReactiveAppPlugin extends AutoPlugin {
   val Docker = docker.DockerPlugin.autoImport.Docker
 
   val localName = "rp-start"
+
+  override def buildSettings: Seq[Setting[_]] = BasicApp.buildSettings
 
   override def projectSettings: Seq[Setting[_]] = BasicApp.projectSettings
 }

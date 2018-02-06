@@ -96,6 +96,62 @@ trait SbtReactiveAppKeys {
   val applications = TaskKey[Seq[(String, Seq[String])]]("rp-applications")
 
   /**
+   * This task deploys all aggregated projects into a target environment. Currently, minikube is supported.
+   */
+  val deploy = InputKey[Unit]("deploy")
+
+  /**
+   * A map of service names to service lookup addresses. This will be provided as an argument to rp for resources
+   * are are generated when running deploy minikube. Note that this map will only be added if reactive sandbox is
+   * enabled.
+   */
+  val deployMinikubeReactiveSandboxExternalServices = SettingKey[Map[String, String]]("rp-deploy-minikube-reactive-sandbox-external-services")
+
+  /**
+   * An additional map of service names to service lookup addresses. These will always be provided to rp and take
+   * precedence over the Reactive Sandbox addresses.
+   */
+  val deployMinikubeAdditionalExternalServices = SettingKey[Map[String, String]]("rp-deploy-minikube-additional-external-services")
+
+  /**
+   * When deploying applications with Akka Cluster Bootstrap enabled, the services will initially be started with this
+   * many contact points / replicas.
+   */
+  val deployMinikubeAkkaClusterBootstrapContactPoints = SettingKey[Int]("rp-deploy-minikube-akka-cluster-bootstrap-contact-points")
+
+  /**
+   * If enabled, Reactive Sandbox (a Docker image containing Cassandra, Kafka, ZooKeeper, Elasticsearch) will be
+   * deployed with this app.
+   */
+  val deployMinikubeEnableReactiveSandbox = SettingKey[Boolean]("rp-deploy-minikube-enable-reactive-sandbox")
+
+  /**
+   * If deploying a Play application, this property will be set to the Minikube IP.
+   */
+  val deployMinikubePlayHostAllowedProperty = SettingKey[String]("rp-deploy-minikube-play-host-allowed-property")
+
+  /**
+   * If deploying a Play application, this property will be set to the value specified below.
+   */
+  val deployMinikubePlayHttpSecretKeyProperty = SettingKey[String]("rp-deploy-minikube-play-http-secret-key-property")
+
+  /**
+   * If deploying a Play application, this property will be set to the value specified above.
+   */
+  val deployMinikubePlayHttpSecretKeyValue = SettingKey[String]("rp-deploy-minikube-play-http-secret-key-value")
+
+  /**
+   * Set this setting (build-wide, i.e. deployMinikubeReactiveSandboxCqlStatements in ThisBuild := ...) to a sequence
+   * of CQL statements that should be executed against Cassandra when the Reactive Sandbox is installed.
+   */
+  val deployMinikubeReactiveSandboxCqlStatements = SettingKey[Seq[String]]("rp-deploy-minikube-reactive-sandbox-cql-statements")
+
+  /**
+   * Additional arguments to invoke rp with for this app.
+   */
+  val deployMinikubeRpArguments = SettingKey[Seq[String]]("rp-deploy-minikube-rp-arguments")
+
+  /**
    * For endpoints that are autopopulated, they will declare ingress for these hosts. That is, they'll be available
    * on the public nodes or ingress controllers at these hostnames. Defaults to nothing for Basic apps, "/" for Play
    * apps, and the collection of service endpoints for Lagom apps.
@@ -166,6 +222,24 @@ trait SbtReactiveAppKeys {
   val enableStatus = TaskKey[Boolean]("rp-enable-status")
 
   /**
+   * Executes `helm` program with any specified arguments. This may be expanded to support auto completion in
+   * the future.
+   */
+  val helm = InputKey[Unit]("helm")
+
+  /**
+   * Executes `kubectl` program with any specified arguments. This may be expanded to support auto completion in
+   * the future.
+   */
+  val kubectl = InputKey[Unit]("kubectl")
+
+  /**
+   * Executes `minikube` program with any specified arguments. This may be expanded to support auto completion in
+   * the future.
+   */
+  val minikube = InputKey[Unit]("minikube")
+
+  /**
    * If non-empty (default: "rp-tooling.conf"), all resources with the given name will be prepended to the
    * unmanaged application.conf file, or one will be created if none exists. To disable this behavior, specify "".
    */
@@ -188,6 +262,8 @@ trait SbtReactiveAppKeys {
    * can then be used to decode these secrets in a consistent and platform-independent manner.
    */
   val secrets = SettingKey[Set[Secret]]("rp-secrets")
+
+  private[sbtreactiveapp] val deployMinikubeDockerEnv = TaskKey[String]("rp-deploy-minikube-docker-env")
 
   private[sbtreactiveapp] val lagomRawEndpoints = TaskKey[Seq[Endpoint]]("rp-lagom-raw-endpoints")
 
