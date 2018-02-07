@@ -224,7 +224,7 @@ case object BasicApp extends App {
         "kafka_native" -> "_broker._tcp.reactive-sandbox-kafka.default.svc.cluster.local",
         "elastic-search" -> "_http._tcp.reactive-sandbox-elasticsearch.default.svc.cluster.local"),
       deployMinikubeAdditionalExternalServices := Map.empty,
-      deployMinikubeAkkaClusterBootstrapContactPoints := 2,
+      deployMinikubeAkkaClusterBootstrapContactPoints := 1,
       deployMinikubePlayHostAllowedProperty := "play.filters.hosts.allowed.0",
       deployMinikubePlayHttpSecretKeyProperty := "play.http.secret.key",
       deployMinikubePlayHttpSecretKeyValue := "dev-minikube",
@@ -331,7 +331,7 @@ case object BasicApp extends App {
                 dockerAlias.value.versioned,
                 "--env",
                 s"JAVA_OPTS=${javaOpts.mkString(" ")}") ++
-                (if (bootstrapEnabled) Vector("--pod-controller-replicas", deployMinikubeAkkaClusterBootstrapContactPoints.value.toString) else Vector.empty) ++
+                (if (bootstrapEnabled) Vector("--akka-cluster-skip-validation", "--pod-controller-replicas", deployMinikubeAkkaClusterBootstrapContactPoints.value.toString) else Vector.empty) ++
                 serviceArgs ++
                 deployMinikubeRpArguments.value
 
