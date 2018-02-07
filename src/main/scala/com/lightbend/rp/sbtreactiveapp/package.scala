@@ -16,10 +16,17 @@
 
 package com.lightbend.rp
 
-import sbt.TaskKey
+import sbt._
 
 package object sbtreactiveapp {
   private[rp] val rpDockerPublish = TaskKey[Unit]("rp-docker-publish")
   private[rp] val LocalApplicationConfig = "rp-application.conf"
   private[rp] val ToolingConfig = "rp-tooling.conf"
+
+  /**
+   * Bullet-proof (!) detection that we are running on Windows.
+   *
+   * @return true if we're running on Windows
+   */
+  def isWindows: Boolean = IO.Newline == "\r\n"
 }
