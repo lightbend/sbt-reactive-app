@@ -26,7 +26,7 @@ object rp {
   def generateKubernetesResources(wrapper: String, logger: Logger, additionalArgs: Seq[String]): String = {
     val rpCommand =
       (if (isWindows) Vector("powershell.exe", wrapper, "rp.exe") else Vector(wrapper, "rp")) ++
-        Vector("generate-kubernetes-resources") ++
+        Vector("generate-kubernetes-resources", "--generate-all") ++
         additionalArgs
 
     val (code, stdout, _) = run(logStdErr = Some(logger))(rpCommand: _*)
