@@ -66,9 +66,4 @@ TaskKey[Unit]("check") := {
   assert(
     (dockerBaseImage in Docker).value == "openjdk:8-jre-alpine" || true,
     "Docker image incorrectly set")
-
-  val dockerUsernameValue = (dockerUsername in Docker).value
-  val dockerUsernameValueExpected = Some("labels")
-  assert(dockerUsernameValue == dockerUsernameValueExpected,
-    s"Docker repository value is $dockerUsernameValue - expected $dockerUsernameValueExpected}")
 }

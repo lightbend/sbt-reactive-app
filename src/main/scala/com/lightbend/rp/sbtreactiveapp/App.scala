@@ -22,7 +22,7 @@ import com.typesafe.sbt.SbtNativePackager
 import com.typesafe.sbt.packager.docker
 import com.typesafe.sbt.packager.docker.DockerPlugin.{ publishDocker, publishLocalDocker }
 import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.{ dockerAlias, dockerBuildCommand }
-import com.typesafe.sbt.packager.Keys.{ dockerUsername, executableScriptName, stage }
+import com.typesafe.sbt.packager.Keys.{ executableScriptName, stage }
 import sbt._
 import scala.collection.immutable.Seq
 
@@ -451,8 +451,6 @@ case object BasicApp extends App {
           (if (bootstrapEnabled) Seq(TcpEndpoint(clusterEndpointName)) else Seq.empty) ++
           (if (managementEnabled) Seq(TcpEndpoint(managementEndpointName)) else Seq.empty)
       },
-
-      dockerUsername := Some(App.normalizeName((name in LocalRootProject).value)),
 
       javaOptions in SbtNativePackager.Universal ++= (
         if (memory.value > 0L && enableCGroupMemoryLimit.value)
