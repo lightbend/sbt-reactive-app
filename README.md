@@ -8,6 +8,10 @@ This project is a component of [Lightbend Reactive Platform Tooling](https://dev
 It implements an SBT plugin that uses [SBT Native Packager](https://github.com/sbt/sbt-native-packager) and
 reflection to build Docker images. Images produced by this plugin can be used with a CLI tool, [reactive-cli](https://github.com/lightbend/reactive-cli), to create resources for Kubernetes and potentially other target platforms.
 
+## Usage
+
+Consult the [Lightbend Reactive Platform Tooling](https://developer.lightbend.com/docs/reactive-platform-tooling/latest/) documentation for setup and configuration.
+
 ## Development
 
 ##### Publish Locally
