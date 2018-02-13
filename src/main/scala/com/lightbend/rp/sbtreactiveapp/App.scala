@@ -48,7 +48,7 @@ sealed trait App extends SbtReactiveAppKeys {
 }
 
 sealed trait LagomApp extends App {
-  val apiTools = config("api-tools").hide
+  val ApiTools = config("api-tools").hide
 
   def projectSettings: Seq[Setting[_]] =
     Vector(
@@ -65,12 +65,12 @@ sealed trait LagomApp extends App {
 
       enableServiceDiscovery := true,
 
-      ivyConfigurations += apiTools,
+      ivyConfigurations += ApiTools,
 
-      managedClasspath in apiTools :=
-        Classpaths.managedJars(apiTools, (classpathTypes in apiTools).value, update.value),
+      managedClasspath in ApiTools :=
+        Classpaths.managedJars(ApiTools, (classpathTypes in ApiTools).value, update.value),
 
-      libraryDependencies ++= magic.Lagom.component("api-tools").toVector.map(_ % apiTools),
+      libraryDependencies ++= magic.Lagom.component("api-tools").toVector.map(_ % ApiTools),
 
       lagomRawEndpoints := {
         val ingressPorts = httpIngressPorts.value
@@ -80,7 +80,7 @@ sealed trait LagomApp extends App {
 
         val magicEndpoints =
           magic.Lagom.endpoints(
-            ((managedClasspath in apiTools).value ++ (fullClasspath in Compile).value).toVector,
+            ((managedClasspath in ApiTools).value ++ (fullClasspath in Compile).value).toVector,
             scalaInstance.value.loader,
             ingressPorts.toVector,
             ingressHosts.toVector,
