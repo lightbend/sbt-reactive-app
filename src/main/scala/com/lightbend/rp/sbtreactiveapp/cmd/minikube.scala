@@ -36,7 +36,11 @@ object minikube {
           val minikubeRunning = run()("minikube", "status")._1 == 0
 
           if (!minikubeRunning) {
-            sys.error(s"minikube is not running; start it with `minikube start`; enabled ingress with `minikube addons enable ingress`")
+            sys.error(s"minikube is not running; start it with `minikube start`; enable ingress with `minikube addons enable ingress`")
+          }
+
+          if (!enabledAddons().contains("ingress")) {
+            sys.error(s"minikube ingress addon is not enabled; enable it with `minikube addons enable ingress`")
           }
         case None =>
           sys.error(s"minikube version unparseable [$version]")
@@ -57,6 +61,22 @@ object minikube {
     }
 
     out.head.trim
+  }
+
+  private def enabledAddons(): Seq[String] = {
+    val (code, out, _) = run()("minikube", "addons", "list")
+    if (code != 0) {
+      Seq.empty
+    } else {
+      out.flatMap { line =>
+        "- ((?:\\w|-)+): (enabled|disabled)".r.findFirstMatchIn(line).flatMap { matches =>
+          if (matches.group(2) == "enabled")
+            Some(matches.group(1))
+          else
+            None
+        }
+      }
+    }
   }
 
   private[cmd] def parseVersion(version: String): Option[(Int, Int, Int)] =
