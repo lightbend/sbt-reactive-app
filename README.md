@@ -3,7 +3,7 @@
 [![GitHub version](https://img.shields.io/badge/version-0.6.1-blue.svg)](https://github.com/lightbend/reactive-cli/releases)
 [![Build Status](https://api.travis-ci.org/lightbend/sbt-reactive-app.png?branch=master)](https://travis-ci.org/lightbend/sbt-reactive-app)
 
-This project is a component of [Lightbend Reactive Platform Tooling](https://developer.lightbend.com/docs/reactive-platform-tooling/latest/). Refer to its documentation for usage, examples, and reference information.
+This project is a component of [Lightbend Orchestration for Kubernetes](https://developer.lightbend.com/docs/lightbend-orchestration-kubernetes/latest/). Refer to its documentation for usage, examples, and reference information.
 
 It implements an SBT plugin that uses [SBT Native Packager](https://github.com/sbt/sbt-native-packager) and
 reflection to build Docker images. Images produced by this plugin can be used with a CLI tool, [reactive-cli](https://github.com/lightbend/reactive-cli), to create resources for Kubernetes and potentially other target platforms.
