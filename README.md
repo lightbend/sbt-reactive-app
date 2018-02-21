@@ -20,7 +20,7 @@ Consult the [Lightbend Orchestration for Kubernetes](https://developer.lightbend
 
 ## Release
 
-Consult "Platform Tooling Release Process" on Google Drive
+Consult "Lightbend Orchestration for Kubernetes Release Process" on Google Drive
 
 ## Maintenance
 
