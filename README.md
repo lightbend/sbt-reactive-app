@@ -10,7 +10,7 @@ reflection to build Docker images. Images produced by this plugin can be used wi
 
 ## Usage
 
-Consult the [Lightbend Reactive Platform Tooling](https://developer.lightbend.com/docs/reactive-platform-tooling/latest/) documentation for setup and configuration.
+Consult the [Lightbend Orchestration for Kubernetes](https://developer.lightbend.com/docs/lightbend-orchestration-kubernetes/latest/) documentation for setup and configuration.
 
 ## Development
 
