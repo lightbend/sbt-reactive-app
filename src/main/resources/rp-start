@@ -14,4 +14,11 @@ if [ "$RP_JAVA_OPTS" != "" ]; then
   export JAVA_OPTS="$RP_JAVA_OPTS $JAVA_OPTS"
 fi
 
+# Also support setting options that are dynamically evaluated, e.g.
+# they may need to know environment variables that K8s/Marathon set.
+
+if [ "$RP_DYN_JAVA_OPTS" != "" ]; then
+  export JAVA_OPTS="$(eval "echo $RP_DYN_JAVA_OPTS") $JAVA_OPTS"
+fi
+
 exec "$@"
