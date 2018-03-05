@@ -12,13 +12,13 @@ TaskKey[Unit]("check") := {
   assert(endpoints.value.contains(TcpEndpoint("my-akka-remote", 0)))
 
   val outputDir = (stage in Docker).value
-  val contents = IO.readLines(outputDir / "Dockerfile")
+  val contents = IO.read(outputDir / "Dockerfile")
   val lines = Seq(
-    """LABEL com.lightbend.rp.app-type="basic"""",
-    """LABEL com.lightbend.rp.modules.akka-cluster-bootstrapping.enabled="true"""",
-    """LABEL com.lightbend.rp.modules.common.enabled="true"""",
-    """LABEL com.lightbend.rp.modules.play-http-binding.enabled="false"""",
-    """LABEL com.lightbend.rp.modules.secrets.enabled="false""""
+    """com.lightbend.rp.app-type="basic"""",
+    """com.lightbend.rp.modules.akka-cluster-bootstrapping.enabled="true"""",
+    """com.lightbend.rp.modules.common.enabled="true"""",
+    """com.lightbend.rp.modules.play-http-binding.enabled="false"""",
+    """com.lightbend.rp.modules.secrets.enabled="false""""
   )
 
   lines.foreach { line =>

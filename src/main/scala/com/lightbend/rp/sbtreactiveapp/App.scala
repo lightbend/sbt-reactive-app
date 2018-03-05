@@ -495,7 +495,7 @@ case object BasicApp extends App {
               docker.Cmd("RUN", Vector("/sbin/apk", "add", "--no-cache") ++ allAlpinePackages: _*) +:
               rawDockerCommands.tail
 
-        dockerWithPackagesCommands ++ addCommand ++ SbtReactiveApp
+        dockerWithPackagesCommands ++ addCommand ++ labelCommand(SbtReactiveApp
           .labels(
             appName = Some(appName.value),
             appType = Some(appType.value),
@@ -528,11 +528,7 @@ case object BasicApp extends App {
               "secrets" -> secretsEnabled,
               "service-discovery" -> serviceDiscoveryEnabled,
               "status" -> statusEnabled),
-            akkaClusterBootstrapSystemName = bootstrapSystemName)
-          .map {
-            case (key, value) =>
-              docker.Cmd("LABEL", s"""$key="${encodeLabelValue(value)}"""")
-          }
+            akkaClusterBootstrapSystemName = bootstrapSystemName))
       }) ++ inConfig(Docker)(Seq(
         stage := {
           val target = stage.value
@@ -556,6 +552,21 @@ case object BasicApp extends App {
             publishDocker(execCommand, alias.latest, log)
           }
         }))
+
+  private[sbtreactiveapp] def labelCommand(labels: Map[String, String]) = {
+    val entry =
+      labels
+        .map {
+          case (l, v) =>
+            s"""$l="${encodeLabelValue(v)}""""
+        }
+        .mkString(" \\\n")
+
+    if (entry.isEmpty)
+      Seq.empty
+    else
+      Seq(docker.Cmd("LABEL", entry))
+  }
 
   private def libIsPublished(scalaVersion: String) =
     SemVer
