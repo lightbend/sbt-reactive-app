@@ -18,20 +18,20 @@ lazy val root = (project in file("."))
 
 TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value
-  val contents = IO.readLines(outputDir / "Dockerfile")
+  val contents = IO.read(outputDir / "Dockerfile")
   val lines = Seq(
-    """LABEL com.lightbend.rp.endpoints.0.protocol="tcp"""",
-    """LABEL com.lightbend.rp.endpoints.0.name="akka-remote"""",
-    """LABEL com.lightbend.rp.endpoints.1.protocol="tcp"""",
-    """LABEL com.lightbend.rp.endpoints.1.name="akka-mgmt-http"""",
-    """LABEL com.lightbend.rp.modules.akka-cluster-bootstrapping.enabled="true"""",
-    """LABEL com.lightbend.rp.modules.play-http-binding.enabled="false"""",
-    """LABEL com.lightbend.rp.app-type="basic"""",
-    """LABEL com.lightbend.rp.app-name="hello-akka"""",
-    """LABEL com.lightbend.rp.modules.common.enabled="true"""",
-    """LABEL com.lightbend.rp.modules.secrets.enabled="false"""",
-    """LABEL com.lightbend.rp.modules.service-discovery.enabled="true"""",
-    """LABEL com.lightbend.rp.akka-cluster-bootstrap.system-name="hey""""
+    """com.lightbend.rp.endpoints.0.protocol="tcp"""",
+    """com.lightbend.rp.endpoints.0.name="akka-remote"""",
+    """com.lightbend.rp.endpoints.1.protocol="tcp"""",
+    """com.lightbend.rp.endpoints.1.name="akka-mgmt-http"""",
+    """com.lightbend.rp.modules.akka-cluster-bootstrapping.enabled="true"""",
+    """com.lightbend.rp.modules.play-http-binding.enabled="false"""",
+    """com.lightbend.rp.app-type="basic"""",
+    """com.lightbend.rp.app-name="hello-akka"""",
+    """com.lightbend.rp.modules.common.enabled="true"""",
+    """com.lightbend.rp.modules.secrets.enabled="false"""",
+    """com.lightbend.rp.modules.service-discovery.enabled="true"""",
+    """com.lightbend.rp.akka-cluster-bootstrap.system-name="hey""""
   )
 
   lines.foreach { line =>

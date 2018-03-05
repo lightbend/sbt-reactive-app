@@ -16,38 +16,38 @@ secrets := Set(Secret("myns1", "key"), Secret("myns2", "otherkey"))
 
 TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value
-  val contents = IO.readLines(outputDir / "Dockerfile")
+  val contents = IO.read(outputDir / "Dockerfile")
   val lines = Seq(
-    """LABEL com.lightbend.rp.config-resource="rp-application.conf"""",
-    """LABEL com.lightbend.rp.app-name="labels"""",
-    """LABEL com.lightbend.rp.disk-space="32768"""",
-    """LABEL com.lightbend.rp.endpoints.0.ingress.0.type="http"""",
-    """LABEL com.lightbend.rp.endpoints.0.ingress.0.ingress-ports.0="80"""",
-    """LABEL com.lightbend.rp.endpoints.0.ingress.0.ingress-ports.1="443"""",
-    """LABEL com.lightbend.rp.endpoints.0.ingress.0.paths.0="/test.*$"""",
-    """LABEL com.lightbend.rp.endpoints.0.ingress.0.hosts.0="hi.com"""",
-    """LABEL com.lightbend.rp.endpoints.0.name="test1"""",
-    """LABEL com.lightbend.rp.endpoints.0.port="2551"""",
-    """LABEL com.lightbend.rp.endpoints.0.protocol="http"""",
-    """LABEL com.lightbend.rp.environment-variables.0.name="LD_LIBRARY_PATH"""",
-    """LABEL com.lightbend.rp.environment-variables.0.value="/lib"""",
-    """LABEL com.lightbend.rp.environment-variables.0.type="literal"""",
-    """LABEL com.lightbend.rp.environment-variables.1.name="HOME"""",
-    """LABEL com.lightbend.rp.environment-variables.1.type="literal"""",
-    """LABEL com.lightbend.rp.environment-variables.1.value="/home/testing"""",
-    """LABEL com.lightbend.rp.memory="65536"""",
-    """LABEL com.lightbend.rp.cpu="0.5"""",
-    """LABEL com.lightbend.rp.privileged="true"""",
-    """LABEL com.lightbend.rp.app-version="0.1.2-SNAPSHOT"""",
-    """LABEL com.lightbend.rp.secrets.0.name="myns1"""",
-    """LABEL com.lightbend.rp.secrets.0.key="key"""",
-    """LABEL com.lightbend.rp.secrets.1.name="myns2"""",
-    """LABEL com.lightbend.rp.secrets.1.key="otherkey"""",
-    """LABEL com.lightbend.rp.app-type="basic"""",
-    """LABEL com.lightbend.rp.modules.akka-cluster-bootstrapping.enabled="false"""",
-    """LABEL com.lightbend.rp.modules.common.enabled="true"""",
-    """LABEL com.lightbend.rp.modules.play-http-binding.enabled="false"""",
-    """LABEL com.lightbend.rp.modules.secrets.enabled="true""""
+    """com.lightbend.rp.config-resource="rp-application.conf"""",
+    """com.lightbend.rp.app-name="labels"""",
+    """com.lightbend.rp.disk-space="32768"""",
+    """com.lightbend.rp.endpoints.0.ingress.0.type="http"""",
+    """com.lightbend.rp.endpoints.0.ingress.0.ingress-ports.0="80"""",
+    """com.lightbend.rp.endpoints.0.ingress.0.ingress-ports.1="443"""",
+    """com.lightbend.rp.endpoints.0.ingress.0.paths.0="/test.*$"""",
+    """com.lightbend.rp.endpoints.0.ingress.0.hosts.0="hi.com"""",
+    """com.lightbend.rp.endpoints.0.name="test1"""",
+    """com.lightbend.rp.endpoints.0.port="2551"""",
+    """com.lightbend.rp.endpoints.0.protocol="http"""",
+    """com.lightbend.rp.environment-variables.0.name="LD_LIBRARY_PATH"""",
+    """com.lightbend.rp.environment-variables.0.value="/lib"""",
+    """com.lightbend.rp.environment-variables.0.type="literal"""",
+    """com.lightbend.rp.environment-variables.1.name="HOME"""",
+    """com.lightbend.rp.environment-variables.1.type="literal"""",
+    """com.lightbend.rp.environment-variables.1.value="/home/testing"""",
+    """com.lightbend.rp.memory="65536"""",
+    """com.lightbend.rp.cpu="0.5"""",
+    """com.lightbend.rp.privileged="true"""",
+    """com.lightbend.rp.app-version="0.1.2-SNAPSHOT"""",
+    """com.lightbend.rp.secrets.0.name="myns1"""",
+    """com.lightbend.rp.secrets.0.key="key"""",
+    """com.lightbend.rp.secrets.1.name="myns2"""",
+    """com.lightbend.rp.secrets.1.key="otherkey"""",
+    """com.lightbend.rp.app-type="basic"""",
+    """com.lightbend.rp.modules.akka-cluster-bootstrapping.enabled="false"""",
+    """com.lightbend.rp.modules.common.enabled="true"""",
+    """com.lightbend.rp.modules.play-http-binding.enabled="false"""",
+    """com.lightbend.rp.modules.secrets.enabled="true""""
   )
 
   lines.foreach { line =>
@@ -60,7 +60,8 @@ TaskKey[Unit]("check") := {
   }
 
   // One of the labels must specify sbt-reactive-app version, number itself does not matter for this test
-  assert(contents.exists(_.startsWith("LABEL com.lightbend.rp.sbt-reactive-app-version=")),
+  assert(
+    contents.contains("com.lightbend.rp.sbt-reactive-app-version="),
     "Label with sbt-reactive-app version not found")
 
   assert(

@@ -8,7 +8,7 @@ enableCGroupMemoryLimit := true
 
 TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value
-  val contents = IO.readLines(outputDir / "opt" / "docker" / "conf" / "application.ini")
+  val contents = IO.read(outputDir / "opt" / "docker" / "conf" / "application.ini")
   val lines = Seq(
     """-XX:+UnlockExperimentalVMOptions""",
     """-XX:+UseCGroupMemoryLimitForHeap"""

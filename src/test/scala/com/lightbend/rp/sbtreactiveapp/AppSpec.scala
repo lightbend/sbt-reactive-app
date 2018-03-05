@@ -16,6 +16,9 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
+import com.typesafe.sbt.packager.docker
+import scala.collection.immutable.Seq
+
 class AppSpec extends UnitSpec {
   "normalizeName" should {
     Seq(
@@ -27,5 +30,20 @@ class AppSpec extends UnitSpec {
           App.normalizeName(input) shouldBe expectedResult
         }
       }
+  }
+
+  "labelCommand" should {
+    "work for empty" in {
+      BasicApp.labelCommand(Map.empty) shouldBe Seq.empty
+    }
+
+    "work for single" in {
+      BasicApp.labelCommand(Map("a" -> "test")) shouldBe Seq(docker.Cmd("LABEL", "a=\"test\""))
+    }
+
+    "work for multiple" in {
+      BasicApp.labelCommand(
+        Map("a" -> "test", "b" -> "test2", "c" -> "test3")) shouldBe Seq(docker.Cmd("LABEL", "a=\"test\" \\\nb=\"test2\" \\\nc=\"test3\""))
+    }
   }
 }
