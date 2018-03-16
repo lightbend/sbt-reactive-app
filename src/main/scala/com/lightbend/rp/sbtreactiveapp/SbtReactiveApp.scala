@@ -16,6 +16,8 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
+import scala.collection.immutable.{ SortedMap, TreeMap }
+
 import SbtReactiveAppPlugin.autoImport._
 
 object SbtReactiveApp {
@@ -33,7 +35,7 @@ object SbtReactiveApp {
     version: Option[String],
     secrets: Set[Secret],
     modules: Seq[(String, Boolean)],
-    akkaClusterBootstrapSystemName: Option[String]): Map[String, String] = {
+    akkaClusterBootstrapSystemName: Option[String]): Vector[(String, String)] = {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
 
     val keyValuePairs =
@@ -161,6 +163,6 @@ object SbtReactiveApp {
         .toSeq
         .map(ns("sbt-reactive-app-version") -> _)
 
-    keyValuePairs.toMap
+    keyValuePairs.toVector
   }
 }

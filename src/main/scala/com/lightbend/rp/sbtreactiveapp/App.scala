@@ -553,7 +553,7 @@ case object BasicApp extends App {
           }
         }))
 
-  private[sbtreactiveapp] def labelCommand(labels: Map[String, String]) = {
+  private[sbtreactiveapp] def labelCommand(labels: Seq[(String, String)]) = {
     val entry =
       labels
         .map {
