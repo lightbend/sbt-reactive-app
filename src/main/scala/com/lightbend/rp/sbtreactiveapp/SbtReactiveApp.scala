@@ -38,131 +38,128 @@ object SbtReactiveApp {
     akkaClusterBootstrapSystemName: Option[String]): Seq[(String, String)] = {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
 
-    val keyValuePairs =
-      appName
-        .map(ns("app-name") -> _.toString)
-        .toSeq ++
-        applications
-        .zipWithIndex
-        .flatMap {
-          case ((appN, appArgs), i) =>
-            (ns("applications", i.toString, "name") -> appN) +:
-              appArgs
-              .zipWithIndex
-              .map {
-                case (arg, argIndex) =>
-                  ns("applications", i.toString, "arguments", argIndex.toString) -> arg
-              }
-        } ++
-        version
-        .map(ns("app-version") -> _)
-        .toSeq ++
-        appType
-        .map(ns("app-type") -> _)
-        .toSeq ++
-        configResource
-        .map(ns("config-resource") -> _)
-        .toSeq ++
-        modules
-        .map { case (m, enabled) => ns("modules", m, "enabled") -> enabled.toString } ++
-        diskSpace
-        .map(ns("disk-space") -> _.toString)
-        .toSeq ++
-        memory
-        .map(ns("memory") -> _.toString)
-        .toSeq ++
-        cpu
-        .map(ns("cpu") -> _.toString)
-        .toSeq ++
-        endpoints
-        .zipWithIndex
-        .flatMap {
-          case (endpoint, i) =>
-            val baseKeys = Vector(
-              ns("endpoints", i.toString, "name") -> endpoint.name,
-              ns("endpoints", i.toString, "protocol") -> endpoint.protocol)
-
-            val portKey =
-              if (endpoint.port != 0)
-                Vector(ns(s"endpoints", i.toString, "port") -> endpoint.port.toString)
-              else
-                Vector.empty
-
-            def encodeHttpIngress(h: HttpIngress, j: Int) =
-              Vector(ns("endpoints", i.toString, "ingress", j.toString, "type") -> "http") ++
-                h.ingressPorts.zipWithIndex.map {
-                  case (port, k) =>
-                    ns("endpoints", i.toString, "ingress", j.toString, "ingress-ports", k.toString) -> port.toString
-                } ++
-                h.hosts.zipWithIndex.map {
-                  case (host, k) =>
-                    ns("endpoints", i.toString, "ingress", j.toString, "hosts", k.toString) -> host
-                } ++
-                h.paths.toVector.zipWithIndex.map {
-                  case (path, k) =>
-                    ns("endpoints", i.toString, "ingress", j.toString, "paths", k.toString) -> path
-                }
-
-            def encodePortIngress(p: PortIngress) =
-              Vector(ns("endpoints", i.toString, "ingress", "type") -> "port") ++
-                p.ingressPorts.zipWithIndex.map {
-                  case (port, j) =>
-                    ns("endpoints", i.toString, "ingress", "ingress-ports", j.toString) -> port.toString
-                }
-
-            val ingressKeys =
-              endpoint match {
-                case HttpEndpoint(_, _, ingress) =>
-                  ingress.zipWithIndex.flatMap { case (h, j) => encodeHttpIngress(h, j) }
-                case TcpEndpoint(_, _, ingress) =>
-                  ingress.toVector.flatMap(encodePortIngress)
-                case UdpEndpoint(_, _, ingress) =>
-                  ingress.toVector.flatMap(encodePortIngress)
-              }
-
-            baseKeys ++ portKey ++ ingressKeys
-        } ++
-        (if (privileged) Some(ns("privileged") -> "true") else None).toVector ++
-        environmentVariables
-        .toSeq
-        .zipWithIndex
-        .flatMap {
-          case ((envName, env), i) =>
-            env match {
-              case LiteralEnvironmentVariable(envValue) =>
-                Vector(
-                  ns("environment-variables", i.toString, "type") -> "literal",
-                  ns("environment-variables", i.toString, "name") -> envName,
-                  ns("environment-variables", i.toString, "value") -> envValue)
-              case kubernetes.ConfigMapEnvironmentVariable(mapName, key) =>
-                Vector(
-                  ns("environment-variables", i.toString, "type") -> "kubernetes.configMap",
-                  ns("environment-variables", i.toString, "name") -> envName,
-                  ns("environment-variables", i.toString, "map-name") -> mapName,
-                  ns("environment-variables", i.toString, "key") -> key)
-              case kubernetes.FieldRefEnvironmentVariable(fieldPath) =>
-                Vector(
-                  ns("environment-variables", i.toString, "type") -> "kubernetes.fieldRef",
-                  ns("environment-variables", i.toString, "name") -> envName,
-                  ns("environment-variables", i.toString, "field-path") -> fieldPath)
+    appName
+      .map(ns("app-name") -> _.toString)
+      .toVector ++
+      applications
+      .zipWithIndex
+      .flatMap {
+        case ((appN, appArgs), i) =>
+          (ns("applications", i.toString, "name") -> appN) +:
+            appArgs
+            .zipWithIndex
+            .map {
+              case (arg, argIndex) =>
+                ns("applications", i.toString, "arguments", argIndex.toString) -> arg
             }
-        } ++
-        secrets
-        .toSeq
-        .zipWithIndex
-        .flatMap {
-          case (secret, i) =>
-            Vector(
-              ns("secrets", i.toString, "name") -> secret.name,
-              ns("secrets", i.toString, "key") -> secret.key)
-        } ++
-        akkaClusterBootstrapSystemName
-        .toSeq
-        .map(n => ns("akka-cluster-bootstrap", "system-name") -> n) ++
-        List(ProgramVersion.current)
-        .toSeq
-        .map(ns("sbt-reactive-app-version") -> _)
+      } ++
+      version
+      .map(ns("app-version") -> _)
+      .toSeq ++
+      appType
+      .map(ns("app-type") -> _)
+      .toSeq ++
+      configResource
+      .map(ns("config-resource") -> _)
+      .toSeq ++
+      modules
+      .map { case (m, enabled) => ns("modules", m, "enabled") -> enabled.toString } ++
+      diskSpace
+      .map(ns("disk-space") -> _.toString)
+      .toSeq ++
+      memory
+      .map(ns("memory") -> _.toString)
+      .toSeq ++
+      cpu
+      .map(ns("cpu") -> _.toString)
+      .toSeq ++
+      endpoints
+      .zipWithIndex
+      .flatMap {
+        case (endpoint, i) =>
+          val baseKeys = Vector(
+            ns("endpoints", i.toString, "name") -> endpoint.name,
+            ns("endpoints", i.toString, "protocol") -> endpoint.protocol)
 
-    keyValuePairs.toVector
+          val portKey =
+            if (endpoint.port != 0)
+              Vector(ns(s"endpoints", i.toString, "port") -> endpoint.port.toString)
+            else
+              Vector.empty
+
+          def encodeHttpIngress(h: HttpIngress, j: Int) =
+            Vector(ns("endpoints", i.toString, "ingress", j.toString, "type") -> "http") ++
+              h.ingressPorts.zipWithIndex.map {
+                case (port, k) =>
+                  ns("endpoints", i.toString, "ingress", j.toString, "ingress-ports", k.toString) -> port.toString
+              } ++
+              h.hosts.zipWithIndex.map {
+                case (host, k) =>
+                  ns("endpoints", i.toString, "ingress", j.toString, "hosts", k.toString) -> host
+              } ++
+              h.paths.toVector.zipWithIndex.map {
+                case (path, k) =>
+                  ns("endpoints", i.toString, "ingress", j.toString, "paths", k.toString) -> path
+              }
+
+          def encodePortIngress(p: PortIngress) =
+            Vector(ns("endpoints", i.toString, "ingress", "type") -> "port") ++
+              p.ingressPorts.zipWithIndex.map {
+                case (port, j) =>
+                  ns("endpoints", i.toString, "ingress", "ingress-ports", j.toString) -> port.toString
+              }
+
+          val ingressKeys =
+            endpoint match {
+              case HttpEndpoint(_, _, ingress) =>
+                ingress.zipWithIndex.flatMap { case (h, j) => encodeHttpIngress(h, j) }
+              case TcpEndpoint(_, _, ingress) =>
+                ingress.toVector.flatMap(encodePortIngress)
+              case UdpEndpoint(_, _, ingress) =>
+                ingress.toVector.flatMap(encodePortIngress)
+            }
+
+          baseKeys ++ portKey ++ ingressKeys
+      } ++
+      (if (privileged) Some(ns("privileged") -> "true") else None).toVector ++
+      environmentVariables
+      .toSeq
+      .zipWithIndex
+      .flatMap {
+        case ((envName, env), i) =>
+          env match {
+            case LiteralEnvironmentVariable(envValue) =>
+              Vector(
+                ns("environment-variables", i.toString, "type") -> "literal",
+                ns("environment-variables", i.toString, "name") -> envName,
+                ns("environment-variables", i.toString, "value") -> envValue)
+            case kubernetes.ConfigMapEnvironmentVariable(mapName, key) =>
+              Vector(
+                ns("environment-variables", i.toString, "type") -> "kubernetes.configMap",
+                ns("environment-variables", i.toString, "name") -> envName,
+                ns("environment-variables", i.toString, "map-name") -> mapName,
+                ns("environment-variables", i.toString, "key") -> key)
+            case kubernetes.FieldRefEnvironmentVariable(fieldPath) =>
+              Vector(
+                ns("environment-variables", i.toString, "type") -> "kubernetes.fieldRef",
+                ns("environment-variables", i.toString, "name") -> envName,
+                ns("environment-variables", i.toString, "field-path") -> fieldPath)
+          }
+      } ++
+      secrets
+      .toSeq
+      .zipWithIndex
+      .flatMap {
+        case (secret, i) =>
+          Vector(
+            ns("secrets", i.toString, "name") -> secret.name,
+            ns("secrets", i.toString, "key") -> secret.key)
+      } ++
+      akkaClusterBootstrapSystemName
+      .toSeq
+      .map(n => ns("akka-cluster-bootstrap", "system-name") -> n) ++
+      List(ProgramVersion.current)
+      .toSeq
+      .map(ns("sbt-reactive-app-version") -> _)
   }
 }
