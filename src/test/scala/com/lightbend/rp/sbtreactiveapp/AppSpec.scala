@@ -34,16 +34,16 @@ class AppSpec extends UnitSpec {
 
   "labelCommand" should {
     "work for empty" in {
-      BasicApp.labelCommand(Map.empty) shouldBe Seq.empty
+      BasicApp.labelCommand(Seq.empty) shouldBe Seq.empty
     }
 
     "work for single" in {
-      BasicApp.labelCommand(Map("a" -> "test")) shouldBe Seq(docker.Cmd("LABEL", "a=\"test\""))
+      BasicApp.labelCommand(Seq("a" -> "test")) shouldBe Seq(docker.Cmd("LABEL", "a=\"test\""))
     }
 
     "work for multiple" in {
       BasicApp.labelCommand(
-        Map("a" -> "test", "b" -> "test2", "c" -> "test3")) shouldBe Seq(docker.Cmd("LABEL", "a=\"test\" \\\nb=\"test2\" \\\nc=\"test3\""))
+        Seq("a" -> "test", "b" -> "test2", "c" -> "test3")) shouldBe Seq(docker.Cmd("LABEL", "a=\"test\" \\\nb=\"test2\" \\\nc=\"test3\""))
     }
   }
 }

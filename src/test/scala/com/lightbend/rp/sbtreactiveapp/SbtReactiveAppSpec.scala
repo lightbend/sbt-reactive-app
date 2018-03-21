@@ -33,7 +33,7 @@ class SbtReactiveAppSpec extends UnitSpec {
         version = None,
         secrets = Set.empty,
         modules = Vector.empty,
-        akkaClusterBootstrapSystemName = None) shouldBe Map(
+        akkaClusterBootstrapSystemName = None) shouldBe Seq(
         "com.lightbend.rp.sbt-reactive-app-version" -> ProgramVersion.current)
     }
 
@@ -68,7 +68,7 @@ class SbtReactiveAppSpec extends UnitSpec {
         version = Some("1.2.3-SNAPSHOT"),
         secrets = Set(Secret("myns1", "myname1"), Secret("myns2", "myname2")),
         modules = Vector("mod1" -> true, "mod2" -> false),
-        akkaClusterBootstrapSystemName = Some("test")) shouldBe Map(
+        akkaClusterBootstrapSystemName = Some("test")).toMap shouldBe Map(
           "com.lightbend.rp.applications.0.name" -> "default",
           "com.lightbend.rp.applications.0.arguments.0" -> "com.acme.Hello1",
           "com.lightbend.rp.applications.0.arguments.1" -> "test",
