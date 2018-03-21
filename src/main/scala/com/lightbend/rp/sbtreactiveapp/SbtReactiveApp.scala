@@ -16,7 +16,7 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
-import scala.collection.immutable.{ SortedMap, TreeMap }
+import scala.collection.immutable.Seq
 
 import SbtReactiveAppPlugin.autoImport._
 
@@ -35,7 +35,7 @@ object SbtReactiveApp {
     version: Option[String],
     secrets: Set[Secret],
     modules: Seq[(String, Boolean)],
-    akkaClusterBootstrapSystemName: Option[String]): Vector[(String, String)] = {
+    akkaClusterBootstrapSystemName: Option[String]): Seq[(String, String)] = {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
 
     val keyValuePairs =
