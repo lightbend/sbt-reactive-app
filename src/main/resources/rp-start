@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # This script can be used to normalize environments at runtime, e.g.
 # shift variables around on Kubernetes/Marathon. It's executed inside
@@ -19,6 +19,42 @@ fi
 
 if [ "$RP_DYN_JAVA_OPTS" != "" ]; then
   export JAVA_OPTS="$(eval "echo $RP_DYN_JAVA_OPTS") $JAVA_OPTS"
+fi
+
+# For DC/OS, Marathon, Mesos, port env names are static. Tooling expects
+# them to be of a particular name, so it sets the value to the name of
+# the assigned port env var. We then have to evaluate them to resolve
+# their values.
+#
+# Example: RP_ENDPOINT_AKKAREMOTE_BIND_HOST='$HOST' will be resolved
+#          to the value of $HOST
+
+if [ "$RP_PLATFORM" = mesos ]; then
+    ENDPOINT_SUFFIXES="HOST,PORT,BIND_HOST,BIND_PORT"
+
+    IFS=','; I=0; for NAME in $RP_ENDPOINTS; do
+        for SUFFIX in $ENDPOINT_SUFFIXES; do
+            NAME_VAR="RP_ENDPOINT_${NAME}_$SUFFIX"
+            IDX_VAR="RP_ENDPOINT_${I}_$SUFFIX"
+
+            NAME_VALUE="$(eval "echo ${!NAME_VAR}")"
+            IDX_VALUE="$(eval "echo ${!IDX_VAR}")"
+
+            if [ "$NAME_VALUE" != "" ]; then
+                eval "export $NAME_VAR=\$NAME_VALUE"
+            fi
+
+            if [ "$IDX_VALUE" != "" ]; then
+                eval "export $IDX_VAR=\$IDX_VALUE"
+            fi
+        done
+
+        I=$(expr $I + 1)
+    done
+fi
+
+if [ "$RP_DEBUG" = 1 ] && hash env &>/dev/null && hash sort &>/dev/null; then
+    1>&2 env | sort
 fi
 
 exec "$@"
