@@ -381,7 +381,7 @@ case object BasicApp extends App {
       environmentVariables := Map.empty,
       startScriptLocation := "/rp-start",
       secrets := Set.empty,
-      reactiveLibVersion := "0.6.0",
+      reactiveLibVersion := "0.7.0",
       reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
       reactiveLibCommonProject := "reactive-lib-common" -> true,
       reactiveLibPlayHttpBindingProject := "reactive-lib-play-http-binding" -> true,
@@ -454,7 +454,7 @@ case object BasicApp extends App {
 
       javaOptions in SbtNativePackager.Universal ++= (
         if (memory.value > 0L && enableCGroupMemoryLimit.value)
-          Vector("-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap")
+          Vector("-J-XX:+UnlockExperimentalVMOptions", "-J-XX:+UseCGroupMemoryLimitForHeap")
         else
           Vector.empty),
 
