@@ -282,7 +282,7 @@ case object BasicApp extends App {
                    |
                    |set -e
                    |
-                   |eval $(minikube docker-env)
+                   |eval $(minikube docker-env --shell bash)
                    |
                    |exec "$@"
                    |""".stripMargin)
