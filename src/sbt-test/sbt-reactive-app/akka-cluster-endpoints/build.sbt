@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
 
     packageName in Docker := "hello-akka",
     enableAkkaClusterBootstrap := true,
-    akkaClusterBootstrapSystemName := "hey"
+    akkaClusterBootstrapSystemName := "ClusterSystem"
   )
 
 TaskKey[Unit]("check") := {
@@ -31,7 +31,7 @@ TaskKey[Unit]("check") := {
     """com.lightbend.rp.modules.common.enabled="true"""",
     """com.lightbend.rp.modules.secrets.enabled="false"""",
     """com.lightbend.rp.modules.service-discovery.enabled="true"""",
-    """com.lightbend.rp.akka-cluster-bootstrap.system-name="hey""""
+    """com.lightbend.rp.akka-cluster-bootstrap.system-name="ClusterSystem""""
   )
 
   lines.foreach { line =>

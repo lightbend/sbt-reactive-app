@@ -3,6 +3,7 @@ package hello.akka
 import akka.cluster.Cluster
 import akka.cluster.ClusterEvent._
 import akka.actor.{ Actor, ActorSystem, Props }
+import akka.discovery._
 import com.typesafe.config.ConfigFactory
 
 final case class Greet(name: String)
@@ -32,21 +33,14 @@ class GreeterActor extends Actor {
 
 object HelloAkka {
   def main(args: Array[String]) = {
-    if (args.isEmpty)
-      startup(Seq("2551", "2552", "0"))
-    else
-      startup(args)
+    startup()
   }
 
-  def startup(ports: Seq[String]) = {
-    ports foreach { port =>
-      val config = ConfigFactory.parseString("akka.remote.netty.tcp.port=" + port)
-        .withFallback(ConfigFactory.load())
+  def startup() = {
+    val system = ActorSystem("ClusterSystem")
+    val discovery = ServiceDiscovery(system).discovery
+    val actor = system.actorOf(Props[GreeterActor], name = "GreeterActor")
 
-      val system = ActorSystem("ClusterSystem", config)
-      val actor = system.actorOf(Props[GreeterActor], name = "GreeterActor")
-
-      actor ! Greet(port)
-    }
+    actor ! Greet("[unnamed]")
   }
 }
