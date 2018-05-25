@@ -22,11 +22,12 @@ import com.typesafe.sbt.SbtNativePackager
 import com.typesafe.sbt.packager.docker
 import com.typesafe.sbt.packager.docker.DockerPlugin.{ publishDocker, publishLocalDocker }
 import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.{ dockerAlias, dockerBuildCommand }
-import com.typesafe.sbt.packager.Keys.{ executableScriptName, stage }
+import com.typesafe.sbt.packager.Keys.{ executableScriptName, daemonGroup, daemonUser, stage }
 import sbt._
-import scala.collection.immutable.Seq
 
+import scala.collection.immutable.Seq
 import Keys._
+import com.typesafe.sbt.packager.docker.DockerSupport
 
 sealed trait App extends SbtReactiveAppKeys {
   private def libIsPublished(scalaVersion: String) =
@@ -469,10 +470,22 @@ case object BasicApp extends App {
       dockerEntrypoint := Vector.empty,
 
       dockerCommands := {
-        val addCommand = Some(startScriptLocation.value)
-          .filter(_.nonEmpty)
-          .toVector
-          .map(path => docker.Cmd("COPY", localName, path))
+        val addCommand = {
+          val hasChown = dockerVersion.value.exists(DockerSupport.chownFlag)
+          val group = (daemonGroup in Docker).value
+          val user = (daemonUser in Docker).value
+
+          Some(startScriptLocation.value)
+            .filter(_.nonEmpty)
+            .toVector
+            .flatMap(path =>
+              if (hasChown)
+                Vector(docker.Cmd("COPY", s"--chown=$user:$group", localName, path))
+              else
+                Vector(
+                  docker.Cmd("COPY", localName, path),
+                  docker.ExecCmd("RUN", Vector("chown", "-R", s"$user:$group", path): _*)))
+        }
 
         val bootstrapEnabled = enableAkkaClusterBootstrap.value
         val bootstrapSystemName = Some(akkaClusterBootstrapSystemName.value).filter(_.nonEmpty && bootstrapEnabled)
