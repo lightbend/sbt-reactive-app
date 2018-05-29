@@ -10,7 +10,7 @@ TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value
   val contents = IO.read(outputDir / "Dockerfile")
   val lines = Seq(
-    """COPY rp-start /my-rp-entry""",
+    """COPY --chown=daemon:daemon rp-start /my-rp-entry""",
     """ENTRYPOINT []""",
     """com.lightbend.rp.applications.0.name="default"""",
     """com.lightbend.rp.applications.0.arguments.0="/my-rp-entry"""",
