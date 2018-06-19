@@ -240,7 +240,7 @@ trait SbtReactiveAppKeys {
   val minikube = InputKey[Unit]("minikube")
 
   /**
-   * If non-empty (default: "rp-tooling.conf"), all resources with the given name will be prepended to the
+   * If non-empty (default: "application.conf"), all rp-tooling.conf resources in dependencies will be prepended to the
    * unmanaged application.conf file, or one will be created if none exists. To disable this behavior, specify "".
    */
   val prependRpConf = SettingKey[String]("rp-prepend-rp-application-conf")
