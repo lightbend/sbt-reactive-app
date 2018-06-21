@@ -1,0 +1,4 @@
+> package
+$ exists target/rp-application.conf
+
+> check
