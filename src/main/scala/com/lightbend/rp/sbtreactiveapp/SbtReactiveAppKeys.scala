@@ -66,6 +66,26 @@ trait SbtReactiveAppKeys {
   val privileged = SettingKey[Boolean]("rp-privileged")
 
   /**
+   * Run application as the given user. Defaults to `daemon`.
+   */
+  val runAsUser = SettingKey[String]("rp-run-as-user", "Run application as the given user. Defaults to `daemon`.")
+
+  /**
+   * Group that the user belongs to. Defaults to the user name.
+   */
+  val runAsUserGroup = SettingKey[String]("rp-run-as-user-group", "Group that the user belongs to. Defaults to the user name.")
+
+  /**
+   * UID of the user.
+   */
+  val runAsUserUID = SettingKey[Int]("rp-run-as-user-uid", "UID of the user.")
+
+  /**
+   * GID of the user's group.
+   */
+  val runAsUserGID = SettingKey[Int]("rp-run-as-user-gid", "GID of the user's group.")
+
+  /**
    * Defines the endpoint name for the akka remoting port. reactive-lib expects the default values here so you
    * should not have to change this under normal circumstances.
    */
