@@ -15,4 +15,5 @@ before_cache:
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" | xargs rm
 script:
   - sbt ^test
+  - sbt ^publishLocal
   - sbt ^scripted
