@@ -379,6 +379,10 @@ case object BasicApp extends App {
       memory := 0L,
       enableCGroupMemoryLimit := true,
       privileged := false,
+      runAsUser := "daemon",
+      runAsUserGroup := "",
+      runAsUserUID := -1,
+      runAsUserGID := -1,
       environmentVariables := Map.empty,
       startScriptLocation := "/rp-start",
       secrets := Set.empty,
@@ -469,24 +473,10 @@ case object BasicApp extends App {
 
       dockerEntrypoint := Vector.empty,
 
+      (daemonUser in Docker) := runAsUser.value,
+      (daemonGroup in Docker) := (if (runAsUserGroup.value.isEmpty) runAsUser.value else runAsUserGroup.value),
+
       dockerCommands := {
-        val addCommand = {
-          val hasChown = dockerVersion.value.exists(DockerSupport.chownFlag)
-          val group = (daemonGroup in Docker).value
-          val user = (daemonUser in Docker).value
-
-          Some(startScriptLocation.value)
-            .filter(_.nonEmpty)
-            .toVector
-            .flatMap(path =>
-              if (hasChown)
-                Vector(docker.Cmd("COPY", s"--chown=$user:$group", localName, path))
-              else
-                Vector(
-                  docker.Cmd("COPY", localName, path),
-                  docker.ExecCmd("RUN", Vector("chown", "-R", s"$user:$group", path): _*)))
-        }
-
         val bootstrapEnabled = enableAkkaClusterBootstrap.value
         val bootstrapSystemName = Some(akkaClusterBootstrapSystemName.value).filter(_.nonEmpty && bootstrapEnabled)
         val commonEnabled = enableCommon.value
@@ -499,23 +489,49 @@ case object BasicApp extends App {
         val alpinePackagesValue = alpinePackages.value
         val requiredAlpinePackagesValue = requiredAlpinePackages.value
         val allAlpinePackages = (alpinePackagesValue ++ requiredAlpinePackagesValue).distinct.sorted
+        val dockerVersionValue = dockerVersion.value
+        val startScriptLocationValue = startScriptLocation.value
+        val group = (daemonGroup in Docker).value
+        val user = (daemonUser in Docker).value
 
-        val dockerWithPackagesCommands =
-          if (rawDockerCommands.isEmpty || allAlpinePackages.isEmpty)
-            rawDockerCommands
+        val addPackageCommands =
+          if (allAlpinePackages.isEmpty)
+            Vector.empty
           else
-            rawDockerCommands.head +:
-              docker.Cmd("RUN", Vector("/sbin/apk", "add", "--no-cache") ++ allAlpinePackages: _*) +:
-              rawDockerCommands.tail
+            Vector(docker.Cmd("RUN", Vector("/sbin/apk", "add", "--no-cache") ++ allAlpinePackages: _*))
 
-        dockerWithPackagesCommands ++ addCommand ++ labelCommand(SbtReactiveApp
+        val uidFlag = if (runAsUserUID.value >= 0) s"-u ${runAsUserUID.value} " else ""
+        val gidFlag = if (runAsUserGID.value >= 0) s"-g ${runAsUserGID.value} " else ""
+        val addUserCommands = Vector(
+          docker.Cmd("RUN", s"id -g $group || addgroup ${gidFlag}$group"),
+          docker.Cmd("RUN", s"id -u $user || adduser ${uidFlag}$user $group"))
+
+        val copyCommands =
+          if (startScriptLocationValue.isEmpty)
+            Vector.empty
+          else if (dockerVersionValue.exists(DockerSupport.chownFlag))
+            Vector(docker.Cmd("COPY", s"--chown=$user:$group", localName, startScriptLocationValue))
+          else
+            Vector(
+              docker.Cmd("COPY", localName, startScriptLocationValue),
+              docker.ExecCmd("RUN", Vector("chown", "-R", s"$user:$group", startScriptLocationValue): _*))
+
+        // Must create the user and add any packages before the rest of the Dockerfile.
+        val rawAndPackageAndUserCommands =
+          if (rawDockerCommands.isEmpty)
+            addPackageCommands ++ addUserCommands
+          else
+            // First line is "FROM" line, so we must place commands after it.
+            rawDockerCommands.head +: (addPackageCommands ++ addUserCommands ++ rawDockerCommands.tail)
+
+        rawAndPackageAndUserCommands ++ copyCommands ++ labelCommand(SbtReactiveApp
           .labels(
             appName = Some(appName.value),
             appType = Some(appType.value),
             applications = applications.value.toVector.map {
               case (aName, appValue) =>
                 val script =
-                  startScriptLocation.value
+                  startScriptLocationValue
 
                 val args =
                   (if (script.isEmpty) appValue else script +: appValue).toVector
