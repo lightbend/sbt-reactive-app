@@ -5,7 +5,7 @@ import scala.collection.immutable.Seq
 sbtPlugin := true
 
 val Versions = new {
-  val crossSbtVersions = Vector("0.13.16", "1.0.3")
+  val crossSbtVersions = Vector("0.13.17", "1.1.6")
   val nativePackager   = "1.3.2"
   val playJson         = "2.6.5"
   val scala            = "2.12.4"
