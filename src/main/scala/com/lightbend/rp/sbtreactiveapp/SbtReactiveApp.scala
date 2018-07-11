@@ -34,6 +34,7 @@ object SbtReactiveApp {
     environmentVariables: Map[String, EnvironmentVariable],
     version: Option[String],
     secrets: Set[Secret],
+    annotations: Map[String, String],
     modules: Seq[(String, Boolean)],
     akkaClusterBootstrapSystemName: Option[String]): Seq[(String, String)] = {
     def ns(key: String*): String = (Seq("com", "lightbend", "rp") ++ key).mkString(".")
@@ -154,6 +155,15 @@ object SbtReactiveApp {
           Vector(
             ns("secrets", i.toString, "name") -> secret.name,
             ns("secrets", i.toString, "key") -> secret.key)
+      } ++
+      annotations
+      .toSeq
+      .zipWithIndex
+      .flatMap {
+        case (annotation, i) =>
+          Vector(
+            ns("annotations", i.toString, "key") -> annotation._1,
+            ns("annotations", i.toString, "value") -> annotation._2)
       } ++
       akkaClusterBootstrapSystemName
       .toSeq

@@ -32,6 +32,7 @@ class SbtReactiveAppSpec extends UnitSpec {
         environmentVariables = Map.empty,
         version = None,
         secrets = Set.empty,
+        annotations = Map.empty,
         modules = Vector.empty,
         akkaClusterBootstrapSystemName = None) shouldBe Seq(
         "com.lightbend.rp.sbt-reactive-app-version" -> ProgramVersion.current)
@@ -67,6 +68,7 @@ class SbtReactiveAppSpec extends UnitSpec {
           "env3" -> kubernetes.FieldRefEnvironmentVariable("my-field-path")),
         version = Some("1.2.3-SNAPSHOT"),
         secrets = Set(Secret("myns1", "myname1"), Secret("myns2", "myname2")),
+        annotations = Map("mykey1" -> "myval1", "mykey2" -> "myval2"),
         modules = Vector("mod1" -> true, "mod2" -> false),
         akkaClusterBootstrapSystemName = Some("test")).toMap shouldBe Map(
           "com.lightbend.rp.applications.0.name" -> "default",
@@ -137,6 +139,10 @@ class SbtReactiveAppSpec extends UnitSpec {
           "com.lightbend.rp.secrets.0.key" -> "myname1",
           "com.lightbend.rp.secrets.1.name" -> "myns2",
           "com.lightbend.rp.secrets.1.key" -> "myname2",
+          "com.lightbend.rp.annotations.0.key" -> "mykey1",
+          "com.lightbend.rp.annotations.0.value" -> "myval1",
+          "com.lightbend.rp.annotations.1.key" -> "mykey2",
+          "com.lightbend.rp.annotations.1.value" -> "myval2",
           "com.lightbend.rp.akka-cluster-bootstrap.system-name" -> "test",
           "com.lightbend.rp.sbt-reactive-app-version" -> ProgramVersion.current)
     }

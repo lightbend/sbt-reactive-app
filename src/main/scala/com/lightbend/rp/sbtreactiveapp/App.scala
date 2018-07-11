@@ -549,6 +549,7 @@ case object BasicApp extends App {
             environmentVariables = environmentVariables.value,
             version = Some(Keys.version.value),
             secrets = secrets.value,
+            annotations = annotations.value,
             modules = Seq(
               "akka-cluster-bootstrapping" -> bootstrapEnabled,
               "akka-management" -> akkaManagementEnabled,
