@@ -386,6 +386,7 @@ case object BasicApp extends App {
       environmentVariables := Map.empty,
       startScriptLocation := "/rp-start",
       secrets := Set.empty,
+      annotations := Map.empty,
       reactiveLibVersion := "0.8.2",
       reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
       reactiveLibCommonProject := "reactive-lib-common" -> true,
