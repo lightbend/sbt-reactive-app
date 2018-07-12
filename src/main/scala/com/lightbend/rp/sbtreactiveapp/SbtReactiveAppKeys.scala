@@ -283,6 +283,15 @@ trait SbtReactiveAppKeys {
    */
   val secrets = SettingKey[Set[Secret]]("rp-secrets")
 
+  /**
+   * Annotations to attach to the application at runtime. On Kubernetes, this will become a pod annotation. On
+   * DC/OS it will be a label.
+   */
+  val annotations = SettingKey[Map[String, String]](
+    "rp-annotations",
+    "Annotations to attach to the application at runtime. On Kubernetes, this will become a pod annotation. " +
+      "On DC/OS it will be a label.")
+
   private[sbtreactiveapp] val deployMinikubeDockerEnv = TaskKey[String]("rp-deploy-minikube-docker-env")
 
   private[sbtreactiveapp] val lagomRawEndpoints = TaskKey[Seq[Endpoint]]("rp-lagom-raw-endpoints")

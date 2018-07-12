@@ -386,6 +386,7 @@ case object BasicApp extends App {
       environmentVariables := Map.empty,
       startScriptLocation := "/rp-start",
       secrets := Set.empty,
+      annotations := Map.empty,
       reactiveLibVersion := "0.8.2",
       reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
       reactiveLibCommonProject := "reactive-lib-common" -> true,
@@ -549,6 +550,7 @@ case object BasicApp extends App {
             environmentVariables = environmentVariables.value,
             version = Some(Keys.version.value),
             secrets = secrets.value,
+            annotations = annotations.value,
             modules = Seq(
               "akka-cluster-bootstrapping" -> bootstrapEnabled,
               "akka-management" -> akkaManagementEnabled,
