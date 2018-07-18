@@ -287,7 +287,7 @@ trait SbtReactiveAppKeys {
    * Annotations to attach to the application at runtime. On Kubernetes, this will become a pod annotation. On
    * DC/OS it will be a label.
    */
-  val annotations = SettingKey[Map[String, String]](
+  val annotations = TaskKey[Map[String, String]](
     "rp-annotations",
     "Annotations to attach to the application at runtime. On Kubernetes, this will become a pod annotation. " +
       "On DC/OS it will be a label.")
