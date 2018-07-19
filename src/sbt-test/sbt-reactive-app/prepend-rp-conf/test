@@ -1,4 +1,4 @@
 > package
-$ exists target/rp-application.conf
+$ exists target/scala-2.12/resource_managed/main/sbt-reactive-app/rp-application.conf
 
 > check
