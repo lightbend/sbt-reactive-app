@@ -29,6 +29,24 @@ import scala.collection.immutable.Seq
 import Keys._
 import com.typesafe.sbt.packager.docker.DockerSupport
 
+object App {
+  private[sbtreactiveapp] val defaultReactiveLibVersion = "0.9.0"
+
+  private val ValidNameChars =
+    (('0' to '9') ++ ('A' to 'Z') ++ ('a' to 'z') ++ Seq('-')).toSet
+
+  private val NameTrimChars = Set('-')
+
+  private[sbtreactiveapp] def normalizeName(name: String): String =
+    name
+      .map(c => if (ValidNameChars.contains(c)) c else '-')
+      .dropWhile(NameTrimChars.contains)
+      .reverse
+      .dropWhile(NameTrimChars.contains)
+      .reverse
+      .toLowerCase
+}
+
 sealed trait App extends SbtReactiveAppKeys {
   private def libIsPublished(scalaVersion: String) =
     SemVer
@@ -387,7 +405,7 @@ case object BasicApp extends App {
       startScriptLocation := "/rp-start",
       secrets := Set.empty,
       annotations := Map.empty,
-      reactiveLibVersion := "0.8.2",
+      reactiveLibVersion := App.defaultReactiveLibVersion,
       reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
       reactiveLibCommonProject := "reactive-lib-common" -> true,
       reactiveLibPlayHttpBindingProject := "reactive-lib-play-http-binding" -> true,
@@ -625,22 +643,6 @@ case object BasicApp extends App {
     scala.io.Source
       .fromInputStream(getClass.getClassLoader.getResourceAsStream(name))
       .mkString
-}
-
-object App {
-  private val ValidNameChars =
-    (('0' to '9') ++ ('A' to 'Z') ++ ('a' to 'z') ++ Seq('-')).toSet
-
-  private val NameTrimChars = Set('-')
-
-  private[sbtreactiveapp] def normalizeName(name: String): String =
-    name
-      .map(c => if (ValidNameChars.contains(c)) c else '-')
-      .dropWhile(NameTrimChars.contains)
-      .reverse
-      .dropWhile(NameTrimChars.contains)
-      .reverse
-      .toLowerCase
 }
 
 private object SemVer {
