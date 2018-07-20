@@ -203,7 +203,7 @@ case object BasicApp extends App {
   private val reactiveSandboxInstalledLatch = new java.util.concurrent.CountDownLatch(1)
 
   def globalSettings: Seq[Setting[_]]  = Seq(
-    annotations := Map.empty,
+    annotations := Map.empty
   )
 
   def buildSettings: Seq[Setting[_]] =
