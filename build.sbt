@@ -9,7 +9,7 @@ val Versions = new {
   val nativePackager   = "1.3.2"
   val playJson         = "2.6.5"
   val scala            = "2.12.4"
-  val scalaTest        = "3.0.1"
+  val scalaTest        = "3.0.5"
 }
 
 name := "sbt-reactive-app"
