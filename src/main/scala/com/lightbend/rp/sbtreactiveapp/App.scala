@@ -438,26 +438,35 @@ case object BasicApp extends App {
 
       httpIngressPorts := Seq(80, 443),
 
-      unmanagedResources in Compile := {
-        val base = (unmanagedResources in Compile).value
-        val baseDest = (target in Compile).value
-        val dependencyClasspathValue = (dependencyClasspath in Compile).value
-        val prependRpConfValue = prependRpConf.value
+      resourceGenerators in Compile += Def.task {
+        val outFile = (resourceManaged in Compile).value / "sbt-reactive-app" / LocalApplicationConfig
 
-        if (prependRpConfValue.isEmpty)
-          base
-        else
-          magic
-            .Build
-            .extractApplicationConf(Vector(ToolingConfig), Vector(prependRpConfValue), base, dependencyClasspathValue)
-            .fold(base) { mergedConfig =>
-              val dest = baseDest / LocalApplicationConfig
+        val cacheDir = streams.value.cacheDirectory
+        val tempFile = cacheDir / "sbt-reactive-app" / LocalApplicationConfig
 
-              IO.write(dest, mergedConfig)
-
-              base :+ dest
+        val cachedCopyFile =
+          Tracked.inputChanged(cacheDir / "sbt-reactive-app-inputs") { (inChanged, _: HashFileInfo) =>
+            if (inChanged || !outFile.exists) {
+              IO.copyFile(tempFile, outFile, preserveLastModified = true)
             }
-      },
+          }
+
+        val unmanagedConfigName = prependRpConf.value
+        if (unmanagedConfigName.isEmpty) Nil
+        else {
+          // 1. make the file under cache/sbt-reactive-app.
+          // 2. compare its SHA1 against cache/sbt-reactive-app-inputs
+          IO.write(tempFile, magic.Build.extractApplicationConf(
+            Vector(ToolingConfig), Vector(unmanagedConfigName),
+            (unmanagedResources in Compile).value, (dependencyClasspath in Compile).value)
+            .getOrElse(""))
+          cachedCopyFile(FileInfo.hash(tempFile))
+          Seq(outFile)
+        }
+      }.taskValue,
+
+      mappings in (Compile, packageBin) +=
+        (resourceManaged in Compile).value / "sbt-reactive-app" / LocalApplicationConfig -> LocalApplicationConfig,
 
       allDependencies :=
         allDependencies.value ++

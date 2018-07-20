@@ -10,7 +10,7 @@ libraryDependencies += "com.lightbend.rp" % "reactive-lib-akka-management_2.12" 
 libraryDependencies += "com.lightbend.rp" % "reactive-lib-service-discovery_2.12" % "0.7.0"
 
 TaskKey[Unit]("check") := {
-  val rpApplicationConf = target.value / "rp-application.conf"
+  val rpApplicationConf = resourceManaged.value / "main" / "sbt-reactive-app" / "rp-application.conf"
   val contents = IO.read(rpApplicationConf)
   val expectedLines = Seq(
     "# jar:file:.*/com.lightbend.rp/reactive-lib-status_2.12/jars/reactive-lib-status_2.12-0.7.0.jar!/rp-tooling.conf",
