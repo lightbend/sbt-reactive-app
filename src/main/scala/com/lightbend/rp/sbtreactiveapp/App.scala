@@ -202,6 +202,10 @@ case object BasicApp extends App {
   private val installReactiveSandbox = new java.util.concurrent.atomic.AtomicBoolean(false)
   private val reactiveSandboxInstalledLatch = new java.util.concurrent.CountDownLatch(1)
 
+  def globalSettings: Seq[Setting[_]]  = Seq(
+    annotations := Map.empty,
+  )
+
   def buildSettings: Seq[Setting[_]] =
     Vector(
       deployMinikubeReactiveSandboxCqlStatements := Seq.empty,
@@ -404,7 +408,6 @@ case object BasicApp extends App {
       environmentVariables := Map.empty,
       startScriptLocation := "/rp-start",
       secrets := Set.empty,
-      annotations := Map.empty,
       reactiveLibVersion := App.defaultReactiveLibVersion,
       reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
       reactiveLibCommonProject := "reactive-lib-common" -> true,

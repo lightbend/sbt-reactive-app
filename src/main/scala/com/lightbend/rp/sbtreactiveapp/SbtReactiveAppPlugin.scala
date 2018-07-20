@@ -102,6 +102,8 @@ object SbtReactiveAppPlugin extends AutoPlugin {
 
   val localName = "rp-start"
 
+  override def globalSettings: Seq[Setting[_]] = BasicApp.globalSettings
+
   override def buildSettings: Seq[Setting[_]] = BasicApp.buildSettings
 
   override def projectSettings: Seq[Setting[_]] = BasicApp.projectSettings
