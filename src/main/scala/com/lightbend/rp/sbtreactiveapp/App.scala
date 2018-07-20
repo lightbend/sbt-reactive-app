@@ -535,15 +535,18 @@ case object BasicApp extends App {
               docker.Cmd("COPY", localName, startScriptLocationValue),
               docker.ExecCmd("RUN", Vector("chown", "-R", s"$user:$group", startScriptLocationValue): _*))
 
-        // Must create the user and add any packages before the rest of the Dockerfile.
+        /**
+         * Must create the user and add any packages before the rest of the Dockerfile.
+         * Must contain COPY+chown commands before the rest of the Dockerfile (see [[DockerSupport.chownFlag]]).
+         */
         val rawAndPackageAndUserCommands =
           if (rawDockerCommands.isEmpty)
-            addPackageCommands ++ addUserCommands
+            addPackageCommands ++ addUserCommands ++ copyCommands
           else
             // First line is "FROM" line, so we must place commands after it.
-            rawDockerCommands.head +: (addPackageCommands ++ addUserCommands ++ rawDockerCommands.tail)
+            rawDockerCommands.head +: (addPackageCommands ++ addUserCommands ++ copyCommands ++ rawDockerCommands.tail)
 
-        rawAndPackageAndUserCommands ++ copyCommands ++ labelCommand(SbtReactiveApp
+        rawAndPackageAndUserCommands ++ labelCommand(SbtReactiveApp
           .labels(
             appName = Some(appName.value),
             appType = Some(appType.value),
