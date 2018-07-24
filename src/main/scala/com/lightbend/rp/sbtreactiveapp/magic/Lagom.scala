@@ -88,6 +88,7 @@ object Lagom {
     }
   }
 
+  @deprecated("use com.lightbend.lagom.core.LagomVersion.current", "sbt-reactive-app 1.4.0")
   def version: Option[String] = {
     // The method signature equals the signature of `com.lightbend.lagom.core.LagomVersion`
     type LagomVersion = {

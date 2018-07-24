@@ -135,36 +135,26 @@ sealed trait LagomApp extends App {
 
 case object LagomJavaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
-    super.projectSettings ++ magic.Lagom
-      .version
-      .toVector
-      .map(v =>
-        reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-java" -> true)
+    super.projectSettings :+
+      (reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom14-java" -> true)
 }
 
 case object LagomScalaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
-    super.projectSettings ++ magic.Lagom
-      .version
-      .toVector
-      .map(v => reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-scala" -> true)
+    super.projectSettings :+
+      (reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom14-scala" -> true)
 }
 
 case object LagomPlayJavaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
-    super.projectSettings ++ magic.Lagom
-      .version
-      .toVector
-      .map(v =>
-        reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-java" -> true)
+    super.projectSettings :+
+      (reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom14-java" -> true)
 }
 
 case object LagomPlayScalaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
-    super.projectSettings ++ magic.Lagom
-      .version
-      .toVector
-      .map(v => reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom${SemVer.formatMajorMinor(v)}-scala" -> true)
+    super.projectSettings :+
+      (reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom14-scala" -> true)
 }
 
 case object PlayApp extends App {
@@ -202,9 +192,8 @@ case object BasicApp extends App {
   private val installReactiveSandbox = new java.util.concurrent.atomic.AtomicBoolean(false)
   private val reactiveSandboxInstalledLatch = new java.util.concurrent.CountDownLatch(1)
 
-  def globalSettings: Seq[Setting[_]]  = Seq(
-    annotations := Map.empty
-  )
+  def globalSettings: Seq[Setting[_]] = Seq(
+    annotations := Map.empty)
 
   def buildSettings: Seq[Setting[_]] =
     Vector(
@@ -661,8 +650,6 @@ case object BasicApp extends App {
 }
 
 private object SemVer {
-  def formatMajorMinor(version: String): String = version.filterNot(_ == '.').take(2)
-
   def parse(version: String): Option[(Int, Int, Int, Option[String])] = {
     val parts = version.split("\\.", 3)
 

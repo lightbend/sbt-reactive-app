@@ -17,14 +17,6 @@
 package com.lightbend.rp.sbtreactiveapp
 
 class SemVerSpec extends UnitSpec {
-  "formatMajorMinor" should {
-    "work" in {
-      SemVer.formatMajorMinor("1.0.0") shouldEqual "10"
-      SemVer.formatMajorMinor("1.0.1") shouldEqual "10"
-      SemVer.formatMajorMinor("3.2.3") shouldEqual "32"
-    }
-  }
-
   "parse" should {
     "correctly parse a semantic version number" in {
       SemVer.parse("1.2.3") shouldEqual Some((1, 2, 3, None))
