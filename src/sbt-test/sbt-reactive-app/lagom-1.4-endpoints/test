@@ -1,2 +1,1 @@
-> hello-impl/docker:stage
-> check
+../lagom-1.5-endpoints/test
