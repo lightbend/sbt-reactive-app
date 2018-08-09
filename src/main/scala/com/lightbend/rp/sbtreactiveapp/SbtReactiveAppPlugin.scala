@@ -36,11 +36,12 @@ object SbtReactiveAppPluginAll extends AutoPlugin {
     inConfig(docker.DockerPlugin.autoImport.Docker)(
       publish in docker.DockerPlugin.autoImport.Docker := {
         Def.taskDyn {
-          (dockerUsername.?.value.nonEmpty || dockerRepository.?.value.nonEmpty) && rpDockerPublish.?.value.nonEmpty
-
-          Def.task(())
-        }
-      }.value)
+          if (dockerUsername.?.value.isDefined || dockerRepository.?.value.isDefined)
+            Def.task(rpDockerPublish.value)
+          else Def.task(())
+        }.value
+      }
+    )
 }
 
 object SbtReactiveAppPlugin extends AutoPlugin {
