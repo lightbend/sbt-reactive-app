@@ -27,6 +27,19 @@ object kubectl {
   def assert(): Unit =
     runSuccess("kubectl is not installed")(run()("kubectl", "version"))
 
+  def setupHelmRBAC(logger: Logger, systemNamespace: String): Unit = {
+    val (c1, _, _) = run()("kubectl", "-n", systemNamespace, "create", "sa", "tiller")
+    if (c1 != 0) {
+      sys.error(s"failed to create tiller service account [$c1]")
+    }
+
+    val (c2, _, _) = run()("kubectl", "create", "clusterrolebinding",
+      "tiller", "--closterrole", "cluster-admin", s"--serviceaccount=$systemNamespace:tiller")
+    if (c2 != 0) {
+      sys.error(s"failed to create tiller cluster role binding [$c2]")
+    }
+  }
+
   def deleteAndApply(logger: Logger, yaml: String): Unit = {
     // app may not be deployed yet, in which case this fails and sends output to stderr. note that because of this
     // we're ignoring stderr.

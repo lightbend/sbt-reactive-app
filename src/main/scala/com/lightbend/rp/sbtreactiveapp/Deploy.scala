@@ -21,9 +21,8 @@ import com.lightbend.rp.sbtreactiveapp.SbtReactiveAppPlugin.localImport._
 import com.lightbend.rp.sbtreactiveapp.SbtReactiveAppPlugin._
 import com.typesafe.sbt.SbtNativePackager
 import com.typesafe.sbt.packager.docker
-import com.typesafe.sbt.packager.docker.DockerPlugin.{ publishDocker, publishLocalDocker }
-import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.{ dockerAlias, dockerBuildCommand }
-import com.typesafe.sbt.packager.Keys.{ daemonGroup, daemonUser, executableScriptName, stage }
+import com.typesafe.sbt.packager.docker.DockerPlugin.publishLocalDocker
+import com.typesafe.sbt.packager.Keys.stage
 import sbt._
 
 import scala.collection.immutable.Seq
@@ -118,7 +117,8 @@ trait DeployableApp extends App {
 
           if (shouldInstallReactiveSandbox) {
             if (!cmd.kubectl.deploymentExists("kube-system", "tiller-deploy")) {
-              cmd.helm.init(log)
+              cmd.kubectl.setupHelmRBAC(log, "kube-system")
+              cmd.helm.init(log, "tiller")
 
               cmd.kubectl.waitForDeployment(log, "kube-system", "tiller-deploy", waitTimeMs = waitTimeMs)
             }
@@ -127,6 +127,31 @@ trait DeployableApp extends App {
               cmd.helm.installReactiveSandbox(log)
             }
           }
+
+          // Setup RBAC role and a role binding
+          val rbacSetup =
+            """|kind: Role
+               |apiVersion: rbac.authorization.k8s.io/v1
+               |metadata:
+               |  name: pod-reader
+               |rules:
+               |- apiGroups: [""] # "" indicates the core API group
+               |  resources: ["pods"]
+               |  verbs: ["get", "watch", "list"]
+               |---
+               |kind: RoleBinding
+               |apiVersion: rbac.authorization.k8s.io/v1
+               |metadata:
+               |  name: read-pods
+               |subjects:
+               |- kind: User
+               |  name: system:serviceaccount:default:default
+               |roleRef:
+               |  kind: Role
+               |  name: pod-reader
+               |  apiGroup: rbac.authorization.k8s.io
+            """.stripMargin
+          cmd.kubectl.deleteAndApply(log, rbacSetup)
 
           val minikubeIp = cmd.minikube.ip()
 
