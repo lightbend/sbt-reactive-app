@@ -40,8 +40,7 @@ object SbtReactiveAppPluginAll extends AutoPlugin {
             Def.task(rpDockerPublish.value)
           else Def.task(())
         }.value
-      }
-    )
+      })
 }
 
 object SbtReactiveAppPlugin extends AutoPlugin {

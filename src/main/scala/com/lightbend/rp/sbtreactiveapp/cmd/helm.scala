@@ -23,9 +23,9 @@ object helm {
   def assert(): Unit =
     runSuccess("helm is not installed")(run()("helm", "--help"))
 
-  def init(logger: Logger): Unit = {
+  def init(logger: Logger, serviceAccount: String): Unit = {
     runSuccess("helm init failed")(
-      run(logStdErr = Some(logger), logStdOut = Some(logger))("helm", "init"))
+      run(logStdErr = Some(logger), logStdOut = Some(logger))("helm", "init", "--service-account", serviceAccount))
 
     runSuccess("helm repo add failed")(
       run(logStdErr = Some(logger), logStdOut = Some(logger))("helm", "repo", "add", "lightbend-helm-charts", "https://lightbend.github.io/helm-charts"))
