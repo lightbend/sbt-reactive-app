@@ -2,7 +2,7 @@ name := "run-as-user"
 scalaVersion := "2.12.4"
 enablePlugins(SbtReactiveAppPlugin)
 
-runAsUser := "rpuser"
+rpRunAsUser := "rpuser"
 
 TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value

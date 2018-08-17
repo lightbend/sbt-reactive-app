@@ -34,29 +34,29 @@ trait DeployableApp extends App {
   private val reactiveSandboxInstalledLatch = new java.util.concurrent.CountDownLatch(1)
 
   def projectSettings: Seq[Setting[_]] = Vector(
-    deployMinikubeEnableReactiveSandbox := {
+    rpDeployMinikubeEnableReactiveSandbox := {
       val kafkaEnabled = SettingKey[Boolean]("lagomKafkaEnabled").?.value.getOrElse(false)
       val cassandraEnabled = SettingKey[Boolean]("lagomCassandraEnabled").?.value.getOrElse(false)
 
       kafkaEnabled || cassandraEnabled
     },
-    deployMinikubeReactiveSandboxExternalServices := Map(
+    rpDeployMinikubeReactiveSandboxExternalServices := Map(
       "cas_native" -> "_cql._tcp.reactive-sandbox-cassandra.default.svc.cluster.local",
       "kafka_native" -> "_broker._tcp.reactive-sandbox-kafka.default.svc.cluster.local",
       "elastic-search" -> "_http._tcp.reactive-sandbox-elasticsearch.default.svc.cluster.local"),
-    deployMinikubeAdditionalExternalServices := Map.empty,
-    deployMinikubeAkkaClusterBootstrapContactPoints := 1,
-    deployMinikubePlayHostAllowedProperty := "play.filters.hosts.allowed.0",
-    deployMinikubePlayHttpSecretKeyProperty := "play.http.secret.key",
-    deployMinikubePlayHttpSecretKeyValue := "dev-minikube",
-    deploy := {
+    rpDeployMinikubeAdditionalExternalServices := Map.empty,
+    rpDeployMinikubeAkkaClusterBootstrapContactPoints := 1,
+    rpDeployMinikubePlayHostAllowedProperty := "play.filters.hosts.allowed.0",
+    rpDeployMinikubePlayHttpSecretKeyProperty := "play.http.secret.key",
+    rpDeployMinikubePlayHttpSecretKeyValue := "dev-minikube",
+    rpDeploy := {
       import complete.DefaultParsers._
       import scala.sys.process._
 
       val args = spaceDelimited("<arg>").parsed
-      val isPlagom = Set("play", "lagom").contains(appType.value)
-      val bootstrapEnabled = enableAkkaClusterBootstrap.value
-      val reactiveSandbox = deployMinikubeEnableReactiveSandbox.value
+      val isPlagom = Set("play", "lagom").contains(rpAppType.value)
+      val bootstrapEnabled = rpEnableAkkaClusterBootstrap.value
+      val reactiveSandbox = rpDeployMinikubeEnableReactiveSandbox.value
 
       args.headOption.getOrElse("").trim.toLowerCase match {
         case "minikube" => {
@@ -81,7 +81,7 @@ trait DeployableApp extends App {
           cmd.rp.assert()
 
           if (reactiveSandbox) {
-            cmd.helm.assert();
+            cmd.helm.assert()
           }
 
           // This wrapper script that sets minikube environment before execing its args
@@ -157,15 +157,15 @@ trait DeployableApp extends App {
 
           val javaOpts =
             Vector(
-              if (isPlagom) s"-D${deployMinikubePlayHostAllowedProperty.value}=$minikubeIp" else "",
-              if (isPlagom) s"-D${deployMinikubePlayHttpSecretKeyProperty.value}=${deployMinikubePlayHttpSecretKeyValue.value}" else "")
+              if (isPlagom) s"-D${rpDeployMinikubePlayHostAllowedProperty.value}=$minikubeIp" else "",
+              if (isPlagom) s"-D${rpDeployMinikubePlayHttpSecretKeyProperty.value}=${rpDeployMinikubePlayHttpSecretKeyValue.value}" else "")
               .filterNot(_.isEmpty)
 
           val services =
             if (reactiveSandbox)
-              deployMinikubeReactiveSandboxExternalServices.value ++ deployMinikubeAdditionalExternalServices.value
+              rpDeployMinikubeReactiveSandboxExternalServices.value ++ rpDeployMinikubeAdditionalExternalServices.value
             else
-              deployMinikubeAdditionalExternalServices.value
+              rpDeployMinikubeAdditionalExternalServices.value
 
           val serviceArgs =
             services.flatMap {
@@ -178,9 +178,9 @@ trait DeployableApp extends App {
               dockerAlias.value.versioned,
               "--env",
               s"JAVA_OPTS=${javaOpts.mkString(" ")}") ++
-              (if (bootstrapEnabled) Vector("--akka-cluster-skip-validation", "--pod-controller-replicas", deployMinikubeAkkaClusterBootstrapContactPoints.value.toString) else Vector.empty) ++
+              (if (bootstrapEnabled) Vector("--akka-cluster-skip-validation", "--pod-controller-replicas", rpDeployMinikubeAkkaClusterBootstrapContactPoints.value.toString) else Vector.empty) ++
               serviceArgs ++
-              deployMinikubeRpArguments.value
+              rpDeployMinikubeRpArguments.value
 
           publishLocalDocker(
             (stage in Docker).value,
@@ -200,7 +200,7 @@ trait DeployableApp extends App {
             if (shouldInstallReactiveSandbox) {
               for {
                 pod <- cmd.kubectl.getPodNames("app=reactive-sandbox")
-                statement <- (deployMinikubeReactiveSandboxCqlStatements in ThisBuild).value
+                statement <- (rpDeployMinikubeReactiveSandboxCqlStatements in ThisBuild).value
               } {
                 log.info(s"executing cassandra cql: $statement")
 
@@ -222,5 +222,5 @@ trait DeployableApp extends App {
           sys.error(s"""Unknown deployment target: "$other". Available: minikube""")
       }
     },
-    deployMinikubeRpArguments := Seq.empty)
+    rpDeployMinikubeRpArguments := Seq.empty)
 }
