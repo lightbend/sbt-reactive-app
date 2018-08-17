@@ -2,7 +2,7 @@ name := "prepend-rp-conf"
 scalaVersion := "2.12.4"
 enablePlugins(SbtReactiveAppPlugin)
 
-prependRpConf := "application.conf"
+rpPrependRpConf := "application.conf"
 
 // Add a few dependencies that contain rp-tooling.conf.
 libraryDependencies += "com.lightbend.rp" % "reactive-lib-status_2.12" % "0.7.0"
