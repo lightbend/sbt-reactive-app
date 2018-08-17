@@ -29,7 +29,7 @@ lazy val frontend = (project in file("frontend"))
 lazy val `frontend-play` = (project in file("frontend-play"))
   .enablePlugins(PlayScala, SbtReactiveAppPlugin)
   .settings(
-    enableServiceDiscovery := true,
+    rpEnableServiceDiscovery := true,
     libraryDependencies ++= Seq(
       guice, // This is required to configure Play's application loader
       ws
@@ -63,27 +63,27 @@ lazy val `lagom-java-impl` = (project in file("lagom-java-impl"))
 
 TaskKey[Unit]("checkAppType") := {
   assert(
-    (appType in `simple-app`).value == "basic",
+    (rpAppType in `simple-app`).value == "basic",
     s"Incorrect appType for ${(name in `simple-app`).value}: ${(appType in `simple-app`).value}"
   )
 
   assert(
-    (appType in `frontend-play`).value == "play",
+    (rpAppType in `frontend-play`).value == "play",
     s"Incorrect appType for ${(name in `frontend-play`).value}: ${(appType in `frontend-play`).value}"
   )
 
   assert(
-    (appType in frontend).value == "lagom",
+    (rpAppType in frontend).value == "lagom",
     s"Incorrect appType for ${(name in frontend).value}: ${(appType in frontend).value}"
   )
 
   assert(
-    (appType in `lagom-java-impl`).value == "lagom",
+    (rpAppType in `lagom-java-impl`).value == "lagom",
     s"Incorrect appType for ${(name in `lagom-java-impl`).value}: ${(appType in `lagom-java-impl`).value}"
   )
 
   assert(
-    (appType in `lagom-scala-impl`).value == "lagom",
+    (rpAppType in `lagom-scala-impl`).value == "lagom",
     s"Incorrect appType for ${(name in `lagom-scala-impl`).value}: ${(appType in `lagom-scala-impl`).value}"
   )
 }
@@ -94,10 +94,10 @@ TaskKey[Unit]("checkServiceDiscoveryLibraries") := {
       left.name == right.name &&
       left.revision == right.revision
 
-  val rpCommon: ModuleID = "com.lightbend.rp" %% "reactive-lib-common" % (reactiveLibVersion in `simple-app`).value
-  val rpLagomServiceLocatorJava: ModuleID = "com.lightbend.rp" %% "reactive-lib-service-discovery-lagom14-java" % (reactiveLibVersion in `lagom-java-impl`).value
-  val rpLagomServiceLocatorScala: ModuleID = "com.lightbend.rp" %% "reactive-lib-service-discovery-lagom14-scala" % (reactiveLibVersion in `lagom-scala-impl`).value
-  val rpServiceLocator: ModuleID = "com.lightbend.rp" %% "reactive-lib-service-discovery" % (reactiveLibVersion in `frontend-play`).value
+  val rpCommon: ModuleID = "com.lightbend.rp" %% "reactive-lib-common" % (rpReactiveLibVersion in `simple-app`).value
+  val rpLagomServiceLocatorJava: ModuleID = "com.lightbend.rp" %% "reactive-lib-service-discovery-lagom14-java" % (rpReactiveLibVersion in `lagom-java-impl`).value
+  val rpLagomServiceLocatorScala: ModuleID = "com.lightbend.rp" %% "reactive-lib-service-discovery-lagom14-scala" % (rpReactiveLibVersion in `lagom-scala-impl`).value
+  val rpServiceLocator: ModuleID = "com.lightbend.rp" %% "reactive-lib-service-discovery" % (rpReactiveLibVersion in `frontend-play`).value
 
   val simpleAppLibs = (allDependencies in `simple-app`).value
   val frontendLibs = (allDependencies in frontend).value

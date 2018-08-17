@@ -72,17 +72,17 @@ sealed trait LagomApp extends App {
   def projectSettings: Seq[Setting[_]] =
     Vector(
       // For naming Lagom services, we take this overall approach:
-      // Calculate the endpoints (lagomRawEndpoints) and make this the "appName"
+      // Calculate the endpoints (rpLagomRawEndpoints) and make this the "appName"
 
-      appName := lagomRawEndpoints.value.headOption.map(_.name).getOrElse(name.value),
+      rpAppName := rpLagomRawEndpoints.value.headOption.map(_.name).getOrElse(name.value),
 
-      appType := "lagom",
+      rpAppType := "lagom",
 
-      enableAkkaClusterBootstrap := magic.Lagom.hasCluster(libraryDependencies.value.toVector),
+      rpEnableAkkaClusterBootstrap := magic.Lagom.hasCluster(libraryDependencies.value.toVector),
 
-      enablePlayHttpBinding := true,
+      rpEnablePlayHttpBinding := true,
 
-      enableServiceDiscovery := true,
+      rpEnableServiceDiscovery := true,
 
       ivyConfigurations += ApiTools,
 
@@ -91,10 +91,10 @@ sealed trait LagomApp extends App {
 
       libraryDependencies ++= magic.Lagom.component("api-tools").toVector.map(_ % ApiTools),
 
-      lagomRawEndpoints := {
-        val ingressPorts = httpIngressPorts.value
-        val ingressHosts = httpIngressHosts.value
-        val ingressPaths = httpIngressPaths.value
+      rpLagomRawEndpoints := {
+        val ingressPorts = rpHttpIngressPorts.value
+        val ingressHosts = rpHttpIngressHosts.value
+        val ingressPaths = rpHttpIngressPaths.value
         val endpointName = name.value
 
         val magicEndpoints =
@@ -118,13 +118,13 @@ sealed trait LagomApp extends App {
 
       // Note: Play & Lagom need their endpoints defined first (see play-http-binding)
 
-      endpoints := {
+      rpEndpoints := {
         // We don't have any guarantees on plugin order between Play <-> Lagom so we check in both places
 
-        val current = endpoints.value.filterNot(_.name == "http")
+        val current = rpEndpoints.value.filterNot(_.name == "http")
 
         val lagom =
-          lagomRawEndpoints.value.zipWithIndex.map {
+          rpLagomRawEndpoints.value.zipWithIndex.map {
             case (e, 0) => e.withName("http")
             case (e, _) => e
           }
@@ -136,43 +136,43 @@ sealed trait LagomApp extends App {
 case object LagomJavaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings :+
-      (reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom14-java" -> true)
+      (rpReactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom14-java" -> true)
 }
 
 case object LagomScalaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings :+
-      (reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom14-scala" -> true)
+      (rpReactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom14-scala" -> true)
 }
 
 case object LagomPlayJavaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings :+
-      (reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom14-java" -> true)
+      (rpReactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom14-java" -> true)
 }
 
 case object LagomPlayScalaApp extends LagomApp {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings :+
-      (reactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom14-scala" -> true)
+      (rpReactiveLibServiceDiscoveryProject := s"reactive-lib-service-discovery-lagom14-scala" -> true)
 }
 
 case object PlayApp extends App {
   def projectSettings: Seq[Setting[_]] =
     Vector(
-      appType := "play",
+      rpAppType := "play",
 
       // Note: Play & Lagom need their endpoints defined first (see play-http-binding)
 
-      enablePlayHttpBinding := true,
+      rpEnablePlayHttpBinding := true,
 
-      endpoints := {
+      rpEndpoints := {
         // We don't have any guarantees on plugin order between Play <-> Lagom so we check in both places
 
-        val current = endpoints.value
-        val paths = httpIngressPaths.value
-        val ports = httpIngressPorts.value
-        val hosts = httpIngressHosts.value
+        val current = rpEndpoints.value
+        val paths = rpHttpIngressPaths.value
+        val ports = rpHttpIngressPorts.value
+        val hosts = rpHttpIngressHosts.value
 
         if (current.exists(_.name == "http")) {
           current
@@ -190,77 +190,77 @@ case object PlayApp extends App {
 
 case object BasicApp extends DeployableApp {
   def globalSettings: Seq[Setting[_]] = Seq(
-    annotations := Map.empty)
+    rpAnnotations := Map.empty)
 
   def buildSettings: Seq[Setting[_]] =
     Vector(
-      deployMinikubeReactiveSandboxCqlStatements := Seq.empty,
-      helm := {
+      rpDeployMinikubeReactiveSandboxCqlStatements := Seq.empty,
+      rpHelm := {
         import complete.DefaultParsers._
         val args = spaceDelimited("<arg>").parsed
         cmd.helm.invoke(streams.value.log, args.toVector)
       },
-      kubectl := {
+      rpKubectl := {
         import complete.DefaultParsers._
         val args = spaceDelimited("<arg>").parsed
         cmd.kubectl.invoke(streams.value.log, args.toVector)
       },
-      minikube := {
+      rpMinikube := {
         import complete.DefaultParsers._
         val args = spaceDelimited("<arg>").parsed
         cmd.minikube.invoke(streams.value.log, args.toVector)
       },
-      aggregate in helm := false,
-      aggregate in kubectl := false,
-      aggregate in minikube := false)
+      aggregate in rpHelm := false,
+      aggregate in rpKubectl := false,
+      aggregate in rpMinikube := false)
 
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
-      alpinePackages := Vector.empty,
-      appName := name.value,
-      appType := "basic",
-      applications := Vector("default" -> Vector(s"bin/${executableScriptName.value}")),
-      cpu := 0.0D,
-      diskSpace := 0L,
-      memory := 0L,
-      enableCGroupMemoryLimit := true,
-      privileged := false,
-      runAsUser := "daemon",
-      runAsUserGroup := "",
-      runAsUserUID := -1,
-      runAsUserGID := -1,
-      environmentVariables := Map.empty,
-      startScriptLocation := "/rp-start",
-      secrets := Set.empty,
-      reactiveLibVersion := App.defaultReactiveLibVersion,
-      reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
-      reactiveLibCommonProject := "reactive-lib-common" -> true,
-      reactiveLibPlayHttpBindingProject := "reactive-lib-play-http-binding" -> true,
-      reactiveLibSecretsProject := "reactive-lib-secrets" -> true,
-      reactiveLibServiceDiscoveryProject := "reactive-lib-service-discovery" -> true,
-      reactiveLibStatusProject := "reactive-lib-status" -> true,
-      requiredAlpinePackages := Vector("bash"),
-      enableAkkaClusterBootstrap := false,
-      enableAkkaManagement := enableAkkaClusterBootstrap.value || enableStatus.value,
-      enableCommon := true,
-      enablePlayHttpBinding := false,
-      enableSecrets := secrets.value.nonEmpty,
-      enableServiceDiscovery := enableAkkaClusterBootstrap.value,
-      enableStatus := enableAkkaClusterBootstrap.value,
+      rpAlpinePackages := Vector.empty,
+      rpAppName := name.value,
+      rpAppType := "basic",
+      rpApplications := Vector("default" -> Vector(s"bin/${executableScriptName.value}")),
+      rpCpu := 0.0D,
+      rpDiskSpace := 0L,
+      rpMemory := 0L,
+      rpEnableCGroupMemoryLimit := true,
+      rpPrivileged := false,
+      rpRunAsUser := "daemon",
+      rpRunAsUserGroup := "",
+      rpRunAsUserUID := -1,
+      rpRunAsUserGID := -1,
+      rpEnvironmentVariables := Map.empty,
+      rpStartScriptLocation := "/rp-start",
+      rpSecrets := Set.empty,
+      rpReactiveLibVersion := App.defaultReactiveLibVersion,
+      rpReactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
+      rpReactiveLibCommonProject := "reactive-lib-common" -> true,
+      rpReactiveLibPlayHttpBindingProject := "reactive-lib-play-http-binding" -> true,
+      rpReactiveLibSecretsProject := "reactive-lib-secrets" -> true,
+      rpReactiveLibServiceDiscoveryProject := "reactive-lib-service-discovery" -> true,
+      rpReactiveLibStatusProject := "reactive-lib-status" -> true,
+      rpRequiredAlpinePackages := Vector("bash"),
+      rpEnableAkkaClusterBootstrap := false,
+      rpEnableAkkaManagement := rpEnableAkkaClusterBootstrap.value || rpEnableStatus.value,
+      rpEnableCommon := true,
+      rpEnablePlayHttpBinding := false,
+      rpEnableSecrets := rpSecrets.value.nonEmpty,
+      rpEnableServiceDiscovery := rpEnableAkkaClusterBootstrap.value,
+      rpEnableStatus := rpEnableAkkaClusterBootstrap.value,
 
-      prependRpConf := "application.conf",
+      rpPrependRpConf := "application.conf",
 
-      akkaClusterBootstrapEndpointName := "akka-remote",
+      rpAkkaClusterBootstrapEndpointName := "akka-remote",
 
-      akkaClusterBootstrapSystemName := "",
+      rpAkkaClusterBootstrapSystemName := "",
 
-      akkaManagementEndpointName := "akka-mgmt-http",
+      rpAkkaManagementEndpointName := "akka-mgmt-http",
 
-      httpIngressHosts := Seq.empty,
+      rpHttpIngressHosts := Seq.empty,
 
-      httpIngressPaths := Seq.empty,
+      rpHttpIngressPaths := Seq.empty,
 
-      httpIngressPorts := Seq(80, 443),
+      rpHttpIngressPorts := Seq(80, 443),
 
       resourceGenerators in Compile += Def.task {
         val outFile = (resourceManaged in Compile).value / "sbt-reactive-app" / LocalApplicationConfig
@@ -275,7 +275,7 @@ case object BasicApp extends DeployableApp {
             }
           }
 
-        val unmanagedConfigName = prependRpConf.value
+        val unmanagedConfigName = rpPrependRpConf.value
         if (unmanagedConfigName.isEmpty) Nil
         else {
           // 1. make the file under cache/sbt-reactive-app.
@@ -294,58 +294,58 @@ case object BasicApp extends DeployableApp {
 
       allDependencies :=
         allDependencies.value ++
-        lib(scalaVersion.value, reactiveLibAkkaClusterBootstrapProject.value, reactiveLibVersion.value, enableAkkaClusterBootstrap.value) ++
-        lib(scalaVersion.value, reactiveLibCommonProject.value, reactiveLibVersion.value, enableCommon.value) ++
-        lib(scalaVersion.value, reactiveLibPlayHttpBindingProject.value, reactiveLibVersion.value, enablePlayHttpBinding.value) ++
-        lib(scalaVersion.value, reactiveLibSecretsProject.value, reactiveLibVersion.value, enableSecrets.value) ++
-        lib(scalaVersion.value, reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value) ++
-        lib(scalaVersion.value, reactiveLibStatusProject.value, reactiveLibVersion.value, enableStatus.value),
+        lib(scalaVersion.value, rpReactiveLibAkkaClusterBootstrapProject.value, rpReactiveLibVersion.value, rpEnableAkkaClusterBootstrap.value) ++
+        lib(scalaVersion.value, rpReactiveLibCommonProject.value, rpReactiveLibVersion.value, rpEnableCommon.value) ++
+        lib(scalaVersion.value, rpReactiveLibPlayHttpBindingProject.value, rpReactiveLibVersion.value, rpEnablePlayHttpBinding.value) ++
+        lib(scalaVersion.value, rpReactiveLibSecretsProject.value, rpReactiveLibVersion.value, rpEnableSecrets.value) ++
+        lib(scalaVersion.value, rpReactiveLibServiceDiscoveryProject.value, rpReactiveLibVersion.value, rpEnableServiceDiscovery.value) ++
+        lib(scalaVersion.value, rpReactiveLibStatusProject.value, rpReactiveLibVersion.value, rpEnableStatus.value),
 
-      endpoints := {
-        val clusterEndpointName = akkaClusterBootstrapEndpointName.value
-        val managementEndpointName = akkaManagementEndpointName.value
-        val bootstrapEnabled = enableAkkaClusterBootstrap.value
-        val managementEnabled = enableAkkaManagement.value
+      rpEndpoints := {
+        val clusterEndpointName = rpAkkaClusterBootstrapEndpointName.value
+        val managementEndpointName = rpAkkaManagementEndpointName.value
+        val bootstrapEnabled = rpEnableAkkaClusterBootstrap.value
+        val managementEnabled = rpEnableAkkaManagement.value
 
-        endpoints.?.value.getOrElse(Seq.empty) ++
+        rpEndpoints.?.value.getOrElse(Seq.empty) ++
           (if (bootstrapEnabled) Seq(TcpEndpoint(clusterEndpointName)) else Seq.empty) ++
           (if (managementEnabled) Seq(TcpEndpoint(managementEndpointName)) else Seq.empty)
       },
 
       javaOptions in SbtNativePackager.Universal ++= (
-        if (memory.value > 0L && enableCGroupMemoryLimit.value)
+        if (rpMemory.value > 0L && rpEnableCGroupMemoryLimit.value)
           Vector("-J-XX:+UnlockExperimentalVMOptions", "-J-XX:+UseCGroupMemoryLimitForHeap")
         else
           Vector.empty),
 
       dockerEntrypoint := (
-        if (startScriptLocation.value.isEmpty)
+        if (rpStartScriptLocation.value.isEmpty)
           dockerEntrypoint.value
         else
-          startScriptLocation.value +: dockerEntrypoint.value),
+          rpStartScriptLocation.value +: dockerEntrypoint.value),
 
       dockerBaseImage := "openjdk:8-jre-alpine",
 
       dockerEntrypoint := Vector.empty,
 
-      (daemonUser in Docker) := runAsUser.value,
-      (daemonGroup in Docker) := (if (runAsUserGroup.value.isEmpty) runAsUser.value else runAsUserGroup.value),
+      (daemonUser in Docker) := rpRunAsUser.value,
+      (daemonGroup in Docker) := (if (rpRunAsUserGroup.value.isEmpty) rpRunAsUser.value else rpRunAsUserGroup.value),
 
       dockerCommands := {
-        val bootstrapEnabled = enableAkkaClusterBootstrap.value
-        val bootstrapSystemName = Some(akkaClusterBootstrapSystemName.value).filter(_.nonEmpty && bootstrapEnabled)
-        val commonEnabled = enableCommon.value
-        val playHttpBindingEnabled = enablePlayHttpBinding.value
-        val secretsEnabled = enableSecrets.value
-        val serviceDiscoveryEnabled = enableServiceDiscovery.value
-        val statusEnabled = enableStatus.value
+        val bootstrapEnabled = rpEnableAkkaClusterBootstrap.value
+        val bootstrapSystemName = Some(rpAkkaClusterBootstrapSystemName.value).filter(_.nonEmpty && bootstrapEnabled)
+        val commonEnabled = rpEnableCommon.value
+        val playHttpBindingEnabled = rpEnablePlayHttpBinding.value
+        val secretsEnabled = rpEnableSecrets.value
+        val serviceDiscoveryEnabled = rpEnableServiceDiscovery.value
+        val statusEnabled = rpEnableStatus.value
         val akkaManagementEnabled = bootstrapEnabled || statusEnabled
         val rawDockerCommands = dockerCommands.value
-        val alpinePackagesValue = alpinePackages.value
-        val requiredAlpinePackagesValue = requiredAlpinePackages.value
+        val alpinePackagesValue = rpAlpinePackages.value
+        val requiredAlpinePackagesValue = rpRequiredAlpinePackages.value
         val allAlpinePackages = (alpinePackagesValue ++ requiredAlpinePackagesValue).distinct.sorted
         val dockerVersionValue = dockerVersion.value
-        val startScriptLocationValue = startScriptLocation.value
+        val startScriptLocationValue = rpStartScriptLocation.value
         val group = (daemonGroup in Docker).value
         val user = (daemonUser in Docker).value
 
@@ -355,8 +355,8 @@ case object BasicApp extends DeployableApp {
           else
             Vector(docker.Cmd("RUN", Vector("/sbin/apk", "add", "--no-cache") ++ allAlpinePackages: _*))
 
-        val uidFlag = if (runAsUserUID.value >= 0) s"-u ${runAsUserUID.value} " else ""
-        val gidFlag = if (runAsUserGID.value >= 0) s"-g ${runAsUserGID.value} " else ""
+        val uidFlag = if (rpRunAsUserUID.value >= 0) s"-u ${rpRunAsUserUID.value} " else ""
+        val gidFlag = if (rpRunAsUserGID.value >= 0) s"-g ${rpRunAsUserGID.value} " else ""
         val addUserCommands = Vector(
           docker.Cmd("RUN", s"id -g $group || addgroup ${gidFlag}$group"),
           docker.Cmd("RUN", s"id -u $user || adduser ${uidFlag}$user $group"))
@@ -384,9 +384,9 @@ case object BasicApp extends DeployableApp {
 
         rawAndPackageAndUserCommands ++ labelCommand(SbtReactiveApp
           .labels(
-            appName = Some(appName.value),
-            appType = Some(appType.value),
-            applications = applications.value.toVector.map {
+            appName = Some(rpAppName.value),
+            appType = Some(rpAppType.value),
+            applications = rpApplications.value.toVector.map {
               case (aName, appValue) =>
                 val script =
                   startScriptLocationValue
@@ -396,18 +396,18 @@ case object BasicApp extends DeployableApp {
 
                 aName -> args
             },
-            configResource = Some((prependRpConf in Compile).value)
+            configResource = Some((rpPrependRpConf in Compile).value)
               .filter(_.nonEmpty)
               .map(_ => LocalApplicationConfig),
-            diskSpace = if (diskSpace.value > 0L) Some(diskSpace.value) else None,
-            memory = if (memory.value > 0) Some(memory.value) else None,
-            cpu = if (cpu.value >= 0.0001D) Some(cpu.value) else None,
-            endpoints = endpoints.value.toVector,
-            privileged = privileged.value,
-            environmentVariables = environmentVariables.value,
+            diskSpace = if (rpDiskSpace.value > 0L) Some(rpDiskSpace.value) else None,
+            memory = if (rpMemory.value > 0) Some(rpMemory.value) else None,
+            cpu = if (rpCpu.value >= 0.0001D) Some(rpCpu.value) else None,
+            endpoints = rpEndpoints.value.toVector,
+            privileged = rpPrivileged.value,
+            environmentVariables = rpEnvironmentVariables.value,
             version = Some(Keys.version.value),
-            secrets = secrets.value,
-            annotations = annotations.value,
+            secrets = rpSecrets.value,
+            annotations = rpAnnotations.value,
             modules = Seq(
               "akka-cluster-bootstrapping" -> bootstrapEnabled,
               "akka-management" -> akkaManagementEnabled,

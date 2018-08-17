@@ -3,8 +3,8 @@ scalaVersion := "2.11.11"
 
 enablePlugins(SbtReactiveAppPlugin)
 
-memory := 1048576
-enableCGroupMemoryLimit := true
+rpMemory := 1048576
+rpEnableCGroupMemoryLimit := true
 
 TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value

@@ -2,7 +2,7 @@ name := "alpine-packages"
 scalaVersion := "2.12.4"
 enablePlugins(SbtReactiveAppPlugin)
 
-alpinePackages += "coreutils"
+rpAlpinePackages += "coreutils"
 
 TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value
