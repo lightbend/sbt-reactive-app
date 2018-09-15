@@ -4,12 +4,12 @@ scalaVersion := "2.11.11"
 
 enablePlugins(SbtReactiveAppPlugin)
 
-rpEnableAkkaClusterBootstrap := true
+enableAkkaClusterBootstrap := true
 
-rpAkkaClusterBootstrapEndpointName := "my-akka-remote"
+akkaClusterBootstrapEndpointName := "my-akka-remote"
 
 TaskKey[Unit]("check") := {
-  assert(rpEndpoints.value.contains(TcpEndpoint("my-akka-remote", 0)))
+  assert(endpoints.value.contains(TcpEndpoint("my-akka-remote", 0)))
 
   val outputDir = (stage in Docker).value
   val contents = IO.read(outputDir / "Dockerfile")

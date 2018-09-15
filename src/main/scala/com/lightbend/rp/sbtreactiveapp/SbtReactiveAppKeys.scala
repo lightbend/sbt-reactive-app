@@ -23,182 +23,182 @@ trait SbtReactiveAppKeys {
    * Defines the application name. This defaults to the project name and is used in naming services. On Kubernetes,
    * this gets used for the `Service` name (after being scrubbed according to service name logic)
    */
-  val rpAppName = taskKey[String]("")
+  val appName = TaskKey[String]("rp-app-name")
 
   /**
    * Defines the application type - this is currently one of lagom, play, or basic. It's used internally and not
    * intended to be overridden.
    */
-  val rpAppType = settingKey[String]("")
+  val appType = SettingKey[String]("rp-app-type")
 
   /**
    * Defines the optional disk space requirement for scheduling this application.
    */
-  val rpDiskSpace = settingKey[Long]("")
+  val diskSpace = SettingKey[Long]("rp-disk-space")
 
   /**
    * Defines the optional memory requirement for scheduling this application. Defaults to 0, i.e. disabled.
    */
-  val rpMemory = settingKey[Long]("")
+  val memory = SettingKey[Long]("rp-memory")
 
   /**
    * If true, `memory` setting will set CGroup limits for the JVM in addition to platform (eg. Kubernetes) limits.
    * If false, only platform limits will be enforced. Default is true.
    */
-  val rpEnableCGroupMemoryLimit = settingKey[Boolean]("")
+  val enableCGroupMemoryLimit = SettingKey[Boolean]("rp-enable-cgroup-memory-limit")
 
   /**
    * Defines the optional CPU share requirement for scheduling this application. This follows Mesos conventions, so
    * for CGroup shares this value is multiplied by 1024. A reasonable starting value is 0.1. Defaults to 0, i.e.
    * disabled.
    */
-  val rpCpu = settingKey[Double]("")
+  val cpu = SettingKey[Double]("rp-cpu")
 
   /**
    * Defines the endpoints for this application. On Kubernetes, Services will be created for each endpoint, and if
    * the endpoint specifies Ingress then it will be generated as well.
    */
-  val rpEndpoints = taskKey[Seq[Endpoint]]("")
+  val endpoints = TaskKey[Seq[Endpoint]]("rp-endpoints")
 
   /**
    * If true, the container should be run in a privileged setting, i.e. with root privileges.
    */
-  val rpPrivileged = settingKey[Boolean]("")
+  val privileged = SettingKey[Boolean]("rp-privileged")
 
   /**
    * Run application as the given user. Defaults to `daemon`.
    */
-  val rpRunAsUser = settingKey[String]("Run application as the given user. Defaults to `daemon`.")
+  val runAsUser = SettingKey[String]("rp-run-as-user", "Run application as the given user. Defaults to `daemon`.")
 
   /**
    * Group that the user belongs to. Defaults to the user name.
    */
-  val rpRunAsUserGroup = settingKey[String]("Group that the user belongs to. Defaults to the user name.")
+  val runAsUserGroup = SettingKey[String]("rp-run-as-user-group", "Group that the user belongs to. Defaults to the user name.")
 
   /**
    * UID of the user.
    */
-  val rpRunAsUserUID = settingKey[Int]("UID of the user.")
+  val runAsUserUID = SettingKey[Int]("rp-run-as-user-uid", "UID of the user.")
 
   /**
    * GID of the user's group.
    */
-  val rpRunAsUserGID = settingKey[Int]("GID of the user's group.")
+  val runAsUserGID = SettingKey[Int]("rp-run-as-user-gid", "GID of the user's group.")
 
   /**
    * Defines the endpoint name for the akka remoting port. reactive-lib expects the default values here so you
    * should not have to change this under normal circumstances.
    */
-  val rpAkkaClusterBootstrapEndpointName = settingKey[String]("")
+  val akkaClusterBootstrapEndpointName = SettingKey[String]("rp-akka-cluster-bootstrap-endpoint-name")
 
   /**
    * If specified, app will join other nodes that specify this same system name. This can be used to allow different
    * applications to join the same cluster. If empty (default), the default logic of using the appName will be
    * used instead.
    */
-  val rpAkkaClusterBootstrapSystemName = settingKey[String]("")
+  val akkaClusterBootstrapSystemName = SettingKey[String]("rp-akka-cluster-bootstrap-system-name")
 
   /**
    * Defines the endpoint name for the akka management port. reactive-lib expects the default values here so you
    * should not have to change this under normal circumstances.
    */
-  val rpAkkaManagementEndpointName = settingKey[String]("")
+  val akkaManagementEndpointName = SettingKey[String]("rp-akka-management-endpoint-name")
 
   /**
    * Defines packages to install on top of the base alpine image.
    */
-  val rpAlpinePackages = settingKey[Seq[String]]("")
+  val alpinePackages = SettingKey[Seq[String]]("rp-alpine-packages")
 
   /**
    * Defines the available applications. This is a list of appName -> appArgs. The operator can specify alternate
    * applications to dynamically override the command/arguments that are executed.
    */
-  val rpApplications = taskKey[Seq[(String, Seq[String])]]("")
+  val applications = TaskKey[Seq[(String, Seq[String])]]("rp-applications")
 
   /**
    * This task deploys all aggregated projects into a target environment. Currently, minikube is supported.
    */
-  val rpDeploy = inputKey[Unit]("")
+  val deploy = InputKey[Unit]("deploy")
 
   /**
    * A map of service names to service lookup addresses. This will be provided as an argument to rp for resources
    * are are generated when running deploy minikube. Note that this map will only be added if reactive sandbox is
    * enabled.
    */
-  val rpDeployMinikubeReactiveSandboxExternalServices = settingKey[Map[String, String]]("")
+  val deployMinikubeReactiveSandboxExternalServices = SettingKey[Map[String, String]]("rp-deploy-minikube-reactive-sandbox-external-services")
 
   /**
    * An additional map of service names to service lookup addresses. These will always be provided to rp and take
    * precedence over the Reactive Sandbox addresses.
    */
-  val rpDeployMinikubeAdditionalExternalServices = settingKey[Map[String, String]]("")
+  val deployMinikubeAdditionalExternalServices = SettingKey[Map[String, String]]("rp-deploy-minikube-additional-external-services")
 
   /**
    * When deploying applications with Akka Cluster Bootstrap enabled, the services will initially be started with this
    * many contact points / replicas.
    */
-  val rpDeployMinikubeAkkaClusterBootstrapContactPoints = settingKey[Int]("")
+  val deployMinikubeAkkaClusterBootstrapContactPoints = SettingKey[Int]("rp-deploy-minikube-akka-cluster-bootstrap-contact-points")
 
   /**
    * If enabled, Reactive Sandbox (a Docker image containing Cassandra, Kafka, ZooKeeper, Elasticsearch) will be
    * deployed with this app.
    */
-  val rpDeployMinikubeEnableReactiveSandbox = settingKey[Boolean]("")
+  val deployMinikubeEnableReactiveSandbox = SettingKey[Boolean]("rp-deploy-minikube-enable-reactive-sandbox")
 
   /**
    * If deploying a Play application, this property will be set to the Minikube IP.
    */
-  val rpDeployMinikubePlayHostAllowedProperty = settingKey[String]("")
+  val deployMinikubePlayHostAllowedProperty = SettingKey[String]("rp-deploy-minikube-play-host-allowed-property")
 
   /**
    * If deploying a Play application, this property will be set to the value specified below.
    */
-  val rpDeployMinikubePlayHttpSecretKeyProperty = settingKey[String]("")
+  val deployMinikubePlayHttpSecretKeyProperty = SettingKey[String]("rp-deploy-minikube-play-http-secret-key-property")
 
   /**
    * If deploying a Play application, this property will be set to the value specified above.
    */
-  val rpDeployMinikubePlayHttpSecretKeyValue = settingKey[String]("")
+  val deployMinikubePlayHttpSecretKeyValue = SettingKey[String]("rp-deploy-minikube-play-http-secret-key-value")
 
   /**
    * Set this setting (build-wide, i.e. deployMinikubeReactiveSandboxCqlStatements in ThisBuild := ...) to a sequence
    * of CQL statements that should be executed against Cassandra when the Reactive Sandbox is installed.
    */
-  val rpDeployMinikubeReactiveSandboxCqlStatements = settingKey[Seq[String]]("")
+  val deployMinikubeReactiveSandboxCqlStatements = SettingKey[Seq[String]]("rp-deploy-minikube-reactive-sandbox-cql-statements")
 
   /**
    * Additional arguments to invoke rp with for this app.
    */
-  val rpDeployMinikubeRpArguments = settingKey[Seq[String]]("")
+  val deployMinikubeRpArguments = SettingKey[Seq[String]]("rp-deploy-minikube-rp-arguments")
 
   /**
    * For endpoints that are autopopulated, they will declare ingress for these hosts. That is, they'll be available
    * on the public nodes or ingress controllers at these hostnames. Defaults to nothing for Basic apps, "/" for Play
    * apps, and the collection of service endpoints for Lagom apps.
    */
-  val rpHttpIngressHosts = settingKey[Seq[String]]("")
+  val httpIngressHosts = SettingKey[Seq[String]]("rp-ingress-hosts")
 
   /**
    * For endpoints that are autopopulated, they will declare ingress for these hosts. That is, they'll be available
    * on the public nodes or ingress controllers at these hostnames.
    */
-  val rpHttpIngressPaths = taskKey[Seq[String]]("")
+  val httpIngressPaths = TaskKey[Seq[String]]("rp-ingress-paths")
 
   /**
    * For endpoints that are autopopulated, they will declare ingress for these posts. That is, they'll be available
    * on the public nodes or ingress controllers at these posts. Defaults to 80 and 443.
    */
-  val rpHttpIngressPorts = settingKey[Seq[Int]]("")
+  val httpIngressPorts = SettingKey[Seq[Int]]("rp-ingress-ports")
 
   /**
    * Defines environment variable values that this application should be run with at runtime.
    */
-  val rpEnvironmentVariables = settingKey[Map[String, EnvironmentVariable]]("")
+  val environmentVariables = SettingKey[Map[String, EnvironmentVariable]]("rp-environment-variables")
 
   /**
    * Enables Akka Cluster Bootstrapping (reactive-lib).
    */
-  val rpEnableAkkaClusterBootstrap = taskKey[Boolean]("Include Akka Cluster Bootstrapping. By default, included if a Lagom persistence module is defined.")
+  val enableAkkaClusterBootstrap = TaskKey[Boolean]("rp-enable-akka-cluster-bootstrap", "Include Akka Cluster Bootstrapping. By default, included if a Lagom persistence module is defined.")
 
   /**
    * Enables Akka Management (reactive-lib).
@@ -207,31 +207,31 @@ trait SbtReactiveAppKeys {
    *   - akka-cluster-bootstrap
    *   - status
    */
-  val rpEnableAkkaManagement = taskKey[Boolean]("")
+  val enableAkkaManagement = TaskKey[Boolean]("rp-enable-akka-management")
 
   /**
    * Enables the common library (reactive-lib). This defaults to true. It provides a few APIs that the application
    * is using to determine what target platform its running on, what ports it should bind on, etc.
    */
-  val rpEnableCommon = taskKey[Boolean]("")
+  val enableCommon = TaskKey[Boolean]("rp-enable-common")
 
   /**
    * Enable the Play HTTP binding library (reactive-lib). This is enabled by default for Lagom and Play projects and
    * allows the tooling to automatically assign ports.
    */
-  val rpEnablePlayHttpBinding = taskKey[Boolean]("")
+  val enablePlayHttpBinding = TaskKey[Boolean]("rp-enable-play-http-binding")
 
   /**
    * Enable the secret library (reactive-lib). By default, it will automatically be enabled if any secrets are
    * declared.
    */
-  val rpEnableSecrets = taskKey[Boolean]("Include Secrets API. By default, included if any secrets are defined.")
+  val enableSecrets = TaskKey[Boolean]("rp-enable-secrets", "Include Secrets API. By default, included if any secrets are defined.")
 
   /**
    * Enables the service discovery library (reactive-lib). If enabled, a service locator API will be on the classpath
    * and for Lagom projects, an implementation of Lagom's service locator will be provided.
    */
-  val rpEnableServiceDiscovery = taskKey[Boolean]("")
+  val enableServiceDiscovery = TaskKey[Boolean]("rp-enable-service-discovery")
 
   /**
    * Enables the status library (reactive-lib). By default, it will automatically be enabled if any modules
@@ -239,164 +239,79 @@ trait SbtReactiveAppKeys {
    * routes for health and readiness will be added to the Akka Management HTTP server, and at resource generation
    * the appropriate health/readiness configuration will be generated to monitor these endpoints.
    */
-  val rpEnableStatus = taskKey[Boolean]("")
+  val enableStatus = TaskKey[Boolean]("rp-enable-status")
 
   /**
    * Executes `helm` program with any specified arguments. This may be expanded to support auto completion in
    * the future.
    */
-  val rpHelm = inputKey[Unit]("")
+  val helm = InputKey[Unit]("helm")
 
   /**
    * Executes `kubectl` program with any specified arguments. This may be expanded to support auto completion in
    * the future.
    */
-  val rpKubectl = inputKey[Unit]("")
+  val kubectl = InputKey[Unit]("kubectl")
 
   /**
    * Executes `minikube` program with any specified arguments. This may be expanded to support auto completion in
    * the future.
    */
-  val rpMinikube = inputKey[Unit]("")
+  val minikube = InputKey[Unit]("minikube")
 
   /**
    * If non-empty (default: "application.conf"), all unmanaged resources with the given name, in any dependencies,
    * as well as all managed resources named "rp-tooling.conf'",
    * will be concatenated into a managed resource "rp-application.conf" file. To disable this behavior, specify "".
    */
-  val rpPrependRpConf = settingKey[String]("")
+  val prependRpConf = SettingKey[String]("rp-prepend-rp-application-conf")
 
   /**
    * Defines the published reactive-lib version to include in the project. You can set this value to upgrade
    * reactive-lib without having to update sbt-reactive-app.
    */
-  val rpReactiveLibVersion = settingKey[String]("")
+  val reactiveLibVersion = SettingKey[String]("rp-reactive-lib-version")
 
   /**
    * Defines location where the wrapper script for app execution should be placed (in the container). If empty,
    * no wrapper script is used.
    */
-  val rpStartScriptLocation = settingKey[String]("")
+  val startScriptLocation = SettingKey[String]("rp-start-script")
 
   /**
    * Defines secrets that will be made available to the application at runtime. The secrets API in reactive-lib
    * can then be used to decode these secrets in a consistent and platform-independent manner.
    */
-  val rpSecrets = settingKey[Set[Secret]]("")
+  val secrets = SettingKey[Set[Secret]]("rp-secrets")
 
   /**
    * Annotations to attach to the application at runtime. On Kubernetes, this will become a pod annotation. On
    * DC/OS it will be a label.
    */
-  val rpAnnotations = taskKey[Map[String, String]](
+  val annotations = TaskKey[Map[String, String]](
+    "rp-annotations",
     "Annotations to attach to the application at runtime. On Kubernetes, this will become a pod annotation. " +
       "On DC/OS it will be a label.")
 
-  private[sbtreactiveapp] val rpDeployMinikubeDockerEnv = taskKey[String]("")
+  private[sbtreactiveapp] val deployMinikubeDockerEnv = TaskKey[String]("rp-deploy-minikube-docker-env")
 
-  private[sbtreactiveapp] val rpLagomRawEndpoints = taskKey[Seq[Endpoint]]("")
+  private[sbtreactiveapp] val lagomRawEndpoints = TaskKey[Seq[Endpoint]]("rp-lagom-raw-endpoints")
 
-  private[sbtreactiveapp] val rpReactiveLibAkkaClusterBootstrapProject = settingKey[(String, Boolean)]("")
-  private[sbtreactiveapp] val rpReactiveLibCommonProject = settingKey[(String, Boolean)]("")
-  private[sbtreactiveapp] val rpReactiveLibPlayHttpBindingProject = settingKey[(String, Boolean)]("")
-  private[sbtreactiveapp] val rpReactiveLibSecretsProject = settingKey[(String, Boolean)]("")
-  private[sbtreactiveapp] val rpReactiveLibServiceDiscoveryProject = settingKey[(String, Boolean)]("")
-  private[sbtreactiveapp] val rpReactiveLibStatusProject = settingKey[(String, Boolean)]("")
+  private[sbtreactiveapp] val reactiveLibAkkaClusterBootstrapProject = SettingKey[(String, Boolean)]("rp-reactive-lib-akka-cluster-bootstrap-project")
+
+  private[sbtreactiveapp] val reactiveLibCommonProject = SettingKey[(String, Boolean)]("rp-reactive-lib-common-project")
+
+  private[sbtreactiveapp] val reactiveLibPlayHttpBindingProject = SettingKey[(String, Boolean)]("rp-reactive-lib-play-http-binding-project")
+
+  private[sbtreactiveapp] val reactiveLibSecretsProject = SettingKey[(String, Boolean)]("rp-reactive-lib-secrets-project")
+
+  private[sbtreactiveapp] val reactiveLibServiceDiscoveryProject = SettingKey[(String, Boolean)]("rp-reactive-lib-service-discovery-project")
+
+  private[sbtreactiveapp] val reactiveLibStatusProject = SettingKey[(String, Boolean)]("rp-reactive-lib-status-project")
 
   /**
-   * Defines alpine packages that are installed (and required) by this plugin.
-   * This is combined with the user-defined packages (`alpinePackages`).
+   * Defines alpine packages that are installed (and required) by this plugin. This is combined with the user-defined
+   * packages (`alpinePackages`).
    */
-  private[sbtreactiveapp] val rpRequiredAlpinePackages = settingKey[Seq[String]]("")
-
-  @deprecated("use rpAppName", "1.5.0") val appName = rpAppName
-  @deprecated("use rpAppType", "1.5.0") val appType = rpAppType
-  @deprecated("use rpDiskSpace", "1.5.0") val diskSpace = rpDiskSpace
-  @deprecated("use rpMemory", "1.5.0") val memory = rpMemory
-
-  @deprecated("use rpEnableCGroupMemoryLimit", "1.5.0")
-  val enableCGroupMemoryLimit = rpEnableCGroupMemoryLimit
-
-  @deprecated("use rpCpu", "1.5.0") val cpu = rpCpu
-  @deprecated("use rpEndpoints", "1.5.0") val endpoints = rpEndpoints
-  @deprecated("use rpPrivileged", "1.5.0") val privileged = rpPrivileged
-  @deprecated("use rpRunAsUser", "1.5.0") val runAsUser = rpRunAsUser
-  @deprecated("use rpRunAsUserGroup", "1.5.0") val runAsUserGroup = rpRunAsUserGroup
-  @deprecated("use rpRunAsUserUID", "1.5.0") val runAsUserUID = rpRunAsUserUID
-  @deprecated("use rpRunAsUserGID", "1.5.0") val runAsUserGID = rpRunAsUserGID
-
-  @deprecated("use rpAkkaClusterBootstrapEndpointName", "1.5.0")
-  val akkaClusterBootstrapEndpointName = rpAkkaClusterBootstrapEndpointName
-
-  @deprecated("use rpAkkaClusterBootstrapSystemName", "1.5.0")
-  val akkaClusterBootstrapSystemName = rpAkkaClusterBootstrapSystemName
-
-  @deprecated("use rpAkkaManagementEndpointName", "1.5.0")
-  val akkaManagementEndpointName = rpAkkaManagementEndpointName
-
-  @deprecated("use rpAlpinePackages", "1.5.0") val alpinePackages = rpAlpinePackages
-  @deprecated("use rpApplications", "1.5.0") val applications = rpApplications
-  @deprecated("use rpDeploy", "1.5.0") val deploy = rpDeploy
-
-  @deprecated("use rpDeployMinikubeReactiveSandboxExternalServices", "1.5.0")
-  val deployMinikubeReactiveSandboxExternalServices = rpDeployMinikubeReactiveSandboxExternalServices
-
-  @deprecated("use rpDeployMinikubeAdditionalExternalServices", "1.5.0")
-  val deployMinikubeAdditionalExternalServices = rpDeployMinikubeAdditionalExternalServices
-
-  @deprecated("use rpDeployMinikubeAkkaClusterBootstrapContactPoints", "1.5.0")
-  val deployMinikubeAkkaClusterBootstrapContactPoints = rpDeployMinikubeAkkaClusterBootstrapContactPoints
-
-  @deprecated("use rpDeployMinikubeEnableReactiveSandbox", "1.5.0")
-  val deployMinikubeEnableReactiveSandbox = rpDeployMinikubeEnableReactiveSandbox
-
-  @deprecated("use rpDeployMinikubePlayHostAllowedProperty", "1.5.0")
-  val deployMinikubePlayHostAllowedProperty = rpDeployMinikubePlayHostAllowedProperty
-
-  @deprecated("use rpDeployMinikubePlayHttpSecretKeyProperty", "1.5.0")
-  val deployMinikubePlayHttpSecretKeyProperty = rpDeployMinikubePlayHttpSecretKeyProperty
-
-  @deprecated("use rpDeployMinikubePlayHttpSecretKeyValue", "1.5.0")
-  val deployMinikubePlayHttpSecretKeyValue = rpDeployMinikubePlayHttpSecretKeyValue
-
-  @deprecated("use rpDeployMinikubeReactiveSandboxCqlStatements", "1.5.0")
-  val deployMinikubeReactiveSandboxCqlStatements = rpDeployMinikubeReactiveSandboxCqlStatements
-
-  @deprecated("use rpDeployMinikubeRpArguments", "1.5.0")
-  val deployMinikubeRpArguments = rpDeployMinikubeRpArguments
-
-  @deprecated("use rpHttpIngressHosts", "1.5.0") val httpIngressHosts = rpHttpIngressHosts
-  @deprecated("use rpHttpIngressPaths", "1.5.0") val httpIngressPaths = rpHttpIngressPaths
-  @deprecated("use rpHttpIngressPorts", "1.5.0") val httpIngressPorts = rpHttpIngressPorts
-  @deprecated("use rpEnvironmentVariables", "1.5.0") val environmentVariables = rpEnvironmentVariables
-
-  @deprecated("use rpEnableAkkaClusterBootstrap", "1.5.0")
-  val enableAkkaClusterBootstrap = rpEnableAkkaClusterBootstrap
-
-  @deprecated("use rpEnableAkkaManagement", "1.5.0")
-  val enableAkkaManagement = rpEnableAkkaManagement
-
-  @deprecated("use rpEnableCommon", "1.5.0")
-  val enableCommon = rpEnableCommon
-
-  @deprecated("use rpEnablePlayHttpBinding", "1.5.0")
-  val enablePlayHttpBinding = rpEnablePlayHttpBinding
-
-  @deprecated("use rpEnableSecrets", "1.5.0")
-  val enableSecrets = rpEnableSecrets
-
-  @deprecated("use rpEnableServiceDiscovery", "1.5.0")
-  val enableServiceDiscovery = rpEnableServiceDiscovery
-
-  @deprecated("use rpEnableStatus", "1.5.0")
-  val enableStatus = rpEnableStatus
-
-  @deprecated("use rpHelm", "1.5.0") val helm = rpHelm
-  @deprecated("use rpKubectl", "1.5.0") val kubectl = rpKubectl
-  @deprecated("use rpMinikube", "1.5.0") val minikube = rpMinikube
-  @deprecated("use rpPrependRpConf", "1.5.0") val prependRpConf = rpPrependRpConf
-  @deprecated("use rpReactiveLibVersion", "1.5.0") val reactiveLibVersion = rpReactiveLibVersion
-  @deprecated("use rpStartScriptLocation", "1.5.0") val startScriptLocation = rpStartScriptLocation
-  @deprecated("use rpSecrets", "1.5.0") val secrets = rpSecrets
-  @deprecated("use rpAnnotations", "1.5.0") val annotations = rpAnnotations
+  private[sbtreactiveapp] val requiredAlpinePackages = SettingKey[Seq[String]]("rp-required-alpine-packages")
 }

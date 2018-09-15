@@ -26,7 +26,7 @@ lazy val `hello-impl` = (project in file("hello-impl"))
   .enablePlugins(LagomScala, SbtReactiveAppPlugin)
   .settings(
     packageName in Docker := "hello-lagom",
-    rpHttpIngressPorts := scala.collection.immutable.Seq(9000),
+    httpIngressPorts := scala.collection.immutable.Seq(9000),
     check := {
       val outputDir = (stage in Docker).value
       val contents = IO.read(outputDir / "Dockerfile")
@@ -63,7 +63,7 @@ lazy val `echo-impl` = (project in file("echo-impl"))
   .enablePlugins(LagomScala, SbtReactiveAppPlugin)
   .settings(
     packageName in Docker := "echo-lagom",
-    rpHttpIngressPorts := scala.collection.immutable.Seq(9000),
+    httpIngressPorts := scala.collection.immutable.Seq(9000),
     check := {
       val outputDir = (stage in Docker).value
       val contents = IO.readLines(outputDir / "Dockerfile")

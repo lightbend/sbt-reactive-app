@@ -7,8 +7,8 @@ lazy val root = (project in file("."))
   .enablePlugins(PlayScala, SbtReactiveAppPlugin)
   .settings(
     packageName in Docker := "hello-play",
-    rpHttpIngressPorts := Seq(9000),
-    rpHttpIngressPaths := Seq("/")
+    httpIngressPorts := Seq(9000),
+    httpIngressPaths := Seq("/")
   )
 
 TaskKey[Unit]("check") := {

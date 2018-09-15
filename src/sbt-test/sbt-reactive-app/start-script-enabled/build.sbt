@@ -2,9 +2,9 @@ name := "start-script-enabled"
 scalaVersion := "2.12.4"
 enablePlugins(SbtReactiveAppPlugin)
 
-rpStartScriptLocation := "/my-rp-entry"
+startScriptLocation := "/my-rp-entry"
 
-rpApplications += "cleanup" -> Seq("bin/test")
+applications += "cleanup" -> Seq("bin/test")
 
 TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value

@@ -2,10 +2,10 @@ name := "run-as-use-group-uid-gid"
 scalaVersion := "2.12.4"
 enablePlugins(SbtReactiveAppPlugin)
 
-rpRunAsUser := "rpuser"
-rpRunAsUserGroup := "rpgroup"
-rpRunAsUserUID := 50
-rpRunAsUserGID := 60
+runAsUser := "rpuser"
+runAsUserGroup := "rpgroup"
+runAsUserUID := 50
+runAsUserGID := 60
 
 TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value
