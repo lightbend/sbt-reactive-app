@@ -12,8 +12,8 @@ lazy val root = (project in file("."))
     ),
 
     packageName in Docker := "hello-akka",
-    rpEnableAkkaClusterBootstrap := true,
-    rpAkkaClusterBootstrapSystemName := "ClusterSystem"
+    enableAkkaClusterBootstrap := true,
+    akkaClusterBootstrapSystemName := "ClusterSystem"
   )
 
 TaskKey[Unit]("check") := {
