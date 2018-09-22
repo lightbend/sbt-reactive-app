@@ -105,9 +105,26 @@ trait SbtReactiveAppKeys {
   val akkaManagementEndpointName = SettingKey[String]("rp-akka-management-endpoint-name")
 
   /**
-   * Defines packages to install on top of the base alpine image.
+   * Defines packages to install on top of the base docker image.
    */
+  val userPackages = SettingKey[Seq[String]]("rp-user-packages")
+
+  @deprecated("Use userPackages instead", "1.4.1")
   val alpinePackages = SettingKey[Seq[String]]("rp-alpine-packages")
+
+  /**
+   * This setting will include by default "bash", plus the user-defined packages in `userPackages`.
+   * It can be overridden if necessary, for instance if the bash utility is defined in a package that
+   * has a different name in the specific docker base image that was selected.
+   */
+  val allDockerPackages = SettingKey[Seq[String]]("rp-all-docker-packages")
+
+  /**
+   * Defines the package installation mechanism used by the base image defined by dockerBaseImage.
+   * The default is "apk", to match the default Alpine dockerBaseImage;
+   * "apt-get", "apt", "dnf", and "yum" are other valid values.
+   */
+  val packagingFormat = SettingKey[String]("rp-packaging-format")
 
   /**
    * Defines the available applications. This is a list of appName -> appArgs. The operator can specify alternate
@@ -309,9 +326,4 @@ trait SbtReactiveAppKeys {
 
   private[sbtreactiveapp] val reactiveLibStatusProject = SettingKey[(String, Boolean)]("rp-reactive-lib-status-project")
 
-  /**
-   * Defines alpine packages that are installed (and required) by this plugin. This is combined with the user-defined
-   * packages (`alpinePackages`).
-   */
-  private[sbtreactiveapp] val requiredAlpinePackages = SettingKey[Seq[String]]("rp-required-alpine-packages")
 }
