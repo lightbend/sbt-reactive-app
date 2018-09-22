@@ -217,6 +217,9 @@ case object BasicApp extends DeployableApp {
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
       alpinePackages := Vector.empty,
+      userPackages := alpinePackages.value,
+      allDockerPackages := (userPackages.value :+ "bash").distinct,
+      packagingFormat := "apk",
       appName := name.value,
       appType := "basic",
       applications := Vector("default" -> Vector(s"bin/${executableScriptName.value}")),
@@ -239,7 +242,6 @@ case object BasicApp extends DeployableApp {
       reactiveLibSecretsProject := "reactive-lib-secrets" -> true,
       reactiveLibServiceDiscoveryProject := "reactive-lib-service-discovery" -> true,
       reactiveLibStatusProject := "reactive-lib-status" -> true,
-      requiredAlpinePackages := Vector("bash"),
       enableAkkaClusterBootstrap := false,
       enableAkkaManagement := enableAkkaClusterBootstrap.value || enableStatus.value,
       enableCommon := true,
@@ -341,19 +343,23 @@ case object BasicApp extends DeployableApp {
         val statusEnabled = enableStatus.value
         val akkaManagementEnabled = bootstrapEnabled || statusEnabled
         val rawDockerCommands = dockerCommands.value
-        val alpinePackagesValue = alpinePackages.value
-        val requiredAlpinePackagesValue = requiredAlpinePackages.value
-        val allAlpinePackages = (alpinePackagesValue ++ requiredAlpinePackagesValue).distinct.sorted
+        val userPackagesValue = userPackages.value
+        val allPackages = allDockerPackages.value
+        val packagingFormatValue = packagingFormat.value
         val dockerVersionValue = dockerVersion.value
         val startScriptLocationValue = startScriptLocation.value
         val group = (daemonGroup in Docker).value
         val user = (daemonUser in Docker).value
 
         val addPackageCommands =
-          if (allAlpinePackages.isEmpty)
+          if (allPackages.isEmpty)
             Vector.empty
-          else
-            Vector(docker.Cmd("RUN", Vector("/sbin/apk", "add", "--no-cache") ++ allAlpinePackages: _*))
+          else if (packagingFormatValue == "apk")
+            Vector(docker.Cmd("RUN", Vector("/sbin/apk", "add", "--no-cache") ++ allPackages: _*))
+          else if (packagingFormatValue == "apt-get" || packagingFormatValue == "apt" ||
+            packagingFormatValue == "dnf" || packagingFormatValue == "yum")
+            Vector(docker.Cmd("RUN", Vector("/usr/bin/" + packagingFormatValue, "install", "-y") ++ allPackages: _*))
+          else sys.error("Unknown packaging format: " + packagingFormatValue)
 
         val uidFlag = if (runAsUserUID.value >= 0) s"-u ${runAsUserUID.value} " else ""
         val gidFlag = if (runAsUserGID.value >= 0) s"-g ${runAsUserGID.value} " else ""

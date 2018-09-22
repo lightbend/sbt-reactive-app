@@ -8,7 +8,7 @@ TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value
   val contents = IO.readLines(outputDir / "Dockerfile")
   val lines = Seq(
-    """RUN /sbin/apk add --no-cache bash coreutils""")
+    """RUN /sbin/apk add --no-cache coreutils bash""")
 
   lines.foreach { line =>
     if (!contents.contains(line)) {
