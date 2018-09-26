@@ -220,8 +220,7 @@ case object BasicApp extends DeployableApp {
       akkaManagementEndpointName := "akka-mgmt-http",
       httpIngressHosts := Seq.empty,
       httpIngressPaths := Seq.empty,
-      httpIngressPorts := Seq(80, 443),
-    )
+      httpIngressPorts := Seq(80, 443))
 
   def buildSettings: Seq[Setting[_]] =
     Vector(
