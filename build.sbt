@@ -67,8 +67,6 @@ lazy val root = (project in file("."))
       checkSnapshotDependencies,
       inquireVersions,
       runClean,
-      releaseStepCommandAndRemaining("^test"),
-      releaseStepCommandAndRemaining("^scripted"),
       setReleaseVersion,
       commitReleaseVersion,
       tagRelease,
