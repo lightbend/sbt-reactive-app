@@ -1,8 +1,11 @@
+import com.typesafe.sbt.packager.docker._
+
 name := "alpine-packages"
 scalaVersion := "2.12.4"
 enablePlugins(SbtReactiveAppPlugin)
 
-alpinePackages += "coreutils"
+rpPackagingDockerCommmands := Vector(
+  Cmd("RUN", "/sbin/apk", "add", "--no-cache", "bash", "coreutils"))
 
 TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value
