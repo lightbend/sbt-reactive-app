@@ -189,8 +189,39 @@ case object PlayApp extends App {
 }
 
 case object BasicApp extends DeployableApp {
-  def globalSettings: Seq[Setting[_]] = Seq(
-    annotations := Map.empty)
+  def globalSettings: Seq[Setting[_]] =
+    Vector(
+      annotations := Map.empty,
+      alpinePackages := Vector.empty,
+      appType := "basic",
+      cpu := 0.0D,
+      diskSpace := 0L,
+      memory := 0L,
+      enableCGroupMemoryLimit := true,
+      privileged := false,
+      runAsUser := "daemon",
+      runAsUserGroup := "",
+      runAsUserUID := -1,
+      runAsUserGID := -1,
+      environmentVariables := Map.empty,
+      startScriptLocation := "/rp-start",
+      secrets := Set.empty,
+      reactiveLibVersion := App.defaultReactiveLibVersion,
+      reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
+      reactiveLibCommonProject := "reactive-lib-common" -> true,
+      reactiveLibPlayHttpBindingProject := "reactive-lib-play-http-binding" -> true,
+      reactiveLibSecretsProject := "reactive-lib-secrets" -> true,
+      reactiveLibServiceDiscoveryProject := "reactive-lib-service-discovery" -> true,
+      reactiveLibStatusProject := "reactive-lib-status" -> true,
+      // requiredAlpinePackages := Vector("bash"),
+      prependRpConf := "application.conf",
+      akkaClusterBootstrapEndpointName := "akka-remote",
+      akkaClusterBootstrapSystemName := "",
+      akkaManagementEndpointName := "akka-mgmt-http",
+      httpIngressHosts := Seq.empty,
+      httpIngressPaths := Seq.empty,
+      httpIngressPorts := Seq(80, 443),
+    )
 
   def buildSettings: Seq[Setting[_]] =
     Vector(
@@ -216,30 +247,8 @@ case object BasicApp extends DeployableApp {
 
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
-      alpinePackages := Vector.empty,
       appName := name.value,
-      appType := "basic",
       applications := Vector("default" -> Vector(s"bin/${executableScriptName.value}")),
-      cpu := 0.0D,
-      diskSpace := 0L,
-      memory := 0L,
-      enableCGroupMemoryLimit := true,
-      privileged := false,
-      runAsUser := "daemon",
-      runAsUserGroup := "",
-      runAsUserUID := -1,
-      runAsUserGID := -1,
-      environmentVariables := Map.empty,
-      startScriptLocation := "/rp-start",
-      secrets := Set.empty,
-      reactiveLibVersion := App.defaultReactiveLibVersion,
-      reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
-      reactiveLibCommonProject := "reactive-lib-common" -> true,
-      reactiveLibPlayHttpBindingProject := "reactive-lib-play-http-binding" -> true,
-      reactiveLibSecretsProject := "reactive-lib-secrets" -> true,
-      reactiveLibServiceDiscoveryProject := "reactive-lib-service-discovery" -> true,
-      reactiveLibStatusProject := "reactive-lib-status" -> true,
-      requiredAlpinePackages := Vector("bash"),
       enableAkkaClusterBootstrap := false,
       enableAkkaManagement := enableAkkaClusterBootstrap.value || enableStatus.value,
       enableCommon := true,
@@ -247,20 +256,6 @@ case object BasicApp extends DeployableApp {
       enableSecrets := secrets.value.nonEmpty,
       enableServiceDiscovery := enableAkkaClusterBootstrap.value,
       enableStatus := enableAkkaClusterBootstrap.value,
-
-      prependRpConf := "application.conf",
-
-      akkaClusterBootstrapEndpointName := "akka-remote",
-
-      akkaClusterBootstrapSystemName := "",
-
-      akkaManagementEndpointName := "akka-mgmt-http",
-
-      httpIngressHosts := Seq.empty,
-
-      httpIngressPaths := Seq.empty,
-
-      httpIngressPorts := Seq(80, 443),
 
       resourceGenerators in Compile += Def.task {
         val outFile = (resourceManaged in Compile).value / "sbt-reactive-app" / LocalApplicationConfig
@@ -331,6 +326,16 @@ case object BasicApp extends DeployableApp {
       (daemonUser in Docker) := runAsUser.value,
       (daemonGroup in Docker) := (if (runAsUserGroup.value.isEmpty) runAsUser.value else runAsUserGroup.value),
 
+      rpPackagingDockerCommmands := {
+        val alpinePackagesValue = alpinePackages.value
+        val requiredAlpinePackagesValue = Vector("bash")
+        val allAlpinePackages = (alpinePackagesValue ++ requiredAlpinePackagesValue).distinct.sorted
+        if (allAlpinePackages.isEmpty)
+          Vector.empty
+        else
+          Vector(docker.Cmd("RUN", Vector("/sbin/apk", "add", "--no-cache") ++ allAlpinePackages: _*))
+      },
+
       dockerCommands := {
         val bootstrapEnabled = enableAkkaClusterBootstrap.value
         val bootstrapSystemName = Some(akkaClusterBootstrapSystemName.value).filter(_.nonEmpty && bootstrapEnabled)
@@ -341,20 +346,11 @@ case object BasicApp extends DeployableApp {
         val statusEnabled = enableStatus.value
         val akkaManagementEnabled = bootstrapEnabled || statusEnabled
         val rawDockerCommands = dockerCommands.value
-        val alpinePackagesValue = alpinePackages.value
-        val requiredAlpinePackagesValue = requiredAlpinePackages.value
-        val allAlpinePackages = (alpinePackagesValue ++ requiredAlpinePackagesValue).distinct.sorted
         val dockerVersionValue = dockerVersion.value
         val startScriptLocationValue = startScriptLocation.value
         val group = (daemonGroup in Docker).value
         val user = (daemonUser in Docker).value
-
-        val addPackageCommands =
-          if (allAlpinePackages.isEmpty)
-            Vector.empty
-          else
-            Vector(docker.Cmd("RUN", Vector("/sbin/apk", "add", "--no-cache") ++ allAlpinePackages: _*))
-
+        val addPackageCommands = rpPackagingDockerCommmands.value
         val uidFlag = if (runAsUserUID.value >= 0) s"-u ${runAsUserUID.value} " else ""
         val gidFlag = if (runAsUserGID.value >= 0) s"-g ${runAsUserGID.value} " else ""
         val addUserCommands = Vector(

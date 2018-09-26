@@ -17,6 +17,7 @@
 package com.lightbend.rp.sbtreactiveapp
 
 import sbt._
+import com.typesafe.sbt.packager.docker.CmdLike
 
 trait SbtReactiveAppKeys {
   /**
@@ -104,9 +105,15 @@ trait SbtReactiveAppKeys {
    */
   val akkaManagementEndpointName = SettingKey[String]("rp-akka-management-endpoint-name")
 
+  lazy val rpPackagingDockerCommmands = settingKey[Seq[CmdLike]]("Docker commands related to packaing.")
+
   /**
    * Defines packages to install on top of the base alpine image.
    */
+  @deprecated("""Use rpPackagingDockerCommmands:
+                |import com.typesafe.sbt.packager.docker._
+                |rpPackagingDockerCommmands := Vector(
+                |  Cmd("RUN", "/sbin/apk", "add", "--no-cache", "bash", "coreutils"))""".stripMargin, "1.4.1")
   val alpinePackages = SettingKey[Seq[String]]("rp-alpine-packages")
 
   /**
@@ -308,10 +315,4 @@ trait SbtReactiveAppKeys {
   private[sbtreactiveapp] val reactiveLibServiceDiscoveryProject = SettingKey[(String, Boolean)]("rp-reactive-lib-service-discovery-project")
 
   private[sbtreactiveapp] val reactiveLibStatusProject = SettingKey[(String, Boolean)]("rp-reactive-lib-status-project")
-
-  /**
-   * Defines alpine packages that are installed (and required) by this plugin. This is combined with the user-defined
-   * packages (`alpinePackages`).
-   */
-  private[sbtreactiveapp] val requiredAlpinePackages = SettingKey[Seq[String]]("rp-required-alpine-packages")
 }
