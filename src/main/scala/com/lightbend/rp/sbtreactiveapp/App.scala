@@ -244,6 +244,18 @@ case object BasicApp extends DeployableApp {
       aggregate in kubectl := false,
       aggregate in minikube := false)
 
+  // This dynamic task collects all of the unmanaged resources in the projects
+  // that are dependent of thisProject, as well as those of thisProject itself.
+  val unmanagedTransitive = Def.taskDyn {
+    val subProjects = sbt.Classpaths.interSort(
+      thisProjectRef.value, Compile,
+      settingsData.value, buildDependencies.value).map { _._1 }
+    unmanagedResources.all(
+      ScopeFilter(
+        inProjects(subProjects: _*),
+        inConfigurations(Compile)))
+  }
+
   override def projectSettings: Seq[Setting[_]] =
     super.projectSettings ++ Vector(
       appName := name.value,
@@ -276,7 +288,7 @@ case object BasicApp extends DeployableApp {
           // 2. compare its SHA1 against cache/sbt-reactive-app-inputs
           IO.write(tempFile, magic.Build.extractApplicationConf(
             Vector(ToolingConfig), Vector(unmanagedConfigName),
-            (unmanagedResources in Compile).value, (dependencyClasspath in Compile).value)
+            unmanagedTransitive.value.flatten, (dependencyClasspath in Compile).value)
             .getOrElse(""))
           cachedCopyFile(FileInfo.hash(tempFile))
           Seq(outFile)
