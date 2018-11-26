@@ -28,7 +28,7 @@ object helm {
       run(logStdErr = Some(logger), logStdOut = Some(logger))("helm", "init", "--service-account", serviceAccount))
 
     runSuccess("helm repo add failed")(
-      run(logStdErr = Some(logger), logStdOut = Some(logger))("helm", "repo", "add", "lightbend-helm-charts", "https://lightbend.github.io/helm-charts"))
+      run(logStdErr = Some(logger), logStdOut = Some(logger))("helm", "repo", "add", "lightbend-helm-charts", "https://repo.lightbend.com/helm-charts"))
 
     runSuccess("helm repo update")(
       run(logStdErr = Some(logger), logStdOut = Some(logger))("helm", "repo", "update"))
