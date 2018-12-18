@@ -28,13 +28,13 @@ object kubectl {
     runSuccess("kubectl is not installed")(run()("kubectl", "version"))
 
   def setupHelmRBAC(logger: Logger, systemNamespace: String): Unit = {
-    val (c1, _, _) = run()("kubectl", "-n", systemNamespace, "create", "sa", "tiller")
-    if (c1 != 0) {
+    val (c1, _, err) = run()("kubectl", "-n", systemNamespace, "create", "sa", "tiller")
+    if (c1 != 0 && !err.exists(_.contains("AlreadyExists"))) {
       sys.error(s"failed to create tiller service account [$c1]")
     }
 
     val (c2, _, _) = run()("kubectl", "create", "clusterrolebinding",
-      "tiller", "--closterrole", "cluster-admin", s"--serviceaccount=$systemNamespace:tiller")
+      "tiller", "--clusterrole", "cluster-admin", s"--serviceaccount=$systemNamespace:tiller")
     if (c2 != 0) {
       sys.error(s"failed to create tiller cluster role binding [$c2]")
     }
