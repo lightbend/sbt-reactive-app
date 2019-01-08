@@ -30,6 +30,8 @@ object SbtReactiveApp {
     memory: Option[Long],
     cpu: Option[Double],
     endpoints: Seq[Endpoint],
+    remotingEndpointName: Option[String],
+    managementEndpointName: Option[String],
     privileged: Boolean,
     environmentVariables: Map[String, EnvironmentVariable],
     version: Option[String],
@@ -122,6 +124,12 @@ object SbtReactiveApp {
 
           baseKeys ++ portKey ++ ingressKeys
       } ++
+      remotingEndpointName
+      .map(ns("remoting-endpoint") -> _.toString)
+      .toSeq ++
+      managementEndpointName
+      .map(ns("management-endpoint") -> _.toString)
+      .toSeq ++
       (if (privileged) Some(ns("privileged") -> "true") else None).toVector ++
       environmentVariables
       .toSeq

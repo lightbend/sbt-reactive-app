@@ -215,9 +215,9 @@ case object BasicApp extends DeployableApp {
       reactiveLibStatusProject := "reactive-lib-status" -> true,
       // requiredAlpinePackages := Vector("bash"),
       prependRpConf := "application.conf",
-      akkaClusterBootstrapEndpointName := "akka-remote",
+      akkaClusterBootstrapEndpointName := "remoting",
       akkaClusterBootstrapSystemName := "",
-      akkaManagementEndpointName := "akka-mgmt-http",
+      akkaManagementEndpointName := "management",
       httpIngressHosts := Seq.empty,
       httpIngressPaths := Seq.empty,
       httpIngressPorts := Seq(80, 443))
@@ -311,13 +311,13 @@ case object BasicApp extends DeployableApp {
         lib(scalaVersion.value, reactiveLibStatusProject.value, reactiveLibVersion.value, enableStatus.value),
 
       endpoints := {
-        val clusterEndpointName = akkaClusterBootstrapEndpointName.value
+        val remotingEndpointName = akkaClusterBootstrapEndpointName.value
         val managementEndpointName = akkaManagementEndpointName.value
         val bootstrapEnabled = enableAkkaClusterBootstrap.value
         val managementEnabled = enableAkkaManagement.value
 
         endpoints.?.value.getOrElse(Seq.empty) ++
-          (if (bootstrapEnabled) Seq(TcpEndpoint(clusterEndpointName)) else Seq.empty) ++
+          (if (bootstrapEnabled) Seq(TcpEndpoint(remotingEndpointName)) else Seq.empty) ++
           (if (managementEnabled) Seq(TcpEndpoint(managementEndpointName)) else Seq.empty)
       },
 
@@ -370,6 +370,8 @@ case object BasicApp extends DeployableApp {
         val addUserCommands = Vector(
           docker.Cmd("RUN", s"id -g $group || addgroup ${gidFlag}$group"),
           docker.Cmd("RUN", s"id -u $user || adduser ${uidFlag}$user $group"))
+        val remotingEndpointName = akkaClusterBootstrapEndpointName.value
+        val managementEndpointName = akkaManagementEndpointName.value
 
         val copyCommands =
           if (startScriptLocationValue.isEmpty)
@@ -413,6 +415,8 @@ case object BasicApp extends DeployableApp {
             memory = if (memory.value > 0) Some(memory.value) else None,
             cpu = if (cpu.value >= 0.0001D) Some(cpu.value) else None,
             endpoints = endpoints.value.toVector,
+            remotingEndpointName = if (bootstrapEnabled) Some(remotingEndpointName) else None,
+            managementEndpointName = if (akkaManagementEnabled) Some(managementEndpointName) else None,
             privileged = privileged.value,
             environmentVariables = environmentVariables.value,
             version = Some(Keys.version.value),
