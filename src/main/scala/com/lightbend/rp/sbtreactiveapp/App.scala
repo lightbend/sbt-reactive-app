@@ -281,15 +281,18 @@ case object BasicApp extends DeployableApp {
             }
           }
 
+        val allApplicationConfFiles = unmanagedTransitive.value.flatten.toList
+
         val unmanagedConfigName = prependRpConf.value
         if (unmanagedConfigName.isEmpty) Nil
         else {
           // 1. make the file under cache/sbt-reactive-app.
           // 2. compare its SHA1 against cache/sbt-reactive-app-inputs
-          IO.write(tempFile, magic.Build.extractApplicationConf(
-            Vector(ToolingConfig), Vector(unmanagedConfigName),
-            unmanagedTransitive.value.flatten, (dependencyClasspath in Compile).value)
-            .getOrElse(""))
+          IO.write(tempFile, magic.Build.extractRpToolingConf(
+            Vector(ToolingConfig),
+            (dependencyClasspath in Compile).value,
+            allApplicationConfFiles.nonEmpty,
+            unmanagedConfigName).getOrElse(""))
           cachedCopyFile(FileInfo.hash(tempFile))
           Seq(outFile)
         }
