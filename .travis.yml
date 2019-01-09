@@ -1,19 +1,34 @@
-language: scala
-scala:
-  - 2.12.4
-jdk:
-  - oraclejdk8
 sudo: required
+dist: xenial
+language: scala
+
+jdk: openjdk8
+apt:
+  packages:
+    - openjdk8
+
+services:
+  - docker
+
+before_install:
+  - PATH=$(echo "$PATH" | sed -e 's/:\/usr\/local\/lib\/jvm\/openjdk11\/bin//')
+  - JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
+
+jobs:
+  include:
+    - stage: test
+      script: sbt +test
+    - stage: test
+      env:
+        - CHANGE_MINIKUBE_NONE_USER=true
+      install:
+        - script/install-minikube.sh
+      script: sbt ^publishLocal ^scripted
+
+before_cache:
+  - rm -rf $HOME/.ivy2/cache/com/lightbend/rp/sbtreactiveapp
+  - find $HOME/.ivy2/cache -name "ivydata-*.properties" | xargs rm
 cache:
   directories:
-    - $HOME/.ivy2/cache
-    - $HOME/.sbt/launchers
-before_cache:
-  # Ensure changes to the cache aren't persisted
-  - rm -rf $HOME/.ivy2/cache/com/lightbend/rp/sbtreactiveapp
-  # Delete all ivydata files since ivy touches them on each build
-  - find $HOME/.ivy2/cache -name "ivydata-*.properties" | xargs rm
-script:
-  - sbt ^test
-  - sbt ^publishLocal
-  - sbt ^scripted
+    - "$HOME/.ivy2/cache"
+    - "$HOME/.sbt/launchers"
