@@ -48,6 +48,7 @@ lazy val root = (project in file("."))
       IO.write(versionFile, versionSource)
 
       Seq(versionFile)
+      
     }
 
     addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % Versions.nativePackager)

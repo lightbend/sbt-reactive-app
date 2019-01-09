@@ -19,6 +19,7 @@ package com.lightbend.rp.sbtreactiveapp
 import com.typesafe.sbt.packager.Keys._
 import com.typesafe.sbt.packager.archetypes.scripts.BashStartScriptPlugin
 import com.typesafe.sbt.packager.docker
+import com.typesafe.sbt.packager.docker.DockerKeys
 import sbt.{ Def, _ }
 import sbt.Keys._
 import sbt.plugins.JvmPlugin
@@ -92,7 +93,7 @@ object SbtReactiveAppPlugin extends AutoPlugin {
     }
   }
 
-  object localImport extends docker.DockerKeys
+  val localImport: DockerKeys = docker.DockerPlugin.autoImport
 
   override def requires = SbtReactiveAppPluginAll && docker.DockerPlugin && BashStartScriptPlugin && SbtReactiveAppPluginAll
 
