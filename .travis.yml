@@ -23,7 +23,9 @@ jobs:
         - CHANGE_MINIKUBE_NONE_USER=true
       install:
         - script/install-minikube.sh
-      script: sbt ^publishLocal ^scripted
+      script: sbt publishLocal scripted
+    - stage: test
+      script: sbt ^^0.13.18 publishLocal "scripted sbt-reactive-app/*"
 
 before_cache:
   - rm -rf $HOME/.ivy2/cache/com/lightbend/rp/sbtreactiveapp
