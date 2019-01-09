@@ -30,7 +30,7 @@ import Keys._
 import com.typesafe.sbt.packager.docker.DockerSupport
 
 object App {
-  private[sbtreactiveapp] val defaultReactiveLibVersion = "0.9.2"
+  private[sbtreactiveapp] val defaultReactiveLibVersion = "1.6.0"
 
   private val ValidNameChars =
     (('0' to '9') ++ ('A' to 'Z') ++ ('a' to 'z') ++ Seq('-')).toSet
@@ -281,15 +281,18 @@ case object BasicApp extends DeployableApp {
             }
           }
 
+        val allApplicationConfFiles = unmanagedTransitive.value.flatten.toList
+
         val unmanagedConfigName = prependRpConf.value
         if (unmanagedConfigName.isEmpty) Nil
         else {
           // 1. make the file under cache/sbt-reactive-app.
           // 2. compare its SHA1 against cache/sbt-reactive-app-inputs
-          IO.write(tempFile, magic.Build.extractApplicationConf(
-            Vector(ToolingConfig), Vector(unmanagedConfigName),
-            unmanagedTransitive.value.flatten, (dependencyClasspath in Compile).value)
-            .getOrElse(""))
+          IO.write(tempFile, magic.Build.extractRpToolingConf(
+            Vector(ToolingConfig),
+            (dependencyClasspath in Compile).value,
+            allApplicationConfFiles.nonEmpty,
+            unmanagedConfigName).getOrElse(""))
           cachedCopyFile(FileInfo.hash(tempFile))
           Seq(outFile)
         }

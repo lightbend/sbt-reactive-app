@@ -75,4 +75,10 @@ lazy val root = (project in file("."))
       commitNextVersion,
       pushChanges
     )
+
+    // pass in -Ddeckhand.openshift to run scripted test with -Ddeckhand.openshift
+    scriptedLaunchOpts := { scriptedLaunchOpts.value ++
+      Seq("-Xmx1024M", "-Dplugin.version=" + version.value) ++
+      sys.props.get("deckhand.openshift").toList.map(_ => "-Ddeckhand.openshift")
+    }
   })
