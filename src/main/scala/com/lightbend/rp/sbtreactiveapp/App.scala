@@ -444,10 +444,10 @@ case object BasicApp extends DeployableApp {
           val log = streams.value.log
           val execCommand = dockerExecCommand.value
 
-          publishDocker(execCommand, alias.versioned, log)
+          publishDocker(execCommand, NativePackagerCompat.versioned(alias), log)
 
           if (dockerUpdateLatest.value) {
-            publishDocker(execCommand, alias.latest, log)
+            publishDocker(execCommand, NativePackagerCompat.latest(alias), log)
           }
         }))
 

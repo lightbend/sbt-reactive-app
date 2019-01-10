@@ -9,8 +9,4 @@ class HelloController @Inject() (cc: ControllerComponents) extends AbstractContr
   def index() = Action { _ =>
     Ok("Hello, World")
   }
-
-  def hello(id: String) = Action { _ =>
-    Ok(s"Hello, $id")
-  }
 }

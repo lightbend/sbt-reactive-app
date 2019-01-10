@@ -1,2 +1,5 @@
-> docker:stage
-> check
+# This test only checks `sbt` runs successfuly.
+# Since Play 2.6.21 there's a dependency issue between Play's sbt-plugin and sbt-reactive-app where both bring in
+# incompatible versions of sbt-native-packager. Just starting `sbt` is enough to assert the fixes for compat work.
+
+> about
