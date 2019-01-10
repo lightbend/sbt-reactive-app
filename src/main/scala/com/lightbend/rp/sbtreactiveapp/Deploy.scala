@@ -16,18 +16,14 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
-import com.lightbend.rp.sbtreactiveapp.BasicApp._
-import com.lightbend.rp.sbtreactiveapp.SbtReactiveAppPlugin.localImport._
 import com.lightbend.rp.sbtreactiveapp.SbtReactiveAppPlugin._
-import com.typesafe.sbt.SbtNativePackager
-import com.typesafe.sbt.packager.docker
-import com.typesafe.sbt.packager.docker.DockerPlugin.publishLocalDocker
+import com.lightbend.rp.sbtreactiveapp.SbtReactiveAppPlugin.localImport._
 import com.typesafe.sbt.packager.Keys.stage
+import com.typesafe.sbt.packager.docker.DockerPlugin.publishLocalDocker
+import sbt.Keys._
 import sbt._
 
 import scala.collection.immutable.Seq
-import com.typesafe.sbt.packager.docker.DockerSupport
-import Keys._
 
 trait DeployableApp extends App {
   private val installReactiveSandbox = new java.util.concurrent.atomic.AtomicBoolean(false)
@@ -51,7 +47,6 @@ trait DeployableApp extends App {
     deployMinikubePlayHttpSecretKeyValue := "dev-minikube",
     deploy := {
       import complete.DefaultParsers._
-      import scala.sys.process._
 
       val args = spaceDelimited("<arg>").parsed
       val isPlagom = Set("play", "lagom").contains(appType.value)
@@ -175,7 +170,7 @@ trait DeployableApp extends App {
 
           val rpArgs =
             Vector(
-              dockerAlias.value.versioned,
+              NativePackagerCompat.versioned(dockerAlias.value),
               "--env",
               s"JAVA_OPTS=${javaOpts.mkString(" ")}") ++
               (if (bootstrapEnabled) Vector("--akka-cluster-skip-validation", "--pod-controller-replicas", deployMinikubeAkkaClusterBootstrapContactPoints.value.toString) else Vector.empty) ++
@@ -190,7 +185,7 @@ trait DeployableApp extends App {
               minikubeExec.getAbsolutePath +: dockerBuildCommand.value,
             log)
 
-          log.info(s"Built image ${dockerAlias.value.versioned}")
+          log.info(s"Built image ${NativePackagerCompat.versioned(dockerAlias.value)}")
 
           if (reactiveSandbox) {
             // FIXME: Make tiller & reactive-sandbox names configurable

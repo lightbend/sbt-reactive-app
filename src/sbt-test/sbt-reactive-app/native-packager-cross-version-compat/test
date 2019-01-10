@@ -1,0 +1,7 @@
+# This test only checks `sbt` starts successfully into a shell.
+# Since Play 2.6.21 there's a dependency issue between Play's sbt-plugin and sbt-reactive-app where both bring in
+# incompatible versions of `sbt-native-packager`. Users adding both `sbt-reactive-app` and a direct or transitive
+# dependency to an incompatible version of `sbt-native-packager` would be DoS-ing themselves.
+# Just starting `sbt` is enough to assert the fixes for compat work.
+
+> about
