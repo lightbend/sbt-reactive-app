@@ -1,10 +1,8 @@
-name := "hello-play"
+name := "hello"
 scalaVersion := "2.11.12"
 
-libraryDependencies += guice
-
 lazy val root = (project in file("."))
-  .enablePlugins(PlayScala, SbtReactiveAppPlugin)
+  .enablePlugins(SbtReactiveAppPlugin)
   .settings(
     packageName in Docker := "hello-play",
     httpIngressPorts := Seq(9000),
