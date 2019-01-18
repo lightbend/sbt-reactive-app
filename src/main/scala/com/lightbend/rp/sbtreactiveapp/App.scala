@@ -173,15 +173,17 @@ case object PlayApp extends App {
         val paths = httpIngressPaths.value
         val ports = httpIngressPorts.value
         val hosts = httpIngressHosts.value
+        val config = rpApplicationConfig.value
+        val port = config.getInt("play.server.http.port")
 
         if (current.exists(_.name == "http")) {
           current
         } else {
           val endpoint =
             if (paths.nonEmpty)
-              HttpEndpoint("http", HttpIngress(ports, hosts, paths))
+              HttpEndpoint("http", port, HttpIngress(ports, hosts, paths))
             else
-              HttpEndpoint("http")
+              HttpEndpoint("http", port)
 
           endpoint +: current
         }
@@ -310,15 +312,24 @@ case object BasicApp extends DeployableApp {
         lib(scalaVersion.value, reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value) ++
         lib(scalaVersion.value, reactiveLibStatusProject.value, reactiveLibVersion.value, enableStatus.value),
 
+      rpApplicationConfig := {
+        val cp = (fullClasspath in Compile).value.toList.map(_.data)
+        val allApplicationConfFiles = unmanagedTransitive.value.flatten.toList
+        magic.Build.makeConfig(allApplicationConfFiles ++ cp)
+      },
+
       endpoints := {
         val remotingEndpointName = akkaClusterBootstrapEndpointName.value
         val managementEndpointName = akkaManagementEndpointName.value
         val bootstrapEnabled = enableAkkaClusterBootstrap.value
         val managementEnabled = enableAkkaManagement.value
+        val config = rpApplicationConfig.value
 
         endpoints.?.value.getOrElse(Seq.empty) ++
-          (if (bootstrapEnabled) Seq(TcpEndpoint(remotingEndpointName)) else Seq.empty) ++
-          (if (managementEnabled) Seq(TcpEndpoint(managementEndpointName)) else Seq.empty)
+          (if (bootstrapEnabled) Seq(TcpEndpoint(remotingEndpointName, config.getInt("akka.remote.netty.tcp.port")))
+          else Seq.empty) ++
+          (if (managementEnabled) Seq(TcpEndpoint(managementEndpointName, config.getInt("akka.management.http.port")))
+          else Seq.empty)
       },
 
       javaOptions in SbtNativePackager.Universal ++= (

@@ -18,6 +18,7 @@ package com.lightbend.rp.sbtreactiveapp
 
 import sbt._
 import com.typesafe.sbt.packager.docker.CmdLike
+import com.typesafe.config.Config
 
 trait SbtReactiveAppKeys {
   /**
@@ -106,6 +107,8 @@ trait SbtReactiveAppKeys {
   val akkaManagementEndpointName = SettingKey[String]("rp-akka-management-endpoint-name")
 
   lazy val rpPackagingDockerCommmands = settingKey[Seq[CmdLike]]("Docker commands related to packaing.")
+
+  lazy val rpApplicationConfig = taskKey[Config]("Used internally for configuration detetion")
 
   /**
    * Defines packages to install on top of the base alpine image.
