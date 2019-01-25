@@ -211,7 +211,6 @@ case object BasicApp extends DeployableApp {
       reactiveLibVersion := App.defaultReactiveLibVersion,
       reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
       reactiveLibCommonProject := "reactive-lib-common" -> true,
-      reactiveLibPlayHttpBindingProject := "reactive-lib-play-http-binding" -> true,
       reactiveLibSecretsProject := "reactive-lib-secrets" -> true,
       reactiveLibServiceDiscoveryProject := "reactive-lib-service-discovery" -> true,
       reactiveLibStatusProject := "reactive-lib-status" -> true,
@@ -307,7 +306,6 @@ case object BasicApp extends DeployableApp {
         allDependencies.value ++
         lib(scalaVersion.value, reactiveLibAkkaClusterBootstrapProject.value, reactiveLibVersion.value, enableAkkaClusterBootstrap.value) ++
         lib(scalaVersion.value, reactiveLibCommonProject.value, reactiveLibVersion.value, enableCommon.value) ++
-        lib(scalaVersion.value, reactiveLibPlayHttpBindingProject.value, reactiveLibVersion.value, enablePlayHttpBinding.value) ++
         lib(scalaVersion.value, reactiveLibSecretsProject.value, reactiveLibVersion.value, enableSecrets.value) ++
         lib(scalaVersion.value, reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value) ++
         lib(scalaVersion.value, reactiveLibStatusProject.value, reactiveLibVersion.value, enableStatus.value),

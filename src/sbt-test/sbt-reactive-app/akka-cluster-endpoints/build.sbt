@@ -27,7 +27,6 @@ TaskKey[Unit]("check") := {
     """com.lightbend.rp.endpoints.1.name="management"""",
     """com.lightbend.rp.endpoints.1.port="8558"""",
     """com.lightbend.rp.modules.akka-cluster-bootstrapping.enabled="true"""",
-    """com.lightbend.rp.modules.play-http-binding.enabled="false"""",
     """com.lightbend.rp.app-type="basic"""",
     """com.lightbend.rp.app-name="hello-akka"""",
     """com.lightbend.rp.modules.common.enabled="true"""",
@@ -35,7 +34,7 @@ TaskKey[Unit]("check") := {
     """com.lightbend.rp.modules.service-discovery.enabled="true"""",
     """com.lightbend.rp.akka-cluster-bootstrap.system-name="ClusterSystem"""",
     """com.lightbend.rp.remoting-endpoint="remoting"""",
-    """com.lightbend.rp.management-endpoint="management"""",
+    """com.lightbend.rp.management-endpoint="management""""
   )
 
   lines.foreach { line =>

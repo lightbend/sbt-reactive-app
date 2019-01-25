@@ -23,7 +23,6 @@ TaskKey[Unit]("check") := {
     """com.lightbend.rp.endpoints.0.name="http"""",
     """com.lightbend.rp.endpoints.0.port="9000"""",
     """com.lightbend.rp.modules.akka-cluster-bootstrapping.enabled="false"""",
-    """com.lightbend.rp.modules.play-http-binding.enabled="true"""",
     """com.lightbend.rp.app-type="play"""",
     """com.lightbend.rp.app-name="hello-play"""",
     """com.lightbend.rp.modules.common.enabled="true"""",

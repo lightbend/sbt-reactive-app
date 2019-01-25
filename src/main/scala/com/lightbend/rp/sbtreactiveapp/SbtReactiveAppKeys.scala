@@ -311,8 +311,6 @@ trait SbtReactiveAppKeys {
 
   private[sbtreactiveapp] val reactiveLibCommonProject = SettingKey[(String, Boolean)]("rp-reactive-lib-common-project")
 
-  private[sbtreactiveapp] val reactiveLibPlayHttpBindingProject = SettingKey[(String, Boolean)]("rp-reactive-lib-play-http-binding-project")
-
   private[sbtreactiveapp] val reactiveLibSecretsProject = SettingKey[(String, Boolean)]("rp-reactive-lib-secrets-project")
 
   private[sbtreactiveapp] val reactiveLibServiceDiscoveryProject = SettingKey[(String, Boolean)]("rp-reactive-lib-service-discovery-project")
