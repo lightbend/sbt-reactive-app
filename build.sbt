@@ -29,10 +29,15 @@ lazy val root = (project in file("."))
     crossSbtVersions := Versions.crossSbtVersions
     scalacOptions ++= Vector("-deprecation")
 
-    libraryDependencies ++= Vector(
-      "com.typesafe.play" %% "play-json" % Versions.playJson,
-      "org.scalatest"     %% "scalatest" % Versions.scalaTest % "test"
-    )
+    libraryDependencies ++= {
+      Vector(
+        "com.typesafe.play" %% "play-json" % Versions.playJson,
+        "org.scalatest"     %% "scalatest" % Versions.scalaTest % "test"
+      ) ++
+      (if (scalaVersion.value startsWith "2.10") Vector("com.typesafe" % "config" % "1.3.2")
+      else Vector())
+    }
+
 
     sourceGenerators in Compile += Def.task {
       val versionFile = (sourceManaged in Compile).value / "ProgramVersion.scala"
