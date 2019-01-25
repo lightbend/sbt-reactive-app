@@ -30,7 +30,7 @@ import Keys._
 import com.typesafe.sbt.packager.docker.DockerSupport
 
 object App {
-  private[sbtreactiveapp] val defaultReactiveLibVersion = "1.6.0"
+  private[sbtreactiveapp] val defaultReactiveLibVersion = "1.7.0-M1"
 
   private val ValidNameChars =
     (('0' to '9') ++ ('A' to 'Z') ++ ('a' to 'z') ++ Seq('-')).toSet
@@ -173,15 +173,17 @@ case object PlayApp extends App {
         val paths = httpIngressPaths.value
         val ports = httpIngressPorts.value
         val hosts = httpIngressHosts.value
+        val config = rpApplicationConfig.value
+        val port = config.getInt("play.server.http.port")
 
         if (current.exists(_.name == "http")) {
           current
         } else {
           val endpoint =
             if (paths.nonEmpty)
-              HttpEndpoint("http", HttpIngress(ports, hosts, paths))
+              HttpEndpoint("http", port, HttpIngress(ports, hosts, paths))
             else
-              HttpEndpoint("http")
+              HttpEndpoint("http", port)
 
           endpoint +: current
         }
@@ -209,15 +211,14 @@ case object BasicApp extends DeployableApp {
       reactiveLibVersion := App.defaultReactiveLibVersion,
       reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
       reactiveLibCommonProject := "reactive-lib-common" -> true,
-      reactiveLibPlayHttpBindingProject := "reactive-lib-play-http-binding" -> true,
       reactiveLibSecretsProject := "reactive-lib-secrets" -> true,
       reactiveLibServiceDiscoveryProject := "reactive-lib-service-discovery" -> true,
       reactiveLibStatusProject := "reactive-lib-status" -> true,
       // requiredAlpinePackages := Vector("bash"),
       prependRpConf := "application.conf",
-      akkaClusterBootstrapEndpointName := "akka-remote",
+      akkaClusterBootstrapEndpointName := "remoting",
       akkaClusterBootstrapSystemName := "",
-      akkaManagementEndpointName := "akka-mgmt-http",
+      akkaManagementEndpointName := "management",
       httpIngressHosts := Seq.empty,
       httpIngressPaths := Seq.empty,
       httpIngressPorts := Seq(80, 443))
@@ -305,20 +306,28 @@ case object BasicApp extends DeployableApp {
         allDependencies.value ++
         lib(scalaVersion.value, reactiveLibAkkaClusterBootstrapProject.value, reactiveLibVersion.value, enableAkkaClusterBootstrap.value) ++
         lib(scalaVersion.value, reactiveLibCommonProject.value, reactiveLibVersion.value, enableCommon.value) ++
-        lib(scalaVersion.value, reactiveLibPlayHttpBindingProject.value, reactiveLibVersion.value, enablePlayHttpBinding.value) ++
         lib(scalaVersion.value, reactiveLibSecretsProject.value, reactiveLibVersion.value, enableSecrets.value) ++
         lib(scalaVersion.value, reactiveLibServiceDiscoveryProject.value, reactiveLibVersion.value, enableServiceDiscovery.value) ++
         lib(scalaVersion.value, reactiveLibStatusProject.value, reactiveLibVersion.value, enableStatus.value),
 
+      rpApplicationConfig := {
+        val cp = (fullClasspath in Compile).value.toList.map(_.data)
+        val allApplicationConfFiles = unmanagedTransitive.value.flatten.toList
+        magic.Build.makeConfig(allApplicationConfFiles ++ cp)
+      },
+
       endpoints := {
-        val clusterEndpointName = akkaClusterBootstrapEndpointName.value
+        val remotingEndpointName = akkaClusterBootstrapEndpointName.value
         val managementEndpointName = akkaManagementEndpointName.value
         val bootstrapEnabled = enableAkkaClusterBootstrap.value
         val managementEnabled = enableAkkaManagement.value
+        val config = rpApplicationConfig.value
 
         endpoints.?.value.getOrElse(Seq.empty) ++
-          (if (bootstrapEnabled) Seq(TcpEndpoint(clusterEndpointName)) else Seq.empty) ++
-          (if (managementEnabled) Seq(TcpEndpoint(managementEndpointName)) else Seq.empty)
+          (if (bootstrapEnabled) Seq(TcpEndpoint(remotingEndpointName, config.getInt("akka.remote.netty.tcp.port")))
+          else Seq.empty) ++
+          (if (managementEnabled) Seq(TcpEndpoint(managementEndpointName, config.getInt("akka.management.http.port")))
+          else Seq.empty)
       },
 
       javaOptions in SbtNativePackager.Universal ++= (
@@ -370,6 +379,8 @@ case object BasicApp extends DeployableApp {
         val addUserCommands = Vector(
           docker.Cmd("RUN", s"id -g $group || addgroup ${gidFlag}$group"),
           docker.Cmd("RUN", s"id -u $user || adduser ${uidFlag}$user $group"))
+        val remotingEndpointName = akkaClusterBootstrapEndpointName.value
+        val managementEndpointName = akkaManagementEndpointName.value
 
         val copyCommands =
           if (startScriptLocationValue.isEmpty)
@@ -413,6 +424,8 @@ case object BasicApp extends DeployableApp {
             memory = if (memory.value > 0) Some(memory.value) else None,
             cpu = if (cpu.value >= 0.0001D) Some(cpu.value) else None,
             endpoints = endpoints.value.toVector,
+            remotingEndpointName = if (bootstrapEnabled) Some(remotingEndpointName) else None,
+            managementEndpointName = if (akkaManagementEnabled) Some(managementEndpointName) else None,
             privileged = privileged.value,
             environmentVariables = environmentVariables.value,
             version = Some(Keys.version.value),

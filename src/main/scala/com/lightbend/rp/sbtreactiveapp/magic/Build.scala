@@ -19,6 +19,7 @@ package com.lightbend.rp.sbtreactiveapp.magic
 import sbt.{ Attributed, File, IO }
 import scala.collection.JavaConverters._
 import java.net.URL
+import com.typesafe.config.{ Config, ConfigFactory }
 
 object Build {
   def annotate(prependInclude: Boolean, unmanagedConfigName: String, config: String): String =
@@ -60,5 +61,10 @@ object Build {
               }
               .mkString(IO.Newline)))
     }
+  }
+
+  def makeConfig(dependencyClasspath: Seq[File]): Config = {
+    val dependencyClassLoader = new java.net.URLClassLoader(dependencyClasspath.map(_.toURI.toURL).toArray)
+    ConfigFactory.load(dependencyClassLoader)
   }
 }

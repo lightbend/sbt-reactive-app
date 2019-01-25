@@ -46,7 +46,6 @@ TaskKey[Unit]("check") := {
     """com.lightbend.rp.app-type="basic"""",
     """com.lightbend.rp.modules.akka-cluster-bootstrapping.enabled="false"""",
     """com.lightbend.rp.modules.common.enabled="true"""",
-    """com.lightbend.rp.modules.play-http-binding.enabled="false"""",
     """com.lightbend.rp.modules.secrets.enabled="true""""
   )
 
