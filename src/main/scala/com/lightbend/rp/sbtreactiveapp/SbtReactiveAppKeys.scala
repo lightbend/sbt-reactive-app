@@ -292,6 +292,7 @@ trait SbtReactiveAppKeys {
    * Defines secrets that will be made available to the application at runtime. The secrets API in reactive-lib
    * can then be used to decode these secrets in a consistent and platform-independent manner.
    */
+  @deprecated("Use secrets as environmental variables - https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets-as-environment-variables", "1.7.0")
   val secrets = SettingKey[Set[Secret]]("rp-secrets")
 
   /**

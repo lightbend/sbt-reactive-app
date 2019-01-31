@@ -16,4 +16,5 @@
 
 package com.lightbend.rp.sbtreactiveapp
 
+@deprecated("Use secrets as environmental variables - https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets-as-environment-variables", "1.7.0")
 case class Secret(name: String, key: String)

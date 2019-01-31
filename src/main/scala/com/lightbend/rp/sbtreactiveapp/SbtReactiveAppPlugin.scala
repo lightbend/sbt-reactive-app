@@ -81,7 +81,9 @@ object SbtReactiveAppPlugin extends AutoPlugin {
     type LiteralEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.LiteralEnvironmentVariable
     val LiteralEnvironmentVariable = com.lightbend.rp.sbtreactiveapp.LiteralEnvironmentVariable
 
+    @deprecated("Use secrets as environmental variables - https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets-as-environment-variables", "1.7.0")
     type Secret = com.lightbend.rp.sbtreactiveapp.Secret
+    @deprecated("Use secrets as environmental variables - https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets-as-environment-variables", "1.7.0")
     val Secret = com.lightbend.rp.sbtreactiveapp.Secret
 
     object kubernetes {
