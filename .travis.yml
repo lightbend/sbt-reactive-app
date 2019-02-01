@@ -19,13 +19,42 @@ jobs:
     - stage: test
       script: sbt +test
     - stage: test
+      name: "sbt 1 scripted tests"
+      script: sbt publishLocal "scripted sbt-reactive-app/*"
+    - stage: test
+      name: "sbt 0.13 scripted tests"
+      script: sbt ^^0.13.18 publishLocal "scripted sbt-reactive-app/*"
+    - stage: test
+      name: "Minikube test"
       env:
         - CHANGE_MINIKUBE_NONE_USER=true
       install:
         - script/install-minikube.sh
-      script: sbt publishLocal scripted
-    - stage: test
-      script: sbt ^^0.13.18 publishLocal "scripted sbt-reactive-app/*"
+      script: sbt publishLocal "scripted bootstrap-demo/*"
+    - stage: openshift-test
+      name: "OpenShift test"
+      env:
+        # travis encrypt -R lightbend/sbt-reactive-app "OC_USERNAME=******"
+        - secure: "CKPdmFOKtxC7m05RYQyiAGosH+ICUkn4POwmDZ6Iz4GDZ9tll9uEYpn7XHJveCrMB6ZEsdNx1BRFRwhg7luwtcKwMpWMrWJxQik4EikJftwjA8Gw2VCGfdeieAtGOw6THw6XtCtlD4p/by8sxxhANU+Q5zxyfJUYs8nu1YVx0TuIIxeWcZz7VROT4evlSVlEPdxn5GTDJb/SjufYVMzhaifP0SuLNzQRBZr+eSgRcX7+FaeZ7cPYXDPWoxQJhtgOdbsxY4l/AdsZKFxV8WIfxBron15HRrU/0/+XN6UcLMhvmBS+p4Ki3/Mdo9h+hbGjDuiYNJSkTiewmDGbkI8/B/4SSlQLDEFT1MOhsvL3pzZuIh16PdsxdD9Z8XX7+8owwMF33ESWAvx7Uy7Ke7L55gMpfkzyWEO9JKJFGS5rm7U8SDTa8U/Qni5S2s3xWYWVyCZ4QYP6Nu1qph//+FFUSh96RzD3dXXrGtAnnCPYGnnrhpRhiJJmSufX3qxQzcmYu9otC+grCRHuV8pPFxXZz4ckqOY6K1cf7q/6BZ81oAzqOgrrc8H4DFcx9F3WPxESzx4DhZjz9n7HyNZSh9fPUV2/Hfu6gVwPXpR1n0pMT0l70RS6rvsw98EIloiOLkcZMQ6vMQgZdQtFcowgLJRnebdkFJMM8HhP8yoXVREacfo="
+        # travis encrypt -R lightbend/sbt-reactive-app "OC_PASSWORD=******"
+        - secure: "i/jCWTTAXylDOcWqHiLQuGnDEZtn03N7XDlEEFhJEYPkQ2qgQGIc0nipCEDWkCXzOpY5RkRF5Z+TExht1cC79j1jxtUlwZ8NQ/pTzSSLTRxLnDFABchjhKM+tQkfqUWpioYc7AsfRCELjaysyKX1D7UspxlAeHbWRwQCfTevBdyZWqYtvaTZRPLYEPvXyGNIFa3k5lHhNVQgMhig8dO6ErgH75bj177pAiVf9Zwjp62ltirt0HI6anm5NxeEIroHq0q3RB66o40OuqXoklaooKdUJI8QmwTx67Us6XCdjWqDjeI1ShJ+ymeSOBChfPtvdibxu0lKc5kDdNAYtNbdB/QP9GiV8yoJWmgJ6CMKQQBIsjfPwTOO5seuhsAAkfKmedfEKpwrcJtxdcbc9rBN6oxQJhKJin7QH0ryjKXfb4awLd452NvziK6RgGCAqHw99e5raVgu+lqMzmFBwLXJ/Q7eT+PUYmk/XRW3dUI8YoRiMkoZcwFbYWia2z2TStZhYy1f/4yNr7N0puw8ZaesHtEf96qXWBrRz6a/vsg252PAkwrnoICjgYLMml8K/42eYWmPJ4ANuzh0/jn9iGcSLvfg83LyL/rWybAihXvUoH7chwNMnj81cGBTts55NdDaVzTXp4fIBvGysh4W1Uq7j/TR+ywSuIN8iJ5BiSsN9uE="
+      install:
+        - script/install-oc.sh
+      before_script:
+        - export OC_PROJECT=orchestration-$(date "+%Y%m%d-%H%M%S")
+        - oc login -u $OC_USERNAME -p $OC_PASSWORD centralpark.lightbend.com > /dev/null
+        - oc new-project $OC_PROJECT || oc project $OC_PROJECT
+        - export OC_TOKEN=$(oc serviceaccounts get-token default)
+        - echo "$OC_TOKEN" | docker login -u unused --password-stdin docker-registry-default.centralpark.lightbend.com
+        - oc status
+      script: sbt -Ddeckhand.openshift publishLocal "scripted bootstrap-demo/*"
+      after_script:
+        - oc delete project $OC_PROJECT
+
+stages:
+  - name: openshift-test
+    if: (repo = lightbend/sbt-reactive-app) AND (fork = false)
+  - test
 
 before_cache:
   - rm -rf $HOME/.ivy2/cache/com/lightbend/rp/sbtreactiveapp
