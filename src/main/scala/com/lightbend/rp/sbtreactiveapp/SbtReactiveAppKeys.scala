@@ -108,6 +108,8 @@ trait SbtReactiveAppKeys {
 
   lazy val rpPackagingDockerCommmands = settingKey[Seq[CmdLike]]("Docker commands related to packaing.")
 
+  lazy val rpPermissionsDockerCommmands = settingKey[Seq[CmdLike]]("Docker commands related to file permissions.")
+
   lazy val rpApplicationConfig = taskKey[Config]("Used internally for configuration detetion")
 
   /**
@@ -286,7 +288,7 @@ trait SbtReactiveAppKeys {
    * Defines location where the wrapper script for app execution should be placed (in the container). If empty,
    * no wrapper script is used.
    */
-  val startScriptLocation = SettingKey[String]("rp-start-script")
+  private[sbtreactiveapp] val startScriptLocation = SettingKey[String]("rp-start-script")
 
   /**
    * Defines secrets that will be made available to the application at runtime. The secrets API in reactive-lib
