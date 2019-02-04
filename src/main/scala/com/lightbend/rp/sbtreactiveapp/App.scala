@@ -21,7 +21,8 @@ import com.lightbend.rp.sbtreactiveapp.SbtReactiveAppPlugin._
 import com.typesafe.sbt.SbtNativePackager
 import com.typesafe.sbt.packager.docker
 import com.typesafe.sbt.packager.docker.DockerPlugin.{ publishDocker, publishLocalDocker }
-import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.{ dockerAlias, dockerBuildCommand }
+import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.{ dockerAlias, dockerBuildCommand, dockerPermissionStrategy }
+import com.typesafe.sbt.packager.linux.LinuxPlugin.autoImport.defaultLinuxInstallLocation
 import com.typesafe.sbt.packager.Keys.{ executableScriptName, daemonGroup, daemonUser, stage }
 import sbt._
 
@@ -201,12 +202,7 @@ case object BasicApp extends DeployableApp {
       memory := 0L,
       enableCGroupMemoryLimit := true,
       privileged := false,
-      runAsUser := "daemon",
-      runAsUserGroup := "",
-      runAsUserUID := -1,
-      runAsUserGID := -1,
       environmentVariables := Map.empty,
-      startScriptLocation := "/rp-start",
       secrets := Set.empty,
       reactiveLibVersion := App.defaultReactiveLibVersion,
       reactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
@@ -336,18 +332,18 @@ case object BasicApp extends DeployableApp {
         else
           Vector.empty),
 
+      dockerBaseImage := "openjdk:8-jre-alpine",
+
+      startScriptLocation := {
+        val dockerBaseDirectory = (defaultLinuxInstallLocation in Docker).value
+        dockerBaseDirectory + "/bin/" + localName
+      },
+
       dockerEntrypoint := (
         if (startScriptLocation.value.isEmpty)
           dockerEntrypoint.value
         else
           startScriptLocation.value +: dockerEntrypoint.value),
-
-      dockerBaseImage := "openjdk:8-jre-alpine",
-
-      dockerEntrypoint := Vector.empty,
-
-      (daemonUser in Docker) := runAsUser.value,
-      (daemonGroup in Docker) := (if (runAsUserGroup.value.isEmpty) runAsUser.value else runAsUserGroup.value),
 
       rpPackagingDockerCommmands := {
         val alpinePackagesValue = alpinePackages.value
@@ -359,6 +355,12 @@ case object BasicApp extends DeployableApp {
           Vector(docker.Cmd("RUN", Vector("/sbin/apk", "add", "--no-cache") ++ allAlpinePackages: _*))
       },
 
+      rpPermissionsDockerCommmands := {
+        dockerEntrypoint.value.toVector
+          .take(2)
+          .map(x => docker.ExecCmd("RUN", "chmod", "u+x,g+x", x))
+      },
+
       dockerCommands := {
         val bootstrapEnabled = enableAkkaClusterBootstrap.value
         val bootstrapSystemName = Some(akkaClusterBootstrapSystemName.value).filter(_.nonEmpty && bootstrapEnabled)
@@ -368,42 +370,36 @@ case object BasicApp extends DeployableApp {
         val serviceDiscoveryEnabled = enableServiceDiscovery.value
         val statusEnabled = enableStatus.value
         val akkaManagementEnabled = bootstrapEnabled || statusEnabled
-        val rawDockerCommands = dockerCommands.value
+        val rawDockerCommands = dockerCommands.value.toList
         val dockerVersionValue = dockerVersion.value
         val startScriptLocationValue = startScriptLocation.value
-        val group = (daemonGroup in Docker).value
-        val user = (daemonUser in Docker).value
         val addPackageCommands = rpPackagingDockerCommmands.value
-        val uidFlag = if (runAsUserUID.value >= 0) s"-u ${runAsUserUID.value} " else ""
-        val gidFlag = if (runAsUserGID.value >= 0) s"-g ${runAsUserGID.value} " else ""
-        val addUserCommands = Vector(
-          docker.Cmd("RUN", s"id -g $group || addgroup ${gidFlag}$group"),
-          docker.Cmd("RUN", s"id -u $user || adduser ${uidFlag}$user $group"))
+        val addPermissionsCommands = rpPermissionsDockerCommmands.value
         val remotingEndpointName = akkaClusterBootstrapEndpointName.value
         val managementEndpointName = akkaManagementEndpointName.value
+        val strategy = dockerPermissionStrategy.value
 
-        val copyCommands =
-          if (startScriptLocationValue.isEmpty)
-            Vector.empty
-          else if (dockerVersionValue.exists(DockerSupport.chownFlag))
-            Vector(docker.Cmd("COPY", s"--chown=$user:$group", localName, startScriptLocationValue))
-          else
-            Vector(
-              docker.Cmd("COPY", localName, startScriptLocationValue),
-              docker.ExecCmd("RUN", Vector("chown", "-R", s"$user:$group", startScriptLocationValue): _*))
+        val rawAndPackageCommands =
+          if (rawDockerCommands.isEmpty) addPackageCommands
+          else {
+            // Inject addPackageCommands after the second FROM
+            val lastIdx = lastIndex("FROM", rawDockerCommands)
+            val commands1 =
+              if (lastIdx == -1) addPackageCommands ++ rawDockerCommands
+              else {
+                val (xs, ys) = rawDockerCommands.splitAt(lastIdx + 1)
+                xs ++ addPackageCommands ++ ys
+              }
+            val idx = if (strategy == docker.DockerPermissionStrategy.MultiStage) firstIndex("USER", commands1.toList)
+            else firstIndex("COPY", commands1.toList)
+            if (idx == -1) commands1
+            else {
+              val (xs, ys) = commands1.splitAt(idx + 1)
+              xs ++ addPermissionsCommands ++ ys
+            }
+          }
 
-        /**
-         * Must create the user and add any packages before the rest of the Dockerfile.
-         * Must contain COPY+chown commands before the rest of the Dockerfile (see [[DockerSupport.chownFlag]]).
-         */
-        val rawAndPackageAndUserCommands =
-          if (rawDockerCommands.isEmpty)
-            addPackageCommands ++ addUserCommands ++ copyCommands
-          else
-            // First line is "FROM" line, so we must place commands after it.
-            rawDockerCommands.head +: (addPackageCommands ++ addUserCommands ++ copyCommands ++ rawDockerCommands.tail)
-
-        rawAndPackageAndUserCommands ++ labelCommand(SbtReactiveApp
+        rawAndPackageCommands ++ labelCommand(SbtReactiveApp
           .labels(
             appName = Some(appName.value),
             appType = Some(appType.value),
@@ -441,15 +437,11 @@ case object BasicApp extends DeployableApp {
               "status" -> statusEnabled),
             akkaClusterBootstrapSystemName = bootstrapSystemName))
       }) ++ inConfig(Docker)(Seq(
-        stage := {
-          val target = stage.value
-          val localPath = target / localName
-
+        mappings += {
+          val localPath = target.value / localName
           IO.write(localPath, readResource(localName))
-
           localPath.setExecutable(true)
-
-          target
+          (localPath, startScriptLocation.value)
         },
         rpDockerPublish := {
           val _ = publishLocal.value
@@ -495,6 +487,20 @@ case object BasicApp extends DeployableApp {
       Seq("com.lightbend.rp" % nameAndCross._1 % version)
     else
       Seq.empty
+
+  private def lastIndex(command: String, commands: List[docker.CmdLike]): Int = {
+    val indices: List[Int] = (commands.zipWithIndex collect {
+      case (docker.Cmd(c, _), idx) if c == command => idx
+    })
+    if (indices.isEmpty) -1
+    else indices.max
+  }
+
+  private def firstIndex(command: String, commands: List[docker.CmdLike]): Int =
+    commands indexWhere ({
+      case docker.Cmd(c, _) => c == command
+      case _ => false
+    }: docker.CmdLike => Boolean)
 
   private def encodeLabelValue(value: String) =
     value

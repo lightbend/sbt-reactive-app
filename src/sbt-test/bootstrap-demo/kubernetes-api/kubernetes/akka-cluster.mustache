@@ -58,7 +58,7 @@ spec:
               name: "akka-mgmt-http"
           volumeMounts: []
           command:
-            - "/rp-start"
+            - "/opt/docker/bin/rp-start"
           args:
             - "bin/bootstrap-kapi-demo"
           readinessProbe:

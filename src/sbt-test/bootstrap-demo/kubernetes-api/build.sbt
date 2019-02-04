@@ -1,12 +1,11 @@
-// https://github.com/akka/akka-management/tree/master/bootstrap-demo/kubernetes-api
-
+import com.typesafe.sbt.packager.docker.DockerChmodType
 import Dependencies._
 import scala.sys.process.Process
 import scala.util.control.NonFatal
 
-ThisBuild / version      := "0.1.0"
-ThisBuild / organization := "com.example"
-ThisBuild / scalaVersion := "2.12.7"
+version in ThisBuild      := "0.1.0"
+organization in ThisBuild := "com.example"
+scalaVersion in ThisBuild := "2.12.8"
 
 lazy val check = taskKey[Unit]("check")
 
@@ -33,6 +32,7 @@ lazy val root = (project in file("."))
     ),
     enableAkkaClusterBootstrap := true,
     akkaClusterBootstrapSystemName := "hoboken1",
+
     // this logic was taken from test.sh
     check := {
       val s = streams.value
@@ -57,8 +57,6 @@ lazy val root = (project in file("."))
               "imagePullPolicy" -> "Never"
             ))
         } else {
-          // work around: /rp-start: line 60: /opt/docker/bin/bootstrap-kapi-demo: Permission denied
-          kubectl.command(s"adm policy add-scc-to-user anyuid system:serviceaccount:$namespace:default")
           kubectl.command(s"policy add-role-to-user system:image-builder system:serviceaccount:$namespace:default")
           kubectl.apply(Deckhand.mustache(yamlDir / "rbac.mustache"),
             Map(
