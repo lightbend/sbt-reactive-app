@@ -211,12 +211,6 @@ trait SbtReactiveAppKeys {
   val rpEnableCommon = taskKey[Boolean]("Enables the common library (reactive-lib).")
 
   /**
-   * Enable the Play HTTP binding library (reactive-lib). This is enabled by default for Lagom and Play projects and
-   * allows the tooling to automatically assign ports.
-   */
-  val rpEnablePlayHttpBinding = taskKey[Boolean]("Enable the Play HTTP binding library (reactive-lib).")
-
-  /**
    * Enable the secret library (reactive-lib). By default, it will automatically be enabled if any secrets are
    * declared.
    */
@@ -293,7 +287,6 @@ trait SbtReactiveAppKeys {
 
   private[sbtreactiveapp] val rpReactiveLibAkkaClusterBootstrapProject = settingKey[(String, Boolean)]("")
   private[sbtreactiveapp] val rpReactiveLibCommonProject = settingKey[(String, Boolean)]("")
-  private[sbtreactiveapp] val rpReactiveLibPlayHttpBindingProject = settingKey[(String, Boolean)]("")
   private[sbtreactiveapp] val rpReactiveLibSecretsProject = settingKey[(String, Boolean)]("")
   private[sbtreactiveapp] val rpReactiveLibServiceDiscoveryProject = settingKey[(String, Boolean)]("")
   private[sbtreactiveapp] val rpReactiveLibStatusProject = settingKey[(String, Boolean)]("")
@@ -369,9 +362,6 @@ trait SbtReactiveAppKeys {
 
   @deprecated("use rpEnableCommon", "1.7.0")
   val enableCommon = rpEnableCommon
-
-  @deprecated("use rpEnablePlayHttpBinding", "1.7.0")
-  val enablePlayHttpBinding = rpEnablePlayHttpBinding
 
   @deprecated("use rpEnableSecrets", "1.7.0")
   val enableSecrets = rpEnableSecrets

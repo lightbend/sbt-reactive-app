@@ -30,8 +30,8 @@ lazy val root = (project in file("."))
       logback,
       scalaTest
     ),
-    enableAkkaClusterBootstrap := true,
-    akkaClusterBootstrapSystemName := "hoboken1",
+    rpEnableAkkaClusterBootstrap := true,
+    rpAkkaClusterBootstrapSystemName := "hoboken1",
 
     // this logic was taken from test.sh
     check := {

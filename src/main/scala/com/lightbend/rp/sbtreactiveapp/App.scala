@@ -81,8 +81,6 @@ sealed trait LagomApp extends App {
 
       rpEnableAkkaClusterBootstrap := magic.Lagom.hasCluster(libraryDependencies.value.toVector),
 
-      rpEnablePlayHttpBinding := true,
-
       rpEnableServiceDiscovery := true,
 
       ivyConfigurations += ApiTools,
@@ -162,10 +160,6 @@ case object PlayApp extends App {
   def projectSettings: Seq[Setting[_]] =
     Vector(
       rpAppType := "play",
-
-      // Note: Play & Lagom need their endpoints defined first (see play-http-binding)
-
-      rpEnablePlayHttpBinding := true,
 
       rpEndpoints := {
         // We don't have any guarantees on plugin order between Play <-> Lagom so we check in both places
@@ -259,7 +253,6 @@ case object BasicApp extends DeployableApp {
       rpEnableAkkaClusterBootstrap := false,
       rpEnableAkkaManagement := rpEnableAkkaClusterBootstrap.value || rpEnableStatus.value,
       rpEnableCommon := true,
-      rpEnablePlayHttpBinding := false,
       rpEnableSecrets := rpSecrets.value.nonEmpty,
       rpEnableServiceDiscovery := rpEnableAkkaClusterBootstrap.value,
       rpEnableStatus := rpEnableAkkaClusterBootstrap.value,
@@ -299,7 +292,6 @@ case object BasicApp extends DeployableApp {
         allDependencies.value ++
         lib(scalaVersion.value, rpReactiveLibAkkaClusterBootstrapProject.value, rpReactiveLibVersion.value, rpEnableAkkaClusterBootstrap.value) ++
         lib(scalaVersion.value, rpReactiveLibCommonProject.value, rpReactiveLibVersion.value, rpEnableCommon.value) ++
-        lib(scalaVersion.value, rpReactiveLibPlayHttpBindingProject.value, rpReactiveLibVersion.value, rpEnablePlayHttpBinding.value) ++
         lib(scalaVersion.value, rpReactiveLibSecretsProject.value, rpReactiveLibVersion.value, rpEnableSecrets.value) ++
         lib(scalaVersion.value, rpReactiveLibServiceDiscoveryProject.value, rpReactiveLibVersion.value, rpEnableServiceDiscovery.value) ++
         lib(scalaVersion.value, rpReactiveLibStatusProject.value, rpReactiveLibVersion.value, rpEnableStatus.value),
@@ -363,7 +355,6 @@ case object BasicApp extends DeployableApp {
         val bootstrapEnabled = rpEnableAkkaClusterBootstrap.value
         val bootstrapSystemName = Some(rpAkkaClusterBootstrapSystemName.value).filter(_.nonEmpty && bootstrapEnabled)
         val commonEnabled = rpEnableCommon.value
-        val playHttpBindingEnabled = rpEnablePlayHttpBinding.value
         val secretsEnabled = rpEnableSecrets.value
         val serviceDiscoveryEnabled = rpEnableServiceDiscovery.value
         val statusEnabled = rpEnableStatus.value
@@ -429,7 +420,6 @@ case object BasicApp extends DeployableApp {
               "akka-cluster-bootstrapping" -> bootstrapEnabled,
               "akka-management" -> akkaManagementEnabled,
               "common" -> commonEnabled,
-              "play-http-binding" -> playHttpBindingEnabled,
               "secrets" -> secretsEnabled,
               "service-discovery" -> serviceDiscoveryEnabled,
               "status" -> statusEnabled),
