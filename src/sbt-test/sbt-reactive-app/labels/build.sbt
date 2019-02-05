@@ -4,15 +4,15 @@ scalaVersion := "2.12.4"
 
 enablePlugins(SbtReactiveAppPlugin)
 
-cpu := 0.5
-memory := 65536
-diskSpace := 32768
-privileged := true
-endpoints := Vector(HttpEndpoint("test1", 2551, HttpIngress(ingressPorts = Seq(80, 443), hosts = Seq("hi.com"), paths = Seq("/test.*$"))))
-environmentVariables := Map(
+rpCpu := 0.5
+rpMemory := 65536
+rpDiskSpace := 32768
+rpPrivileged := true
+rpEndpoints := Vector(HttpEndpoint("test1", 2551, HttpIngress(ingressPorts = Seq(80, 443), hosts = Seq("hi.com"), paths = Seq("/test.*$"))))
+rpEnvironmentVariables := Map(
   "LD_LIBRARY_PATH" -> LiteralEnvironmentVariable("/lib"),
   "HOME" -> LiteralEnvironmentVariable("/home/testing"))
-secrets := Set(Secret("myns1", "key"), Secret("myns2", "otherkey"))
+rpSecrets := Set(Secret("myns1", "key"), Secret("myns2", "otherkey"))
 
 TaskKey[Unit]("check") := {
   val outputDir = (stage in Docker).value

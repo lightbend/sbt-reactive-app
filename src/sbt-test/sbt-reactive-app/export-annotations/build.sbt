@@ -2,7 +2,7 @@ name := "export-annotations"
 scalaVersion := "2.12.4"
 enablePlugins(SbtReactiveAppPlugin)
 
-annotations := Map("es.lightbend.com/scrape" -> "true",
+rpAnnotations := Map("es.lightbend.com/scrape" -> "true",
                    "es.lightbend.com/port" -> "metrics",
                    "es.lightbend.com/path" -> "/metrics")
 

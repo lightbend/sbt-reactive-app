@@ -3,10 +3,10 @@ lazy val root = (project in file("."))
   .settings(
     name := "akka-cluster-bootstrapping-adds-endpoint",
     scalaVersion := "2.11.11",
-    enableAkkaClusterBootstrap := true,
-    akkaClusterBootstrapEndpointName := "my-akka-remote",
+    rpEnableAkkaClusterBootstrap := true,
+    rpAkkaClusterBootstrapEndpointName := "my-akka-remote",
     TaskKey[Unit]("check") := {
-      assert(endpoints.value.contains(TcpEndpoint("my-akka-remote", 2552)))
+      assert(rpEndpoints.value.contains(TcpEndpoint("my-akka-remote", 2552)))
 
       val outputDir = (stage in Docker).value
       val contents = IO.read(outputDir / "Dockerfile")
