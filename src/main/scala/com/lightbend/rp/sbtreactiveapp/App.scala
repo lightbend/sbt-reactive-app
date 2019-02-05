@@ -31,7 +31,7 @@ import Keys._
 import com.typesafe.sbt.packager.docker.DockerSupport
 
 object App {
-  private[sbtreactiveapp] val defaultReactiveLibVersion = "1.7.0-M1"
+  private[sbtreactiveapp] val defaultReactiveLibVersion = "1.7.0"
 
   private val ValidNameChars =
     (('0' to '9') ++ ('A' to 'Z') ++ ('a' to 'z') ++ Seq('-')).toSet
