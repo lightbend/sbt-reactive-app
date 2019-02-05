@@ -321,93 +321,93 @@ trait SbtReactiveAppKeys {
    */
   private[sbtreactiveapp] val rpRequiredAlpinePackages = settingKey[Seq[String]]("")
 
-  @deprecated("use rpAppName", "1.5.0") val appName = rpAppName
-  @deprecated("use rpAppType", "1.5.0") val appType = rpAppType
-  @deprecated("use rpDiskSpace", "1.5.0") val diskSpace = rpDiskSpace
-  @deprecated("use rpMemory", "1.5.0") val memory = rpMemory
+  @deprecated("use rpAppName", "1.7.0") val appName = rpAppName
+  @deprecated("use rpAppType", "1.7.0") val appType = rpAppType
+  @deprecated("use rpDiskSpace", "1.7.0") val diskSpace = rpDiskSpace
+  @deprecated("use rpMemory", "1.7.0") val memory = rpMemory
 
-  @deprecated("use rpEnableCGroupMemoryLimit", "1.5.0")
+  @deprecated("use rpEnableCGroupMemoryLimit", "1.7.0")
   val enableCGroupMemoryLimit = rpEnableCGroupMemoryLimit
 
-  @deprecated("use rpCpu", "1.5.0") val cpu = rpCpu
-  @deprecated("use rpEndpoints", "1.5.0") val endpoints = rpEndpoints
-  @deprecated("use rpPrivileged", "1.5.0") val privileged = rpPrivileged
-  @deprecated("use rpRunAsUser", "1.5.0") val runAsUser = rpRunAsUser
-  @deprecated("use rpRunAsUserGroup", "1.5.0") val runAsUserGroup = rpRunAsUserGroup
-  @deprecated("use rpRunAsUserUID", "1.5.0") val runAsUserUID = rpRunAsUserUID
-  @deprecated("use rpRunAsUserGID", "1.5.0") val runAsUserGID = rpRunAsUserGID
+  @deprecated("use rpCpu", "1.7.0") val cpu = rpCpu
+  @deprecated("use rpEndpoints", "1.7.0") val endpoints = rpEndpoints
+  @deprecated("use rpPrivileged", "1.7.0") val privileged = rpPrivileged
+  @deprecated("use rpRunAsUser", "1.7.0") val runAsUser = rpRunAsUser
+  @deprecated("use rpRunAsUserGroup", "1.7.0") val runAsUserGroup = rpRunAsUserGroup
+  @deprecated("use rpRunAsUserUID", "1.7.0") val runAsUserUID = rpRunAsUserUID
+  @deprecated("use rpRunAsUserGID", "1.7.0") val runAsUserGID = rpRunAsUserGID
 
-  @deprecated("use rpAkkaClusterBootstrapEndpointName", "1.5.0")
+  @deprecated("use rpAkkaClusterBootstrapEndpointName", "1.7.0")
   val akkaClusterBootstrapEndpointName = rpAkkaClusterBootstrapEndpointName
 
-  @deprecated("use rpAkkaClusterBootstrapSystemName", "1.5.0")
+  @deprecated("use rpAkkaClusterBootstrapSystemName", "1.7.0")
   val akkaClusterBootstrapSystemName = rpAkkaClusterBootstrapSystemName
 
-  @deprecated("use rpAkkaManagementEndpointName", "1.5.0")
+  @deprecated("use rpAkkaManagementEndpointName", "1.7.0")
   val akkaManagementEndpointName = rpAkkaManagementEndpointName
 
-  @deprecated("use rpAlpinePackages", "1.5.0") val alpinePackages = rpAlpinePackages
-  @deprecated("use rpApplications", "1.5.0") val applications = rpApplications
-  @deprecated("use rpDeploy", "1.5.0") val deploy = rpDeploy
+  @deprecated("use rpAlpinePackages", "1.7.0") val alpinePackages = rpAlpinePackages
+  @deprecated("use rpApplications", "1.7.0") val applications = rpApplications
+  @deprecated("use rpDeploy", "1.7.0") val deploy = rpDeploy
 
-  @deprecated("use rpDeployMinikubeReactiveSandboxExternalServices", "1.5.0")
+  @deprecated("use rpDeployMinikubeReactiveSandboxExternalServices", "1.7.0")
   val deployMinikubeReactiveSandboxExternalServices = rpDeployMinikubeReactiveSandboxExternalServices
 
-  @deprecated("use rpDeployMinikubeAdditionalExternalServices", "1.5.0")
+  @deprecated("use rpDeployMinikubeAdditionalExternalServices", "1.7.0")
   val deployMinikubeAdditionalExternalServices = rpDeployMinikubeAdditionalExternalServices
 
-  @deprecated("use rpDeployMinikubeAkkaClusterBootstrapContactPoints", "1.5.0")
+  @deprecated("use rpDeployMinikubeAkkaClusterBootstrapContactPoints", "1.7.0")
   val deployMinikubeAkkaClusterBootstrapContactPoints = rpDeployMinikubeAkkaClusterBootstrapContactPoints
 
-  @deprecated("use rpDeployMinikubeEnableReactiveSandbox", "1.5.0")
+  @deprecated("use rpDeployMinikubeEnableReactiveSandbox", "1.7.0")
   val deployMinikubeEnableReactiveSandbox = rpDeployMinikubeEnableReactiveSandbox
 
-  @deprecated("use rpDeployMinikubePlayHostAllowedProperty", "1.5.0")
+  @deprecated("use rpDeployMinikubePlayHostAllowedProperty", "1.7.0")
   val deployMinikubePlayHostAllowedProperty = rpDeployMinikubePlayHostAllowedProperty
 
-  @deprecated("use rpDeployMinikubePlayHttpSecretKeyProperty", "1.5.0")
+  @deprecated("use rpDeployMinikubePlayHttpSecretKeyProperty", "1.7.0")
   val deployMinikubePlayHttpSecretKeyProperty = rpDeployMinikubePlayHttpSecretKeyProperty
 
-  @deprecated("use rpDeployMinikubePlayHttpSecretKeyValue", "1.5.0")
+  @deprecated("use rpDeployMinikubePlayHttpSecretKeyValue", "1.7.0")
   val deployMinikubePlayHttpSecretKeyValue = rpDeployMinikubePlayHttpSecretKeyValue
 
-  @deprecated("use rpDeployMinikubeReactiveSandboxCqlStatements", "1.5.0")
+  @deprecated("use rpDeployMinikubeReactiveSandboxCqlStatements", "1.7.0")
   val deployMinikubeReactiveSandboxCqlStatements = rpDeployMinikubeReactiveSandboxCqlStatements
 
-  @deprecated("use rpDeployMinikubeRpArguments", "1.5.0")
+  @deprecated("use rpDeployMinikubeRpArguments", "1.7.0")
   val deployMinikubeRpArguments = rpDeployMinikubeRpArguments
 
-  @deprecated("use rpHttpIngressHosts", "1.5.0") val httpIngressHosts = rpHttpIngressHosts
-  @deprecated("use rpHttpIngressPaths", "1.5.0") val httpIngressPaths = rpHttpIngressPaths
-  @deprecated("use rpHttpIngressPorts", "1.5.0") val httpIngressPorts = rpHttpIngressPorts
-  @deprecated("use rpEnvironmentVariables", "1.5.0") val environmentVariables = rpEnvironmentVariables
+  @deprecated("use rpHttpIngressHosts", "1.7.0") val httpIngressHosts = rpHttpIngressHosts
+  @deprecated("use rpHttpIngressPaths", "1.7.0") val httpIngressPaths = rpHttpIngressPaths
+  @deprecated("use rpHttpIngressPorts", "1.7.0") val httpIngressPorts = rpHttpIngressPorts
+  @deprecated("use rpEnvironmentVariables", "1.7.0") val environmentVariables = rpEnvironmentVariables
 
-  @deprecated("use rpEnableAkkaClusterBootstrap", "1.5.0")
+  @deprecated("use rpEnableAkkaClusterBootstrap", "1.7.0")
   val enableAkkaClusterBootstrap = rpEnableAkkaClusterBootstrap
 
-  @deprecated("use rpEnableAkkaManagement", "1.5.0")
+  @deprecated("use rpEnableAkkaManagement", "1.7.0")
   val enableAkkaManagement = rpEnableAkkaManagement
 
-  @deprecated("use rpEnableCommon", "1.5.0")
+  @deprecated("use rpEnableCommon", "1.7.0")
   val enableCommon = rpEnableCommon
 
-  @deprecated("use rpEnablePlayHttpBinding", "1.5.0")
+  @deprecated("use rpEnablePlayHttpBinding", "1.7.0")
   val enablePlayHttpBinding = rpEnablePlayHttpBinding
 
-  @deprecated("use rpEnableSecrets", "1.5.0")
+  @deprecated("use rpEnableSecrets", "1.7.0")
   val enableSecrets = rpEnableSecrets
 
-  @deprecated("use rpEnableServiceDiscovery", "1.5.0")
+  @deprecated("use rpEnableServiceDiscovery", "1.7.0")
   val enableServiceDiscovery = rpEnableServiceDiscovery
 
-  @deprecated("use rpEnableStatus", "1.5.0")
+  @deprecated("use rpEnableStatus", "1.7.0")
   val enableStatus = rpEnableStatus
 
-  @deprecated("use rpHelm", "1.5.0") val helm = rpHelm
-  @deprecated("use rpKubectl", "1.5.0") val kubectl = rpKubectl
-  @deprecated("use rpMinikube", "1.5.0") val minikube = rpMinikube
-  @deprecated("use rpPrependRpConf", "1.5.0") val prependRpConf = rpPrependRpConf
-  @deprecated("use rpReactiveLibVersion", "1.5.0") val reactiveLibVersion = rpReactiveLibVersion
-  @deprecated("use rpSecrets", "1.5.0") val secrets = rpSecrets
-  @deprecated("use rpAnnotations", "1.5.0") val annotations = rpAnnotations
+  @deprecated("use rpHelm", "1.7.0") val helm = rpHelm
+  @deprecated("use rpKubectl", "1.7.0") val kubectl = rpKubectl
+  @deprecated("use rpMinikube", "1.7.0") val minikube = rpMinikube
+  @deprecated("use rpPrependRpConf", "1.7.0") val prependRpConf = rpPrependRpConf
+  @deprecated("use rpReactiveLibVersion", "1.7.0") val reactiveLibVersion = rpReactiveLibVersion
+  @deprecated("use rpSecrets", "1.7.0") val secrets = rpSecrets
+  @deprecated("use rpAnnotations", "1.7.0") val annotations = rpAnnotations
 }
