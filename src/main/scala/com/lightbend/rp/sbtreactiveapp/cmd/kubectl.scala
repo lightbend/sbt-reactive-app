@@ -50,7 +50,8 @@ object kubectl {
       run(input = Some(yaml), logStdErr = Some(logger), logStdOut = Some(logger))("kubectl", "apply", "-f", "-")
 
     if (code != 0) {
-      sys.error(s"rp apply failed [$code]")
+      logger.error(s"kubectl apply failed with YAML resources:\n$yaml")
+      sys.error(s"kubectl apply failed [$code]")
     }
   }
 
