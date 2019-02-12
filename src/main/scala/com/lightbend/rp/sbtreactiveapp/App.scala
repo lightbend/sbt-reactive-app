@@ -337,7 +337,7 @@ case object BasicApp extends DeployableApp {
 
       rpPackagingDockerCommmands := {
         val alpinePackagesValue = alpinePackages.value
-        val requiredAlpinePackagesValue = Vector("bash")
+        val requiredAlpinePackagesValue = Vector("bash", "shadow")
         val allAlpinePackages = (alpinePackagesValue ++ requiredAlpinePackagesValue).distinct.sorted
         if (allAlpinePackages.isEmpty)
           Vector.empty
