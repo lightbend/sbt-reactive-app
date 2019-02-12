@@ -4,7 +4,7 @@ import scala.collection.immutable.Seq
 
 val Versions = new {
   val crossSbtVersions = Vector("0.13.18", "1.2.8")
-  val nativePackager   = "1.3.17"
+  val nativePackager   = "1.3.18"
   val playJson         = "2.6.5"
   val scala            = "2.12.8"
   val scalaTest        = "3.0.5"
