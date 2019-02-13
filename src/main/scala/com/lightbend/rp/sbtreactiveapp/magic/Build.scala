@@ -39,7 +39,7 @@ object Build {
     managedConfigNames: Seq[String],
     dependencyClasspath: Seq[Attributed[File]],
     prependInclude: Boolean,
-    unmanagedConfigName: String): Option[String] = {
+    unmanagedConfigName: String): String = {
     val dependencyClassLoader = new java.net.URLClassLoader(dependencyClasspath.files.map(_.toURI.toURL).toArray)
 
     val managedConfigs: List[URL] =
@@ -47,20 +47,14 @@ object Build {
         .flatMap(dependencyClassLoader.findResources(_).asScala)
         .toList
 
-    managedConfigs match {
-      case Nil => None
-      case _ =>
-        Some(
-          annotate(
-            prependInclude,
-            unmanagedConfigName,
-            managedConfigs
-              .foldLeft(Seq.empty[String]) {
-                case (accum, conf) =>
-                  accum :+ withHeader(conf.toString, IO.readLinesURL(conf).mkString(IO.Newline))
-              }
-              .mkString(IO.Newline)))
-    }
+    annotate(
+      prependInclude,
+      unmanagedConfigName,
+      (managedConfigs
+        .foldLeft(Seq.empty[String]) {
+          case (accum, conf) =>
+            accum :+ withHeader(conf.toString, IO.readLinesURL(conf).mkString(IO.Newline))
+        }).mkString(IO.Newline))
   }
 
   def makeConfig(dependencyClasspath: Seq[File]): Config = {

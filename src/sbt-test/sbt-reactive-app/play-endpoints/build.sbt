@@ -36,4 +36,9 @@ TaskKey[Unit]("check") := {
                    |$contents""")
     }
   }
+
+  val rpApplicationConf = resourceManaged.value / "main" / "sbt-reactive-app" / "rp-application.conf"
+  val confContents = augmentString(IO.read(rpApplicationConf)).lines.toList
+  assert(confContents contains """include "application.conf"""", confContents.toString)
+
 }
