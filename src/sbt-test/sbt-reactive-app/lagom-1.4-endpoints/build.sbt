@@ -27,20 +27,19 @@ lazy val `hello-impl` = (project in file("hello-impl"))
   .enablePlugins(LagomScala, SbtReactiveAppPlugin)
   .settings(
     packageName in Docker := "hello-lagom",
-    httpIngressPorts := scala.collection.immutable.Seq(9000),
     libraryDependencies += lagomScaladslCluster,
     check := {
       val outputDir = (stage in Docker).value
       val contents = IO.read(outputDir / "Dockerfile")
       val expectedLines = Seq(
-        """com.lightbend.rp.endpoints.0.protocol="http"""",
-        """com.lightbend.rp.endpoints.0.ingress.0.ingress-ports.0="9000"""",
         """com.lightbend.rp.endpoints.0.name="http"""",
+        """com.lightbend.rp.endpoints.0.protocol="http"""",
+        """com.lightbend.rp.endpoints.0.port="9000"""",
+        """com.lightbend.rp.endpoints.0.ingress.0.paths.0="/api/hello"""",
+        """com.lightbend.rp.endpoints.0.ingress.0.type="http"""",
         """com.lightbend.rp.modules.akka-cluster-bootstrapping.enabled="true"""",
         """com.lightbend.rp.app-type="lagom"""",
-        """com.lightbend.rp.endpoints.0.ingress.0.type="http"""",
         """com.lightbend.rp.app-name="hello"""",
-        """com.lightbend.rp.endpoints.0.ingress.0.paths.0="/api/hello"""",
         """com.lightbend.rp.modules.common.enabled="true"""",
         """com.lightbend.rp.modules.secrets.enabled="false"""",
         """com.lightbend.rp.modules.service-discovery.enabled="true"""",
@@ -65,7 +64,6 @@ lazy val `echo-impl` = (project in file("echo-impl"))
   .enablePlugins(LagomScala, SbtReactiveAppPlugin)
   .settings(
     packageName in Docker := "echo-lagom",
-    httpIngressPorts := scala.collection.immutable.Seq(9000),
     check := {
       val outputDir = (stage in Docker).value
       val contents = IO.readLines(outputDir / "Dockerfile")
