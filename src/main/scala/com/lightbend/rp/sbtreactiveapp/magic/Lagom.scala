@@ -38,8 +38,14 @@ object Lagom {
     }
   }
 
-  def endpoints(classPath: Seq[Attributed[File]], scalaLoader: ClassLoader, ports: Seq[Int], hosts: Seq[String], paths: Seq[String]): Option[Seq[Endpoint]] =
-    services(classPath, scalaLoader).map(decodeServices(_, ports, hosts, paths))
+  def endpoints(
+    classPath: Seq[Attributed[File]],
+    scalaLoader: ClassLoader,
+    servicePort: Int,
+    ingressPorts: Seq[Int],
+    ingressHosts: Seq[String],
+    ingressPaths: Seq[String]): Option[Seq[Endpoint]] =
+    services(classPath, scalaLoader).map(decodeServices(_, servicePort, ingressPorts, ingressHosts, ingressPaths))
 
   def hasCluster(libraryDependencies: Seq[ModuleID]): Boolean = {
     // we can't inspect all transitive dependencies because the entire class path can't be calculated until
@@ -102,21 +108,26 @@ object Lagom {
     }
   }
 
-  private def decodeServices(services: String, ports: Seq[Int], hosts: Seq[String], paths: Seq[String]): Seq[HttpEndpoint] = {
+  private def decodeServices(
+    services: String,
+    servicePort: Int,
+    ingressPorts: Seq[Int],
+    ingresHosts: Seq[String],
+    ingressPaths: Seq[String]): Seq[HttpEndpoint] = {
     def toEndpoint(serviceName: String, pathBegins: Seq[String]): HttpEndpoint = {
       // If we're provided an explicit path listing, use that instead. A future improvement would be to
       // move path autodetection to a separate task
 
       val pathsToUse =
-        if (paths.nonEmpty)
-          paths
+        if (ingressPaths.nonEmpty)
+          ingressPaths
         else
           pathBegins.distinct.filter(_.nonEmpty)
 
       if (pathsToUse.nonEmpty)
-        HttpEndpoint(serviceName, HttpIngress(ports, hosts, pathsToUse))
+        HttpEndpoint(serviceName, servicePort, HttpIngress(ingressPorts, ingresHosts, pathsToUse))
       else
-        HttpEndpoint(serviceName)
+        HttpEndpoint(serviceName, servicePort)
     }
 
     def mergeEndpoint(endpoints: Seq[HttpEndpoint], endpointEntry: HttpEndpoint): Seq[HttpEndpoint] = {

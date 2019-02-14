@@ -95,11 +95,14 @@ sealed trait LagomApp extends App {
         val ingressHosts = rpHttpIngressHosts.value
         val ingressPaths = rpHttpIngressPaths.value
         val endpointName = name.value
+        val config = rpApplicationConfig.value
+        val servicePort = config.getInt("play.server.http.port")
 
         val magicEndpoints =
           magic.Lagom.endpoints(
             ((managedClasspath in ApiTools).value ++ (fullClasspath in Compile).value).toVector,
             scalaInstance.value.loader,
+            servicePort,
             ingressPorts.toVector,
             ingressHosts.toVector,
             ingressPaths.toVector)
@@ -110,9 +113,9 @@ sealed trait LagomApp extends App {
         if (magicEndpoints.nonEmpty)
           magicEndpoints
         else if (ingressPaths.nonEmpty)
-          Vector(HttpEndpoint(endpointName, HttpIngress(ingressPorts, ingressHosts, ingressPaths)))
+          Vector(HttpEndpoint(endpointName, servicePort, HttpIngress(ingressPorts, ingressHosts, ingressPaths)))
         else
-          Vector(HttpEndpoint(endpointName))
+          Vector(HttpEndpoint(endpointName, servicePort))
       },
 
       // Note: Play & Lagom need their endpoints defined first (see play-http-binding)
@@ -210,7 +213,7 @@ case object BasicApp extends DeployableApp {
       rpAkkaManagementEndpointName := "management",
       rpHttpIngressHosts := Seq.empty,
       rpHttpIngressPaths := Seq.empty,
-      rpHttpIngressPorts := Seq(80, 443))
+      rpHttpIngressPorts := Seq.empty)
 
   def buildSettings: Seq[Setting[_]] =
     Vector(
