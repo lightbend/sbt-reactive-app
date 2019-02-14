@@ -35,6 +35,12 @@ case class HttpIngress(ingressPorts: Seq[Int], hosts: Seq[String], paths: Seq[St
 }
 
 object HttpIngress {
+  def apply(paths: DefaultSeq[String]): HttpIngress =
+    new HttpIngress(Vector.empty, Vector.empty, paths.toVector)
+
+  def apply(hosts: DefaultSeq[String], paths: DefaultSeq[String]): HttpIngress =
+    new HttpIngress(Vector.empty, hosts.toVector, paths.toVector)
+
   def apply(ingressPorts: DefaultSeq[Int], hosts: DefaultSeq[String], paths: DefaultSeq[String]): HttpIngress =
     new HttpIngress(ingressPorts.toVector, hosts.toVector, paths.toVector)
 }

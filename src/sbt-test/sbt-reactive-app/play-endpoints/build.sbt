@@ -7,7 +7,6 @@ lazy val root = (project in file("."))
   .enablePlugins(PlayScala, SbtReactiveAppPlugin)
   .settings(
     packageName in Docker := "hello-play",
-    rpHttpIngressPorts := Seq(9000),
     rpHttpIngressPaths := Seq("/")
   )
 
@@ -17,7 +16,6 @@ TaskKey[Unit]("check") := {
   val lines = Seq(
     """com.lightbend.rp.sbt-reactive-app-version=""",
     """com.lightbend.rp.endpoints.0.protocol="http"""",
-    """com.lightbend.rp.endpoints.0.ingress.0.ingress-ports.0="9000"""",
     """com.lightbend.rp.endpoints.0.ingress.0.type="http"""",
     """com.lightbend.rp.endpoints.0.ingress.0.paths.0="/"""",
     """com.lightbend.rp.endpoints.0.name="http"""",
