@@ -21,10 +21,10 @@ import sbt.AutoPlugin
 import scala.language.reflectiveCalls
 import scala.util.Try
 
-object Play {
+object Play27 {
   def playPlugin(classLoader: ClassLoader): Try[AutoPlugin] =
     withContextClassloader(classLoader) { loader =>
-      getSingletonObject[AutoPlugin](loader, "play.sbt.Play$")
+      getSingletonObject[AutoPlugin](loader, "play.sbt.PlayWeb$")
     }
 
   def version: Option[String] = {

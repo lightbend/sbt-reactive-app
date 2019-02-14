@@ -136,14 +136,14 @@ object SbtReactiveAppLagomJavaPlugin extends AutoPlugin {
   override def projectSettings = LagomJavaApp.projectSettings
 }
 
-object SbtReactiveAppPlayLagomScalaPlugin extends AutoPlugin {
+object SbtReactiveAppPlay26LagomScalaPlugin extends AutoPlugin {
   private val classLoader = this.getClass.getClassLoader
 
   override def requires =
     magic
       .Lagom
       .lagomPlayScalaPlugin(classLoader)
-      .flatMap(lagom => magic.Play.playPlugin(classLoader).map(play => Seq(lagom, play))) match {
+      .flatMap(lagom => magic.Play26.playPlugin(classLoader).map(play => Seq(lagom, play))) match {
         case Success(plugins) => plugins.foldLeft[Plugins](SbtReactiveAppPlugin)(_ && _)
         case Failure(_) => NoOpPlugin
       }
@@ -153,14 +153,31 @@ object SbtReactiveAppPlayLagomScalaPlugin extends AutoPlugin {
   override def projectSettings = LagomPlayScalaApp.projectSettings
 }
 
-object SbtReactiveAppPlayLagomJavaPlugin extends AutoPlugin {
+object SbtReactiveAppPlay27LagomScalaPlugin extends AutoPlugin {
+  private val classLoader = this.getClass.getClassLoader
+
+  override def requires =
+    magic
+      .Lagom
+      .lagomPlayScalaPlugin(classLoader)
+      .flatMap(lagom => magic.Play27.playPlugin(classLoader).map(play => Seq(lagom, play))) match {
+        case Success(plugins) => plugins.foldLeft[Plugins](SbtReactiveAppPlugin)(_ && _)
+        case Failure(_) => NoOpPlugin
+      }
+
+  override def trigger = allRequirements
+
+  override def projectSettings = LagomPlayScalaApp.projectSettings
+}
+
+object SbtReactiveAppPlay26LagomJavaPlugin extends AutoPlugin {
   private val classLoader = this.getClass.getClassLoader
 
   override def requires =
     magic
       .Lagom
       .lagomPlayJavaPlugin(classLoader)
-      .flatMap(lagom => magic.Play.playPlugin(classLoader).map(play => Seq(lagom, play))) match {
+      .flatMap(lagom => magic.Play26.playPlugin(classLoader).map(play => Seq(lagom, play))) match {
         case Success(plugins) => plugins.foldLeft[Plugins](SbtReactiveAppPlugin)(_ && _)
         case Failure(_) => NoOpPlugin
       }
@@ -170,10 +187,40 @@ object SbtReactiveAppPlayLagomJavaPlugin extends AutoPlugin {
   override def projectSettings = LagomPlayJavaApp.projectSettings
 }
 
-object SbtReactiveAppPlayPlugin extends AutoPlugin {
+object SbtReactiveAppPlay27LagomJavaPlugin extends AutoPlugin {
   private val classLoader = this.getClass.getClassLoader
 
-  override def requires = magic.Play.playPlugin(classLoader) match {
+  override def requires =
+    magic
+      .Lagom
+      .lagomPlayJavaPlugin(classLoader)
+      .flatMap(lagom => magic.Play27.playPlugin(classLoader).map(play => Seq(lagom, play))) match {
+        case Success(plugins) => plugins.foldLeft[Plugins](SbtReactiveAppPlugin)(_ && _)
+        case Failure(_) => NoOpPlugin
+      }
+
+  override def trigger = allRequirements
+
+  override def projectSettings = LagomPlayJavaApp.projectSettings
+}
+
+object SbtReactiveAppPlay26Plugin extends AutoPlugin {
+  private val classLoader = this.getClass.getClassLoader
+
+  override def requires = magic.Play26.playPlugin(classLoader) match {
+    case Success(plugin) => SbtReactiveAppPlugin && plugin
+    case Failure(_) => NoOpPlugin
+  }
+
+  override def trigger = allRequirements
+
+  override def projectSettings = PlayApp.projectSettings
+}
+
+object SbtReactiveAppPlay27Plugin extends AutoPlugin {
+  private val classLoader = this.getClass.getClassLoader
+
+  override def requires = magic.Play27.playPlugin(classLoader) match {
     case Success(plugin) => SbtReactiveAppPlugin && plugin
     case Failure(_) => NoOpPlugin
   }
