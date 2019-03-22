@@ -80,6 +80,8 @@ sealed trait LagomApp extends App {
       rpAppType := "lagom",
 
       rpEnableAkkaClusterBootstrap := magic.Lagom.hasCluster(libraryDependencies.value.toVector),
+      rpDetectedLagomJavaVersion := magic.Lagom.detectedLagomJavaVersion(libraryDependencies.value.toVector),
+      rpDetectedLagomScalaVersion := magic.Lagom.detectedLagomScalaVersion(libraryDependencies.value.toVector),
 
       rpEnableServiceDiscovery := true,
 
@@ -201,6 +203,14 @@ case object BasicApp extends DeployableApp {
       rpEnvironmentVariables := Map.empty,
       rpSecrets := Set.empty,
       rpReactiveLibVersion := App.defaultReactiveLibVersion,
+      rpDetectedLagomJavaVersion := None,
+      rpDetectedLagomScalaVersion := None,
+      rpLagomJavaExtras := Vector(
+        "com.lightbend.lagom" %% "lagom-javadsl-akka-discovery-service-locator" % "1.0.0",
+        "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % "1.0.0"),
+      rpLagomScalaExtras := Vector(
+        "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % "1.0.0",
+        "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % "1.0.0"),
       rpReactiveLibAkkaClusterBootstrapProject := "reactive-lib-akka-cluster-bootstrap" -> true,
       rpReactiveLibCommonProject := "reactive-lib-common" -> true,
       rpReactiveLibSecretsProject := "reactive-lib-secrets" -> true,
@@ -292,13 +302,22 @@ case object BasicApp extends DeployableApp {
       mappings in (Compile, packageBin) +=
         (resourceManaged in Compile).value / "sbt-reactive-app" / LocalApplicationConfig -> LocalApplicationConfig,
 
-      allDependencies :=
-        allDependencies.value ++
-        lib(scalaVersion.value, rpReactiveLibAkkaClusterBootstrapProject.value, rpReactiveLibVersion.value, rpEnableAkkaClusterBootstrap.value) ++
-        lib(scalaVersion.value, rpReactiveLibCommonProject.value, rpReactiveLibVersion.value, rpEnableCommon.value) ++
-        lib(scalaVersion.value, rpReactiveLibSecretsProject.value, rpReactiveLibVersion.value, rpEnableSecrets.value) ++
-        lib(scalaVersion.value, rpReactiveLibServiceDiscoveryProject.value, rpReactiveLibVersion.value, rpEnableServiceDiscovery.value) ++
-        lib(scalaVersion.value, rpReactiveLibStatusProject.value, rpReactiveLibVersion.value, rpEnableStatus.value),
+      allDependencies := {
+        val old = allDependencies.value
+        val ljvo = rpDetectedLagomJavaVersion.value
+        val lsvo = rpDetectedLagomScalaVersion.value
+        val lagom14 = old ++
+          lib(scalaVersion.value, rpReactiveLibAkkaClusterBootstrapProject.value, rpReactiveLibVersion.value, rpEnableAkkaClusterBootstrap.value) ++
+          lib(scalaVersion.value, rpReactiveLibCommonProject.value, rpReactiveLibVersion.value, rpEnableCommon.value) ++
+          lib(scalaVersion.value, rpReactiveLibSecretsProject.value, rpReactiveLibVersion.value, rpEnableSecrets.value) ++
+          lib(scalaVersion.value, rpReactiveLibServiceDiscoveryProject.value, rpReactiveLibVersion.value, rpEnableServiceDiscovery.value) ++
+          lib(scalaVersion.value, rpReactiveLibStatusProject.value, rpReactiveLibVersion.value, rpEnableStatus.value)
+        val lagomJava15 = old ++ rpLagomJavaExtras.value
+        val lagomScala15 = old ++ rpLagomScalaExtras.value
+        if ((ljvo.orElse(lsvo) == None) || ljvo.exists(_.startsWith("1.4.")) || lsvo.exists(_.startsWith("1.4."))) lagom14
+        else if (ljvo.isDefined) lagomJava15
+        else lagomScala15
+      },
 
       rpApplicationConfig := {
         val cp = (fullClasspath in Compile).value.toList.map(_.data)

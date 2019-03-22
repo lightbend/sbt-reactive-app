@@ -195,6 +195,12 @@ trait SbtReactiveAppKeys {
    */
   val rpEnableAkkaClusterBootstrap = taskKey[Boolean]("Include Akka Cluster Bootstrapping. By default, included if a Lagom persistence module is defined.")
 
+  val rpDetectedLagomJavaVersion = settingKey[Option[String]]("Detected Lagom Java version.")
+  val rpDetectedLagomScalaVersion = settingKey[Option[String]]("Detected Lagom Scala version.")
+
+  val rpLagomJavaExtras = settingKey[Seq[ModuleID]]("Extra modules to inject into Lagom Java application.")
+  val rpLagomScalaExtras = settingKey[Seq[ModuleID]]("Extra modules to inject into Lagom Scala application.")
+
   /**
    * Enables Akka Management (reactive-lib).
    *

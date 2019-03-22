@@ -58,6 +58,20 @@ object Lagom {
         d.name.contains("-persistence") || d.name.contains("-pubsub") || d.name.contains("-cluster")))
   }
 
+  def detectedLagomJavaVersion(libraryDependencies: Seq[ModuleID]): Option[String] = {
+    libraryDependencies.find(d =>
+      d.organization == "com.lightbend.lagom" && (
+        d.name.contains("lagom-javadsl-server")))
+      .map(_.revision)
+  }
+
+  def detectedLagomScalaVersion(libraryDependencies: Seq[ModuleID]): Option[String] = {
+    libraryDependencies.find(d =>
+      d.organization == "com.lightbend.lagom" && (
+        d.name.contains("lagom-scaladsl-server")))
+      .map(_.revision)
+  }
+
   def lagomJavaPlugin(classLoader: ClassLoader): Try[AutoPlugin] =
     withContextClassloader(classLoader) { loader =>
       getSingletonObject[AutoPlugin](loader, "com.lightbend.lagom.sbt.LagomJava$")
