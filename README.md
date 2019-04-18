@@ -7,6 +7,12 @@ This project is a component of [Lightbend Orchestration](https://developer.light
 It implements an SBT plugin that uses [sbt Native Packager](https://github.com/sbt/sbt-native-packager) and
 reflection to build Docker images. Images produced by this plugin can be used with a CLI tool, [reactive-cli](https://github.com/lightbend/reactive-cli), to create resources for Kubernetes and potentially other target platforms.
 
+## Project Status
+
+Lightbend Orchestration is no longer actively developed and will reach its [End of Life](https://developer.lightbend.com/docs/lightbend-platform/2.0/support-terminology/index.html#end-of-life-eol-) on April 15, 2020.
+
+We recommend [Migrating to the Improved Kubernetes Deployment Experience](https://developer.lightbend.com/docs/lightbend-orchestration/current/migration.html).
+
 ## Usage
 
 Consult the [Lightbend Orchestration](https://developer.lightbend.com/docs/lightbend-orchestration/current/) documentation for setup and configuration.
@@ -20,10 +26,6 @@ Consult the [Lightbend Orchestration](https://developer.lightbend.com/docs/light
 ## Release
 
 Consult "Lightbend Orchestration Release Process" on Google Drive
-
-## Maintenance
-
-Enterprise Suite Platform Team <es-platform@lightbend.com>
 
 ## License
 
